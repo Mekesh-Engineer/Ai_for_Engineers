@@ -1,0 +1,69 @@
+======================================================================
+LINEAR REGRESSION — PERFORMANCE REPORT
+Generated: 2026-06-09 20:30:57
+======================================================================
+
+── Configuration ──
+  Dataset          : California Housing
+  Test size        : 0.2
+  Scaling          : StandardScaler
+  CV folds         : 5
+  Random seed      : 42
+  Outlier method   : IQR
+
+── Simple Linear Regression ──
+  Feature : MedInc
+  Slope   : 0.589195
+  Intercept: 1.916055
+
+  [TRAIN]
+    R2    : 0.398140
+    MSE   : 0.524780
+    RMSE  : 0.724417
+    MAE   : 0.559745
+
+  [TEST]
+    R2    : 0.396287
+    MSE   : 0.505491
+    RMSE  : 0.710979
+    MAE   : 0.548942
+
+  Cross-Validation R² : 0.397752 ± 0.017092
+  Residual skewness   : 0.9273
+  Residual kurtosis   : 1.1768
+
+── Multiple Linear Regression ──
+  Intercept: 1.916055
+  Coefficients:
+    Latitude       : -0.837188
+    Longitude      : -0.781149
+    MedInc         : +0.641590
+    AveOccup       : -0.226757
+    HouseAge       : +0.128040
+    AveRooms       : -0.126484
+    AveBedrms      : +0.084071
+    Population     : +0.049561
+
+  [TRAIN]
+    R2    : 0.642048
+    MSE   : 0.312109
+    RMSE  : 0.558667
+    MAE   : 0.424000
+
+  [TEST]
+    R2    : 0.624179
+    MSE   : 0.314676
+    RMSE  : 0.560960
+    MAE   : 0.424568
+
+  Cross-Validation R² : 0.641349 ± 0.018357
+  Residual skewness   : 0.6814
+  Residual kurtosis   : 1.7365
+
+── Summary Comparison ──
+  Simple LR test R²   : 0.396287
+  Multiple LR test R² : 0.624179
+  R² improvement      : +0.227892 (57.5%)
+  → Multiple LR outperforms Simple LR as expected.
+
+======================================================================

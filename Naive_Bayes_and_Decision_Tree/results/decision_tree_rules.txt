@@ -1,0 +1,19 @@
+|--- Outlook <= 0.50
+|   |--- weights: [0.00, 54.00] class: Yes
+|--- Outlook >  0.50
+|   |--- Wind <= 0.50
+|   |   |--- Outlook <= 1.50
+|   |   |   |--- weights: [27.00, 0.00] class: No
+|   |   |--- Outlook >  1.50
+|   |   |   |--- Humidity <= 0.50
+|   |   |   |   |--- weights: [7.00, 0.00] class: No
+|   |   |   |--- Humidity >  0.50
+|   |   |   |   |--- weights: [0.00, 8.00] class: Yes
+|   |--- Wind >  0.50
+|   |   |--- Outlook <= 1.50
+|   |   |   |--- weights: [0.00, 25.00] class: Yes
+|   |   |--- Outlook >  1.50
+|   |   |   |--- Humidity <= 0.50
+|   |   |   |   |--- weights: [16.00, 0.00] class: No
+|   |   |   |--- Humidity >  0.50
+|   |   |   |   |--- weights: [0.00, 11.00] class: Yes

@@ -1,0 +1,54 @@
+{
+    "project": {
+        "name": "Linear Regression - Housing Price Prediction",
+        "version": "1.0.0",
+        "experiment_id": "EXP-001",
+        "description": "Simple and Multiple Linear Regression on California Housing Dataset",
+        "author": "AI & ML Lab",
+        "created_date": "2026-06-09"
+    },
+    "data": {
+        "dataset_name": "California Housing",
+        "source": "sklearn.datasets.fetch_california_housing",
+        "target_column": "MedHouseVal",
+        "feature_columns": [
+            "MedInc", "HouseAge", "AveRooms", "AveBedrms",
+            "Population", "AveOccup", "Latitude", "Longitude"
+        ],
+        "simple_regression_feature": "MedInc",
+        "raw_data_path": "data/raw/housing_data.csv",
+        "processed_data_path": "data/processed/cleaned_housing_data.csv"
+    },
+    "preprocessing": {
+        "missing_value_strategy": "median",
+        "outlier_method": "IQR",
+        "outlier_iqr_multiplier": 1.5,
+        "scaling_method": "StandardScaler",
+        "correlation_threshold": 0.90
+    },
+    "training": {
+        "test_size": 0.2,
+        "random_seed": 42,
+        "cross_validation_folds": 5,
+        "polynomial_degree": 2
+    },
+    "model": {
+        "simple_lr_save_path": "models/simple_lr_model.joblib",
+        "multiple_lr_save_path": "models/multiple_lr_model.joblib",
+        "scaler_save_path": "models/scaler.joblib"
+    },
+    "output": {
+        "results_dir": "results",
+        "plots_dir": "results/plots",
+        "metrics_file": "results/performance_metrics.txt",
+        "predictions_file": "results/predictions.csv",
+        "comparison_file": "results/model_comparison.csv"
+    },
+    "visualization": {
+        "figure_size": [10, 6],
+        "dpi": 150,
+        "style": "seaborn-v0_8-whitegrid",
+        "color_palette": "viridis",
+        "save_format": "png"
+    }
+}

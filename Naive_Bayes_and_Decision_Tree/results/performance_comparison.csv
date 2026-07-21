@@ -1,0 +1,3 @@
+Model,Accuracy,Precision,Recall,F1-Score,Specificity,ROC-AUC
+Gaussian Naïve Bayes (Tuned),0.8438,0.8484,0.8438,0.8452,0.8182,0.9069
+Decision Tree (Tuned),1.0,1.0,1.0,1.0,1.0,1.0

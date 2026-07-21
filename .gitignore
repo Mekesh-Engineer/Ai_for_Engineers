@@ -1,0 +1,3 @@
+# Large media files exceeding GitHub's 100MB single-file limit
+*.mp4
+Tutorial_video.mp4

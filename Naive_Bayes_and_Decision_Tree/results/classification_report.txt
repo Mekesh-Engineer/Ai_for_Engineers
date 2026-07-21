@@ -1,0 +1,33 @@
+============================================================
+CLASSIFICATION PERFORMANCE COMPARISON
+============================================================
+
+                              Accuracy  Precision  Recall  F1-Score  Specificity  ROC-AUC
+Model                                                                                    
+Gaussian Naïve Bayes (Tuned)    0.8438     0.8484  0.8438    0.8452       0.8182   0.9069
+Decision Tree (Tuned)           1.0000     1.0000  1.0000    1.0000       1.0000   1.0000
+
+============================================================
+Gaussian Naïve Bayes (Tuned) — Full Classification Report
+============================================================
+              precision    recall  f1-score   support
+
+          No       0.75      0.82      0.78        22
+         Yes       0.90      0.86      0.88        42
+
+    accuracy                           0.84        64
+   macro avg       0.82      0.84      0.83        64
+weighted avg       0.85      0.84      0.85        64
+
+============================================================
+Decision Tree (Tuned) — Full Classification Report
+============================================================
+              precision    recall  f1-score   support
+
+          No       1.00      1.00      1.00        22
+         Yes       1.00      1.00      1.00        42
+
+    accuracy                           1.00        64
+   macro avg       1.00      1.00      1.00        64
+weighted avg       1.00      1.00      1.00        64
+
