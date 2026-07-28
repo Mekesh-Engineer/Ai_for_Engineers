@@ -1,0 +1,41 @@
+{
+  "data": {
+    "dataset": "iris",
+    "raw_path": "data/raw/iris.csv",
+    "processed_path": "data/processed/scaled_iris.csv"
+  },
+  "preprocessing": {
+    "scaler": "StandardScaler",
+    "handle_missing": "mean_imputation",
+    "outlier_method": "IQR"
+  },
+  "model": {
+    "algorithm": "KMeans",
+    "init": "k-means++",
+    "k_range_min": 2,
+    "k_range_max": 10,
+    "max_iter": 300,
+    "tol": 1e-4,
+    "n_init": 10,
+    "random_seed": 42
+  },
+  "pca": {
+    "n_components_2d": 2,
+    "n_components_3d": 3
+  },
+  "gap_statistic": {
+    "n_references": 10,
+    "max_k": 10
+  },
+  "output": {
+    "model_path": "models/kmeans_model.pkl",
+    "results_dir": "results/",
+    "elbow_plot": "results/elbow_plot.png",
+    "silhouette_plot": "results/silhouette_plot.png",
+    "cluster_2d_plot": "results/cluster_visualization_2d.png",
+    "cluster_3d_plot": "results/cluster_visualization_3d.png",
+    "cluster_centers_csv": "results/cluster_centers.csv",
+    "cluster_labels_csv": "results/cluster_labels.csv",
+    "report_txt": "results/clustering_report.txt"
+  }
+}
