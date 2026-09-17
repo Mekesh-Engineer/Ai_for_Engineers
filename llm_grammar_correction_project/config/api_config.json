@@ -1,0 +1,19 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8000,
+    "cors_origins": ["*"],
+    "reload": false
+  },
+  "ollama": {
+    "base_url": "http://localhost:11434",
+    "timeout_seconds": 60,
+    "default_model": "qwen2.5:7b"
+  },
+  "security": {
+    "max_upload_size_mb": 25,
+    "allowed_file_extensions": [
+      ".txt", ".md", ".py", ".js", ".ts", ".html", ".css", ".json", ".yaml", ".yml", ".csv", ".pdf", ".docx", ".c", ".cpp"
+    ]
+  }
+}

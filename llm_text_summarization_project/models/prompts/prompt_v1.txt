@@ -1,0 +1,8 @@
+You are an expert summarization assistant. 
+Please provide a concise, coherent summary of the following document in 2 to 3 sentences. 
+Capture the main objective and primary outcome without adding any outside knowledge.
+
+Document:
+{document}
+
+Summary:

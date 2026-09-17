@@ -1,0 +1,53 @@
+{
+  "dataset": {
+    "name": "Household_Energy_Consumption_Time_Series",
+    "raw_csv_path": "data/raw/household_energy_consumption.csv",
+    "processed_dir": "data/processed",
+    "target_column": "Energy_Consumption_kWh",
+    "time_column": "Datetime",
+    "num_samples": 2160,
+    "train_split": 0.8,
+    "val_split": 0.1,
+    "test_split": 0.1
+  },
+  "preprocessing": {
+    "feature_range": [0, 1],
+    "scaling_method": "minmax"
+  },
+  "sequence": {
+    "lookback_window": 24,
+    "lookahead_horizon": 1,
+    "stride": 1
+  },
+  "model": {
+    "name": "Stacked_Vanilla_RNN_Regressor",
+    "input_dim": 1,
+    "rnn_units_layer1": 64,
+    "rnn_units_layer2": 32,
+    "dropout_rate": 0.2,
+    "output_dim": 1
+  },
+  "training": {
+    "batch_size": 32,
+    "epochs": 60,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "optimizer": "adam",
+    "loss_function": "mse",
+    "early_stopping_patience": 12,
+    "random_seed": 42
+  },
+  "output": {
+    "model_path": "models/rnn_model.pt",
+    "results_dir": "results/",
+    "training_history_plot": "results/training_history.png",
+    "predictions_plot": "results/predictions_vs_actual.png",
+    "error_analysis_plot": "results/error_analysis.png",
+    "autocorrelation_plot": "results/autocorrelation_plot.png",
+    "forecast_future_plot": "results/forecast_future.png",
+    "test_case_plot": "results/test_case_verification.png",
+    "predictions_csv": "results/predictions.csv",
+    "metrics_report_txt": "results/metrics_report.txt"
+  }
+}
+

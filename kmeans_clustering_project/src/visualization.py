@@ -32,22 +32,22 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 # ── Global style ──────────────────────────────────────────────────────────────
 PALETTE  = ["#6C63FF", "#FF6584", "#43CBFF", "#F7971E", "#a8ff78",
             "#f953c6", "#4facfe", "#00f2fe", "#43e97b", "#fa709a"]
-BG_DARK  = "#0F1117"
-FG_LIGHT = "#E8E8F0"
-GRID_CLR = "#2A2D3E"
+BG_WHITE = "#FFFFFF"
+FG_DARK  = "#222222"
+GRID_CLR = "#E0E0E0"
 
 plt.rcParams.update({
-    "figure.facecolor":  BG_DARK,
-    "axes.facecolor":    "#1A1D2E",
+    "figure.facecolor":  BG_WHITE,
+    "axes.facecolor":    BG_WHITE,
     "axes.edgecolor":    GRID_CLR,
-    "axes.labelcolor":   FG_LIGHT,
-    "axes.titlecolor":   FG_LIGHT,
-    "text.color":        FG_LIGHT,
-    "xtick.color":       FG_LIGHT,
-    "ytick.color":       FG_LIGHT,
+    "axes.labelcolor":   FG_DARK,
+    "axes.titlecolor":   FG_DARK,
+    "text.color":        FG_DARK,
+    "xtick.color":       FG_DARK,
+    "ytick.color":       FG_DARK,
     "grid.color":        GRID_CLR,
     "grid.linewidth":    0.5,
-    "legend.facecolor":  "#1A1D2E",
+    "legend.facecolor":  BG_WHITE,
     "legend.edgecolor":  GRID_CLR,
     "font.family":       "DejaVu Sans",
     "figure.dpi":        150,
@@ -83,7 +83,7 @@ def plot_elbow_curve(
     ax.annotate(f"  k = {optimal_k}\n  Inertia = {inertias[idx]:.2f}",
                 xy=(optimal_k, inertias[idx]),
                 xytext=(optimal_k + 0.4, inertias[idx] * 1.05),
-                color=FG_LIGHT, fontsize=10,
+                color=FG_DARK, fontsize=10,
                 arrowprops=dict(arrowstyle="->", color=PALETTE[1]))
 
     # Fill under curve
@@ -134,7 +134,7 @@ def plot_silhouette_scores(
     ax.grid(True, axis="y", alpha=0.4)
     for bar, score in zip(bars, silhouette_scores):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.008,
-                f"{score:.3f}", ha="center", va="bottom", fontsize=8.5, color=FG_LIGHT)
+                f"{score:.3f}", ha="center", va="bottom", fontsize=8.5, color=FG_DARK)
 
     # ── Right: per-sample silhouette for optimal k ──
     ax2 = axes[1]
@@ -150,10 +150,10 @@ def plot_silhouette_scores(
         ax2.fill_betweenx(np.arange(y_lower, y_upper), 0, cluster_sil,
                           facecolor=color, edgecolor=color, alpha=0.85)
         ax2.text(-0.05, y_lower + size_i / 2, f"C{i}", fontsize=9,
-                 color=FG_LIGHT, va="center")
+                 color=FG_DARK, va="center")
         y_lower = y_upper + 10
 
-    ax2.axvline(x=silhouette_score(X, labels), color="white",
+    ax2.axvline(x=silhouette_score(X, labels), color=FG_DARK,
                 linestyle="--", linewidth=1.5, label="Average")
     ax2.set_title(f"Per-Sample Silhouette (k={k})", fontsize=13, pad=12)
     ax2.set_xlabel("Silhouette Coefficient", fontsize=11)
@@ -162,7 +162,7 @@ def plot_silhouette_scores(
     ax2.legend(fontsize=9)
     ax2.grid(True, axis="x", alpha=0.4)
 
-    fig.suptitle("Silhouette Analysis", fontsize=15, y=1.02, color=FG_LIGHT)
+    fig.suptitle("Silhouette Analysis", fontsize=15, y=1.02, color=FG_DARK)
     fig.tight_layout()
     os.makedirs(os.path.dirname(save_path) if os.path.dirname(save_path) else ".", exist_ok=True)
     fig.savefig(save_path, bbox_inches="tight")
@@ -292,8 +292,8 @@ def visualize_clusters_3d(
 
     fig = plt.figure(figsize=(11, 8))
     ax  = fig.add_subplot(111, projection="3d")
-    ax.set_facecolor("#1A1D2E")
-    fig.patch.set_facecolor(BG_DARK)
+    ax.set_facecolor(BG_WHITE)
+    fig.patch.set_facecolor(BG_WHITE)
 
     for i in range(optimal_k):
         mask = labels == i
@@ -311,12 +311,12 @@ def visualize_clusters_3d(
     ax.set_title(
         f"K-Means Clusters — PCA 3D Projection  (k={optimal_k})\n"
         f"Total explained variance: {sum(ev[:3]):.1%}",
-        fontsize=12, pad=14, color=FG_LIGHT,
+        fontsize=12, pad=14, color=FG_DARK,
     )
     ax.set_xlabel(f"PC1 ({ev[0]:.1%})", fontsize=9, labelpad=6)
     ax.set_ylabel(f"PC2 ({ev[1]:.1%})", fontsize=9, labelpad=6)
     ax.set_zlabel(f"PC3 ({ev[2]:.1%})", fontsize=9, labelpad=6)
-    ax.tick_params(colors=FG_LIGHT, labelsize=7)
+    ax.tick_params(colors=FG_DARK, labelsize=7)
     ax.xaxis.pane.fill = False
     ax.yaxis.pane.fill = False
     ax.zaxis.pane.fill = False
@@ -349,30 +349,28 @@ def plot_feature_pairs(
 
     cluster_palette = {f"Cluster {i}": PALETTE[i] for i in range(optimal_k)}
 
-    # Override seaborn dark theme to match project style
-    with plt.style.context("dark_background"):
-        g = sns.pairplot(
-            df_plot,
-            hue="Cluster",
-            palette=cluster_palette,
-            plot_kws={"alpha": 0.72, "s": 35, "edgecolor": "white", "linewidth": 0.2},
-            diag_kws={"alpha": 0.60},
-            corner=False,
-        )
+    g = sns.pairplot(
+        df_plot,
+        hue="Cluster",
+        palette=cluster_palette,
+        plot_kws={"alpha": 0.72, "s": 35, "edgecolor": "white", "linewidth": 0.2},
+        diag_kws={"alpha": 0.60},
+        corner=False,
+    )
     g.figure.suptitle(
         f"Feature Pair Plot — Coloured by K-Means Cluster (k={optimal_k})",
-        y=1.02, fontsize=13, color=FG_LIGHT,
+        y=1.02, fontsize=13, color=FG_DARK,
     )
-    g.figure.set_facecolor(BG_DARK)
+    g.figure.set_facecolor(BG_WHITE)
     for ax in g.axes.flatten():
         if ax:
-            ax.set_facecolor("#1A1D2E")
-            ax.tick_params(colors=FG_LIGHT, labelsize=7)
-            ax.xaxis.label.set_color(FG_LIGHT)
-            ax.yaxis.label.set_color(FG_LIGHT)
+            ax.set_facecolor(BG_WHITE)
+            ax.tick_params(colors=FG_DARK, labelsize=7)
+            ax.xaxis.label.set_color(FG_DARK)
+            ax.yaxis.label.set_color(FG_DARK)
 
     os.makedirs(os.path.dirname(save_path) if os.path.dirname(save_path) else ".", exist_ok=True)
-    g.savefig(save_path, bbox_inches="tight", facecolor=BG_DARK)
+    g.savefig(save_path, bbox_inches="tight", facecolor=BG_WHITE)
     plt.close("all")
     print(f"[Visualization] Feature pair plot saved → {save_path}")
 
@@ -400,8 +398,8 @@ def plot_radar_chart(
     angles += angles[:1]   # close the polygon
 
     fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={"polar": True})
-    ax.set_facecolor("#1A1D2E")
-    fig.patch.set_facecolor(BG_DARK)
+    ax.set_facecolor(BG_WHITE)
+    fig.patch.set_facecolor(BG_WHITE)
 
     for i in range(optimal_k):
         values = normed.iloc[i].tolist()
@@ -413,18 +411,18 @@ def plot_radar_chart(
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(
         [f.replace("_", "\n") for f in feature_cols],
-        size=10, color=FG_LIGHT,
+        size=10, color=FG_DARK,
     )
     ax.set_yticklabels([])
     ax.set_title(
         f"Cluster Center Profiles  (k={optimal_k})\n"
         "(normalised to [0, 1] per feature)",
-        size=13, color=FG_LIGHT, pad=20,
+        size=13, color=FG_DARK, pad=20,
     )
     ax.grid(color=GRID_CLR, linewidth=0.8)
     ax.spines["polar"].set_color(GRID_CLR)
     ax.legend(loc="upper right", bbox_to_anchor=(1.3, 1.1),
-              fontsize=10, framealpha=0.3)
+              fontsize=10, framealpha=0.8, facecolor=BG_WHITE, edgecolor=GRID_CLR)
 
     fig.tight_layout()
     os.makedirs(os.path.dirname(save_path) if os.path.dirname(save_path) else ".", exist_ok=True)

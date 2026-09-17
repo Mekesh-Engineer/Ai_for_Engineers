@@ -1,0 +1,1821 @@
+=================================================================
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+    VANILLA RNN ENERGY CONSUMPTION FORECAST REPORT
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  Model Architecture     : Stacked_Vanilla_RNN_Regressor
+  Lookback Window Size   : 24 hourly timesteps
+  Total Test Samples     : 215
+-----------------------------------------------------------------
+  Regression Evaluation Metrics (kWh Units):
+-----------------------------------------------------------------
+  - Mean Squared Error (MSE)          : 0.2261
+  - Root Mean Squared Error (RMSE)     : 0.4755 kWh
+  - Mean Absolute Error (MAE)         : 0.2827 kWh
+  - Mean Absolute Percentage Err (MAPE): 13.98%
+  - R² Forecast Determination Score   : 0.6499
+-----------------------------------------------------------------
+  Residual Diagnostics:
+-----------------------------------------------------------------
+  - Mean Residual Error               : -0.0662
+  - Residual Standard Deviation        : 0.4709
+  - Residual Autocorrelation (Lag 1)   : -0.0298
+  - Residual Autocorrelation (Lag 24)  : -0.1221
+-----------------------------------------------------------------
+  Key Observations:
+  1. Stacked Vanilla RNN captures diurnal 24-hr load profiles and weekly cycles.
+  2. Recurrent hidden state transitions model peak evening and morning surges.
+  3. Low residual autocorrelation confirms noise white-noise properties.
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=
+  END OF REPORT
+=

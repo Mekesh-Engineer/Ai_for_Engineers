@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local LLM Studio — AI Grammar Correction & Text Rewriting Workstation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#1e1b4b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#090d16] text-slate-100 flex flex-col h-screen w-screen overflow-hidden antialiased select-none">
+
+  <!-- TOP HEADER -->
+  <header class="h-14 border-b border-slate-800/80 bg-[#0f172a]/80 backdrop-blur-xl flex items-center justify-between px-4 z-40 flex-shrink-0">
+    <div class="flex items-center space-x-3">
+      <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/25 text-sm">
+          AG
+        </div>
+        <div>
+          <h1 class="text-xs font-bold text-slate-100 tracking-wide flex items-center gap-1.5">
+            LOCAL LLM STUDIO
+            <span class="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">EXP 8: GEC & REWRITE</span>
+          </h1>
+          <p class="text-[10px] text-slate-400">Grammar Error Correction • Academic Polish • Text Rewriting</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Mode Selector -->
+    <div class="hidden md:flex items-center space-x-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800/80">
+      <label class="flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition has-[:checked]:bg-indigo-600 has-[:checked]:text-white text-slate-400">
+        <input type="radio" name="header_mode" value="ollama" class="hidden mode-toggle-radio" checked>
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span>Ollama (Qwen 2.5 7B)</span>
+      </label>
+      <label class="flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition has-[:checked]:bg-violet-600 has-[:checked]:text-white text-slate-400">
+        <input type="radio" name="header_mode" value="local_model" class="hidden mode-toggle-radio">
+        <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+        <span>Project Local Model</span>
+      </label>
+    </div>
+
+    <!-- Right Badges & Command Palette Trigger -->
+    <div class="flex items-center space-x-2.5">
+      <button onclick="openCommandPalette()" class="hidden sm:flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 hover:text-slate-200 transition">
+        <span>⌘K Command Palette</span>
+      </button>
+      <div id="badge-backend" class="flex items-center text-xs px-2.5 py-1 rounded-full border bg-slate-900 text-slate-400 border-slate-800">
+        <span class="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>Backend
+      </div>
+      <div id="badge-ollama" class="hidden sm:flex items-center text-xs px-2.5 py-1 rounded-full border bg-slate-900 text-slate-400 border-slate-800">
+        <span class="w-2 h-2 rounded-full bg-slate-500 mr-1.5"></span>Ollama
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- SIDEBAR -->
+    <aside id="app-sidebar" class="w-[260px] flex-shrink-0 bg-[#0c1222] border-r border-slate-800/80 flex flex-col justify-between p-3 z-30 transition-all duration-300">
+      <div class="space-y-6">
+        <div>
+          <div class="sidebar-group-title text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-2">Workstation Navigation</div>
+          <nav class="space-y-1">
+            <div class="nav-btn-wrapper relative">
+              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-indigo-300 bg-indigo-600/20 border border-indigo-500/40" data-tab="dashboard">
+                <svg class="w-4 h-4 mr-2.5 flex-shrink-0 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="sidebar-text">Overview & Metrics</span>
+              </button>
+              <div class="sidebar-tooltip">Overview & Metrics</div>
+            </div>
+            <div class="nav-btn-wrapper relative">
+              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200" data-tab="chat">
+                <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                <span class="sidebar-text">Interactive AI Chat</span>
+              </button>
+              <div class="sidebar-tooltip">Interactive AI Chat</div>
+            </div>
+            <div class="nav-btn-wrapper relative">
+              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200" data-tab="files">
+                <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                <span class="sidebar-text">Document Proofreader</span>
+              </button>
+              <div class="sidebar-tooltip">Document Proofreader</div>
+            </div>
+            <div class="nav-btn-wrapper relative">
+              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200" data-tab="project">
+                <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="sidebar-text">Doc & Code Auditor</span>
+              </button>
+              <div class="sidebar-tooltip">Doc & Code Auditor</div>
+            </div>
+            <div class="nav-btn-wrapper relative">
+              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200" data-tab="settings">
+                <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
+                <span class="sidebar-text">Model Workbench</span>
+              </button>
+              <div class="sidebar-tooltip">Model Workbench</div>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="sidebar-project-box p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 text-[11px] text-slate-400">
+        <div class="flex items-center justify-between font-semibold text-slate-300 mb-1">
+          <span>Experiment 8</span>
+          <span class="text-emerald-400 font-mono text-[10px]">Active</span>
+        </div>
+        <div class="text-[10px] text-slate-500">Lang-8 / JFLEG Corpus</div>
+        <div class="text-[10px] text-slate-500 mt-1">Dual-Mode Local AI</div>
+      </div>
+    </aside>
+
+    <!-- CONTENT PANELS -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-[#090d16] relative">
+
+      <!-- TAB 1: DASHBOARD / OVERVIEW -->
+      <div id="tab-dashboard" class="tab-panel flex-1 overflow-y-auto p-6 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+          <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Grammar Correction & Text Rewriting Studio</h2>
+            <p class="text-xs text-slate-400 mt-1">Automated Grammar Error Correction (GEC), multi-level prompt rewriting, and quantitative evaluation benchmarks.</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button onclick="switchTab('files')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/25 transition">
+              + Proofread Document
+            </button>
+            <button onclick="switchTab('chat')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+              Open AI Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Highlights Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+            <div class="text-slate-400 text-xs font-medium">Exact Match Accuracy</div>
+            <div class="text-2xl font-bold text-indigo-400 mt-1">65.0% - 85.0%</div>
+            <div class="text-[11px] text-slate-500 mt-1">Gold-standard Lang-8 / JFLEG target</div>
+          </div>
+          <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+            <div class="text-slate-400 text-xs font-medium">Levenshtein Edit Distance</div>
+            <div class="text-2xl font-bold text-emerald-400 mt-1">3.2 - 6.8</div>
+            <div class="text-[11px] text-slate-500 mt-1">Low character edits per sentence</div>
+          </div>
+          <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+            <div class="text-slate-400 text-xs font-medium">Token-Level F1 Score</div>
+            <div class="text-2xl font-bold text-amber-400 mt-1">0.912 - 0.965</div>
+            <div class="text-[11px] text-slate-500 mt-1">High word overlap and precision</div>
+          </div>
+          <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+            <div class="text-slate-400 text-xs font-medium">Over-Correction Rate</div>
+            <div class="text-2xl font-bold text-purple-400 mt-1">&lt; 5.0%</div>
+            <div class="text-[11px] text-slate-500 mt-1">Controlled semantic preservation</div>
+          </div>
+        </div>
+
+        <!-- Dual Mode Architecture Card -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="glass-panel p-5 rounded-2xl border border-indigo-500/30">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <h3 class="text-sm font-bold text-slate-100">Mode 1: Ollama Mode (Qwen 2.5 7B)</h3>
+              </div>
+              <span class="text-[10px] font-mono bg-emerald-950/60 text-emerald-300 border border-emerald-800/50 px-2 py-0.5 rounded">REST API</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+              Connects to locally running Ollama service (<code class="text-indigo-300">http://localhost:11434</code>) executing Qwen 2.5 7B for multi-turn editing, academic polishing, and error diagnosis.
+            </p>
+            <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+              <span>Model: <b class="text-slate-200">qwen2.5:7b</b></span>
+              <button onclick="switchActiveMode('ollama')" class="text-indigo-400 hover:text-indigo-300 font-semibold">Activate Mode →</button>
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 rounded-2xl border border-violet-500/30">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
+                <h3 class="text-sm font-bold text-slate-100">Mode 2: Project Local Model Mode</h3>
+              </div>
+              <span class="text-[10px] font-mono bg-indigo-950/60 text-indigo-300 border border-indigo-800/50 px-2 py-0.5 rounded">PyTorch / Safetensors</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+              Direct offline Transformer Seq2Seq runtime loading standalone weights in <code class="text-violet-300">./models/saved_models/grammar_corrector_model/</code> with in-memory process caching.
+            </p>
+            <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+              <span>Path: <b class="text-slate-200">./models/saved_models/</b></span>
+              <button onclick="switchActiveMode('local_model')" class="text-violet-400 hover:text-violet-300 font-semibold">Activate Mode →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Feed -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Live Workstation Activity</h3>
+            <span class="text-[10px] text-slate-500">Auto-logged</span>
+          </div>
+          <div id="dashboard-activity-feed" class="space-y-1">
+            <div class="text-xs text-slate-500 py-2 italic">No recent activity yet. Start chatting or proofreading.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: INTERACTIVE AI CHAT -->
+      <div id="tab-chat" class="tab-panel hidden flex-1 flex overflow-hidden min-h-0">
+        <!-- Left Conversations History -->
+        <div class="w-64 border-r border-slate-800/80 bg-[#0c1222] flex flex-col p-3 z-20 flex-shrink-0 hidden md:flex">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Conversations</span>
+            <button id="new-chat-btn" class="p-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            </button>
+          </div>
+          <input id="search-conversations-input" type="text" placeholder="Search chats..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-slate-200 placeholder-slate-500 mb-2.5 focus:outline-none focus:border-indigo-500">
+          <div id="conversations-history-list" class="flex-1 overflow-y-auto space-y-1">
+            <div class="text-[11px] text-slate-500 p-2 italic">No conversations yet.</div>
+          </div>
+        </div>
+
+        <!-- Center Chat Area -->
+        <div class="flex-1 flex flex-col min-w-0 bg-[#090d16] relative min-h-0 overflow-hidden">
+          <!-- Chat Header Bar -->
+          <div class="h-12 border-b border-slate-800/80 bg-[#0f172a]/60 backdrop-blur-md flex items-center justify-between px-4 z-20 flex-shrink-0">
+            <div class="flex items-center space-x-3">
+              <span id="chat-model-badge" class="text-xs font-semibold text-slate-200">Model: Ollama (qwen2.5:7b)</span>
+              <div id="chat-streaming-badge" class="hidden items-center space-x-1 text-[10px] text-indigo-400 font-mono animate-pulse">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                <span>Generating tokens...</span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <select id="chat-profile-select" class="text-xs bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-slate-300 focus:outline-none focus:border-indigo-500">
+                <option value="standard_corrector">Standard Grammar Corrector</option>
+                <option value="minimal">Minimal Proofreader</option>
+                <option value="academic_polish">Academic & Research Polisher</option>
+                <option value="technical_editor">Technical Documentation Editor</option>
+                <option value="error_diagnostician">Grammar Error Diagnostician</option>
+                <option value="general">General Assistant</option>
+              </select>
+              <button id="chat-context-toggle-btn" class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 text-xs transition" title="Toggle AI Context Inspector">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </button>
+              <button id="chat-clear-btn" class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 text-xs transition" title="Clear chat">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- DEDICATED MESSAGES SCROLL CONTAINER -->
+          <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+            <!-- Rendered by chat.js -->
+          </div>
+
+          <!-- Scroll-to-bottom Floating Button -->
+          <button id="chat-scroll-bottom-btn" class="hidden absolute bottom-24 right-6 px-3 py-1.5 rounded-full bg-indigo-600/90 hover:bg-indigo-600 text-white text-xs font-medium shadow-xl backdrop-blur-md transition flex items-center space-x-1.5 z-30">
+            <span class="scroll-btn-text">↓ Scroll to bottom</span>
+          </button>
+
+          <!-- Composer Bar -->
+          <div class="border-t border-slate-800/80 bg-[#0c1222] p-3 flex-shrink-0 z-20">
+            <div id="chat-attached-files-badges" class="hidden flex flex-wrap gap-1.5 mb-2"></div>
+            <form id="chat-form" class="flex items-end space-x-2 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-2 focus-within:border-indigo-500/80 transition">
+              <input type="file" id="chat-file-input" class="hidden">
+              <button type="button" id="chat-attach-btn" class="p-2 text-slate-400 hover:text-indigo-400 transition rounded-xl hover:bg-slate-800" title="Attach file to message">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+              </button>
+              <textarea id="chat-input" rows="1" placeholder="Enter sentence or prompt to correct (Shift+Enter for new line)..." class="flex-1 bg-transparent border-0 text-xs text-slate-200 placeholder-slate-500 focus:outline-none resize-none py-1.5 px-1 max-h-32"></textarea>
+              <button type="submit" id="chat-send-btn" class="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-md shadow-indigo-600/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+              </button>
+              <button type="button" id="chat-stop-btn" class="hidden p-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white transition">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right AI Context Inspector -->
+        <div id="ai-context-inspector" class="w-72 border-l border-slate-800/80 bg-[#0c1222] p-4 flex flex-col justify-between hidden xl:flex z-20 flex-shrink-0">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Context Inspector</span>
+              <span id="inspector-mode-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">qwen2.5:7b</span>
+            </div>
+            <div>
+              <div class="text-[11px] font-semibold text-slate-400 mb-1">Active Profile</div>
+              <div id="inspector-profile-badge" class="text-xs text-indigo-300 font-mono bg-slate-900 p-2 rounded-lg border border-slate-800">standard_corrector</div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-semibold text-slate-400">Workspace Files Context</span>
+                <span id="inspector-files-count" class="text-[10px] text-slate-500">0 files</span>
+              </div>
+              <div id="chat-context-files-list" class="max-h-56 overflow-y-auto space-y-1 bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                <!-- Loaded by chat.js -->
+              </div>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-500 italic text-center pt-3 border-t border-slate-800/80">
+            Selected workspace files are injected into system prompt context.
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: DOCUMENT PROOFREADER & REWRITER -->
+      <div id="tab-files" class="tab-panel hidden flex-1 overflow-y-auto p-6 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+          <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Document Proofreading & Text Rewriting Studio</h2>
+            <p class="text-xs text-slate-400 mt-1">Multi-format file upload, automated error repair, style polishing, and side-by-side diff visualization.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left Column: Upload & Options -->
+          <div class="space-y-4">
+            <!-- Drop zone -->
+            <div id="file-drop-zone" class="glass-panel p-6 rounded-2xl border-2 border-dashed border-slate-700/80 hover:border-indigo-500/80 cursor-pointer text-center transition">
+              <input type="file" id="file-input" class="hidden">
+              <div class="w-12 h-12 rounded-xl bg-indigo-600/15 text-indigo-400 mx-auto mb-3 flex items-center justify-center">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+              </div>
+              <div class="text-xs font-semibold text-slate-200">Click or drag & drop documents here</div>
+              <div class="text-[10px] text-slate-500 mt-1">Supports .txt, .md, .py, .pdf, .docx, .csv, .json</div>
+              <div id="file-upload-indicator" class="hidden mt-3 text-xs text-indigo-400 animate-pulse">Parsing document...</div>
+            </div>
+
+            <!-- Metadata Card -->
+            <div id="file-metadata-card" class="hidden glass-panel p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
+              <div class="font-bold text-slate-200 truncate" id="meta-filename">document.txt</div>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1 border-t border-slate-800">
+                <div>Format: <span id="meta-type" class="text-slate-200">TXT</span></div>
+                <div>Words: <span id="meta-words" class="text-slate-200">0</span></div>
+                <div>Tokens: <span id="meta-tokens" class="text-slate-200">0</span></div>
+                <div>Chunks: <span id="meta-chunks" class="text-slate-200">1</span></div>
+              </div>
+            </div>
+
+            <!-- Correction Level Selector -->
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-2">
+              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Correction & Rewriting Level</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="minimal">🔍 Minimal</button>
+                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-indigo-600 text-white border-indigo-500" data-level="standard">⚡ Standard GEC</button>
+                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="rewrite">✨ Full Rewrite</button>
+                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="academic">🎓 Academic</button>
+                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="technical">💻 Technical</button>
+                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="diagnose">🩺 Error Diag</button>
+              </div>
+            </div>
+
+            <!-- Custom Instructions -->
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Custom Instructions (Optional)</label>
+              <input type="text" id="file-custom-instructions" placeholder="e.g. Preserve passive voice, keep UK spelling..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <!-- Run Button -->
+            <button id="run-proofread-btn" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-xl shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
+              <span id="proofread-spinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>Execute Proofreading & Rewriting</span>
+            </button>
+          </div>
+
+          <!-- Center & Right: Text Input & Output -->
+          <div class="lg:col-span-2 space-y-4">
+            <!-- Raw Text Input -->
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Input Text / Document Content</span>
+                <span class="text-[11px] text-slate-500">Edit or type directly</span>
+              </div>
+              <textarea id="file-raw-text-input" rows="7" placeholder="Paste or type text containing grammatical errors, spelling mistakes, or draft sentences here..." class="w-full bg-slate-950/80 border border-slate-800/80 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+            </div>
+
+            <!-- Results Section -->
+            <div id="proofread-results-container" class="hidden glass-panel p-5 rounded-2xl border border-indigo-500/40 space-y-4">
+              <!-- Metrics Banner -->
+              <div class="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                <div class="flex items-center space-x-4 text-xs font-mono">
+                  <div>Latency: <b id="res-duration" class="text-indigo-300">0s</b></div>
+                  <div>Levenshtein: <b id="res-edit-dist" class="text-emerald-300">0</b></div>
+                  <div>Token F1: <b id="res-token-f1" class="text-amber-300">0%</b></div>
+                  <div>Words: <b id="res-words-count" class="text-slate-200">0 → 0</b></div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button id="toggle-diff-view-btn" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition">
+                    Show Inline Diff View
+                  </button>
+                  <button id="download-proofread-btn" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition" title="Download result">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                  </button>
+                  <button id="send-proofread-to-chat-btn" class="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition">
+                    Send to Chat →
+                  </button>
+                </div>
+              </div>
+
+              <!-- Output Box: Clean Markdown -->
+              <div id="proofread-output-card" class="p-4 rounded-xl bg-slate-950/90 border border-slate-800">
+                <div class="text-[11px] font-bold text-slate-400 uppercase mb-2">Clean Corrected Output</div>
+                <div id="proofread-output-text" class="markdown-body"></div>
+              </div>
+
+              <!-- Output Box: Inline Diff -->
+              <div id="proofread-diff-card" class="hidden p-4 rounded-xl bg-slate-950/90 border border-slate-800">
+                <div class="text-[11px] font-bold text-slate-400 uppercase mb-2">Inline Diff (~~Deletions~~ vs. **Additions**)</div>
+                <div id="proofread-diff-text" class="markdown-body"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: REPOSITORY DOC & CODE AUDITOR -->
+      <div id="tab-project" class="tab-panel hidden flex-1 overflow-y-auto p-6 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+          <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Repository Documentation & Docstring Grammar Auditor</h2>
+            <p class="text-xs text-slate-400 mt-1">Audit workspace README files, code comments, docstrings, and diagnose syntax/runtime errors.</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button id="run-project-audit-btn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/25 transition flex items-center space-x-2">
+              <span id="project-audit-spinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>Run Workspace Audit</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left: Tree & File Selector -->
+          <div class="space-y-4">
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+              <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-800">
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Workspace Tree</span>
+                <span id="project-selected-files-count" class="text-[10px] text-indigo-400 font-mono">3 files selected</span>
+              </div>
+              <div id="project-tree-container" class="max-h-72 overflow-y-auto space-y-0.5 font-mono text-xs">
+                <!-- Loaded by project.js -->
+              </div>
+            </div>
+
+            <!-- Error Debugger -->
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3">
+              <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">AI Code & Model Debugger</span>
+              <form id="project-debug-form" class="space-y-2.5">
+                <input type="text" id="debug-error-message" placeholder="Error message (e.g. ValueError, KeyError)..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
+                <textarea id="debug-stack-trace" rows="3" placeholder="Paste traceback or logs..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500"></textarea>
+                <input type="text" id="debug-relevant-file" placeholder="Relevant file path (optional)..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+                <button type="submit" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+                  Diagnose Error with AI →
+                </button>
+              </form>
+              <div id="debug-diagnosis-output" class="hidden p-3 rounded-xl bg-slate-950 border border-slate-800 mt-2"></div>
+            </div>
+          </div>
+
+          <!-- Right: Audit Results & Heuristics -->
+          <div class="lg:col-span-2 space-y-4">
+            <div id="project-audit-results" class="hidden glass-panel p-5 rounded-2xl border border-indigo-500/30 space-y-5">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h3 class="text-sm font-bold text-white">Documentation & Grammar Audit Report</h3>
+                <div class="flex items-center space-x-2">
+                  <button id="export-audit-report-btn" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition">Export .md</button>
+                  <button id="send-audit-to-chat-btn" class="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs transition">Send to Chat →</button>
+                </div>
+              </div>
+
+              <!-- Heuristic Checks Grid -->
+              <div>
+                <div class="text-[11px] font-bold text-slate-400 uppercase mb-2">Automated Quality Checks</div>
+                <div id="project-heuristics-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+              </div>
+
+              <!-- Full Markdown Report -->
+              <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div id="project-audit-report-text" class="markdown-body"></div>
+              </div>
+            </div>
+
+            <!-- Quick file browser -->
+            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+              <div class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">Key Repository Files</div>
+              <div id="project-files-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: SETTINGS & WORKBENCH -->
+      <div id="tab-settings" class="tab-panel hidden flex-1 overflow-y-auto p-6 space-y-6">
+        <div class="border-b border-slate-800/80 pb-5">
+          <h2 class="text-xl font-bold text-white tracking-tight">Model Workbench & System Configuration</h2>
+          <p class="text-xs text-slate-400 mt-1">Configure Ollama daemon parameters, validate local checkpoint weights, test dual-mode inference, and edit system profiles.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Ollama Configuration -->
+          <div id="ollama-config-panel" class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span>Ollama Mode Configuration</span>
+              </h3>
+              <button id="refresh-ollama-btn" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">Refresh Models</button>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs text-slate-400">Ollama API Endpoint</label>
+              <input type="text" id="settings-ollama-url" value="http://localhost:11434" class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="flex items-center space-x-2">
+              <button id="test-ollama-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+                Test Connection & Latency
+              </button>
+            </div>
+            <div id="ollama-test-output" class="hidden"></div>
+            <div class="pt-3 border-t border-slate-800">
+              <div class="text-[11px] font-semibold text-slate-400 mb-2">Available Ollama Models</div>
+              <div id="ollama-models-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+            </div>
+          </div>
+
+          <!-- Local Model Configuration -->
+          <div id="local-config-panel" class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-violet-400"></span>
+                <span>Local Model Checkpoint Configuration</span>
+              </h3>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs text-slate-400">Local Models Storage Directory</label>
+              <input type="text" id="settings-local-dir" value="./models" class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="flex items-center space-x-2">
+              <button id="test-local-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+                Validate Checkpoint & PyTorch Load
+              </button>
+            </div>
+            <div id="local-test-output" class="hidden"></div>
+            <div class="pt-3 border-t border-slate-800">
+              <div class="text-[11px] font-semibold text-slate-400 mb-2">Discovered Model Checkpoints in ./models/</div>
+              <div id="local-models-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dual-Mode Model Comparison Workbench -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-slate-100">Dual-Mode Side-by-Side Comparison Workbench</h3>
+              <p class="text-xs text-slate-400">Execute identical input sentences simultaneously on Ollama Qwen 2.5 7B and the Project Local Seq2Seq model.</p>
+            </div>
+            <button id="run-model-comparison-btn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition">
+              Run Dual Benchmark
+            </button>
+          </div>
+          <input type="text" id="model-comparison-input" value="He go to the laboratory yesterday for doing the experiment." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="text-[11px] font-bold text-indigo-400 mb-2">Ollama Mode (Qwen 2.5 7B) Output</div>
+              <div id="comparison-ollama-output" class="text-xs text-slate-400 italic">Click 'Run Dual Benchmark' to generate.</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="text-[11px] font-bold text-violet-400 mb-2">Project Local Model Output</div>
+              <div id="comparison-local-output" class="text-xs text-slate-400 italic">Click 'Run Dual Benchmark' to generate.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Profiles Manager -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">System Prompt Profiles</h3>
+          </div>
+          <div id="settings-profiles-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Rendered by settings.js -->
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- COMMAND PALETTE MODAL -->
+  <div id="command-palette-modal" class="hidden fixed inset-0 z-50 command-palette-backdrop flex items-start justify-center pt-24 px-4" onclick="if(event.target === this) closeCommandPalette()">
+    <div class="w-full max-w-xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="p-3 border-b border-slate-800 flex items-center space-x-2">
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <input type="text" id="command-palette-input" placeholder="Type a command or search actions..." class="w-full bg-transparent border-0 text-xs text-slate-100 placeholder-slate-500 focus:outline-none">
+        <span class="text-[10px] text-slate-500 font-mono px-1.5 py-0.5 rounded bg-slate-800">ESC</span>
+      </div>
+      <div id="command-palette-list" class="max-h-72 overflow-y-auto p-2 space-y-1">
+        <!-- Rendered by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL DRAG & DROP OVERLAY -->
+  <div id="global-drag-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+    <div class="p-8 rounded-3xl border-2 border-dashed border-indigo-500 bg-indigo-950/40 text-center backdrop-blur-xl">
+      <div class="text-2xl mb-2">📄</div>
+      <div class="text-base font-bold text-white">Drop File to Proofread & Rewriting Studio</div>
+      <div class="text-xs text-indigo-300 mt-1">Release file anywhere to open in Document Proofreader</div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- SCRIPTS -->
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/chat.js"></script>
+  <script src="/static/js/files.js"></script>
+  <script src="/static/js/project.js"></script>
+  <script src="/static/js/settings.js"></script>
+</body>
+</html>

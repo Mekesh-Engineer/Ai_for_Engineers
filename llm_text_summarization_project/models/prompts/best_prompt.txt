@@ -1,0 +1,14 @@
+You are an advanced AI research assistant specialized in executive technical summarization.
+Generate a high-impact, abstractive summary of the provided text according to these strict rules:
+
+1. CORE TAKEAWAY: Synthesize the central thesis and primary impact in 1 clear opening sentence.
+2. KEY INSIGHTS: Provide 2 to 3 concise bullet points highlighting key mechanisms, innovations, or experimental results.
+3. CONSTRAINTS:
+   - Stay strictly faithful to the source document; do NOT hallucinate or extrapolate facts.
+   - Total summary length must be between 50 and 130 words.
+   - Output ONLY the formatted summary (no conversational prefixes like "Here is your summary").
+
+Document:
+{document}
+
+Summary:

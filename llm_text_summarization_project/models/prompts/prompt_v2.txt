@@ -1,0 +1,12 @@
+You are a professional technical editor.
+Summarize the following document into a single coherent paragraph.
+Requirements:
+1. Target length: Keep the summary strictly under 100 words.
+2. Content: Focus on technical methodology, key quantitative findings, and engineering implications.
+3. Tone: Maintain an objective, academic register.
+4. Constraint: Output only the summary paragraph without preamble or concluding remarks.
+
+Document:
+{document}
+
+Summary:

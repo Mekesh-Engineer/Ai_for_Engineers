@@ -1,0 +1,11 @@
+id,input_sentence,reference_correction,error_category,domain
+1,"Artificial intelligence play a crucial role in modern automation system.","Artificial intelligence plays a crucial role in modern automation systems.","Subject-Verb Agreement & Pluralization","Engineering"
+2,"The dataset was divided in three subsets for cross validation.","The dataset was divided into three subsets for cross-validation.","Preposition & Hyphenation","Data Science"
+3,"Although the accuracy is high but the inference latency is unacceptable.","Although the accuracy is high, the inference latency is unacceptable.","Conjunction Redundancy","ML Engineering"
+4,"We observed that the temperature effect on resistance was non-linear.","We observed that the effect of temperature on resistance was non-linear.","Phrasing & Word Order","Physics"
+5,"The engineer forgot to disconnecting the power source before repairing.","The engineer forgot to disconnect the power source before repairing.","Infinitive Verb Form","Electrical"
+6,"There was several anomalous reading detected by the telemetry monitor.","There were several anomalous readings detected by the telemetry monitor.","Subject-Verb Agreement & Plural Noun","Robotics"
+7,"This paper present a novel framework for distributed computing.","This paper presents a novel framework for distributed computing.","Subject-Verb Agreement","Academic"
+8,"The system must capable of handling high throughput without crash.","The system must be capable of handling high throughput without crashing.","Missing Verb & Gerund Form","Software"
+9,"Deep learning models requires large amount of labeled data.","Deep learning models require large amounts of labeled data.","Subject-Verb Agreement & Quantifier","AI & ML"
+10,"In conclusion, our method achieve superior performance compared with baseline.","In conclusion, our method achieves superior performance compared to the baseline.","Subject-Verb Agreement & Preposition/Article","Academic"

@@ -1,0 +1,5 @@
+class_index,class_name,precision,recall,f1_score,support
+0,Healthy_Panel,0.7836990595611285,1.0,0.8787346221441125,250
+1,Micro_Crack,1.0,0.724,0.839907192575406,250
+2,Hotspot_Fault,1.0,1.0,1.0,250
+3,Dust_Soiling,1.0,1.0,1.0,250

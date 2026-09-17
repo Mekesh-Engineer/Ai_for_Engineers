@@ -1,0 +1,51 @@
+EXPERIMENT 7: SAMPLE SUMMARIES QUALITY ASSESSMENT
+============================================================
+
+[DOC_005] Graph Neural Networks for Zero-Day Cloud Intrusion Detection
+Category: Cybersecurity & Cloud Systems
+Original Length: 129 words | Compression: 55.04%
+
+--- GROUND TRUTH REFERENCE SUMMARY ---
+A dynamic Graph Neural Network framework detects zero-day cloud intrusions by analyzing network telemetry and IAM permissions as graph embeddings, achieving a 0.982 AUC and enabling sub-15ms automated threat response.
+
+--- GENERATED ABSTRACTIVE SUMMARY (LLM) ---
+Traditional signature-based Intrusion Detection Systems fail against zero-day exploits and multi-stage Advanced Persistent Threats . Security engineers constructed a spatial-temporal Graph Neural Network (GNN) framework that models cloud infrastructure as a dynamic graph . The framework achieved an Area Under the ROC Curve (AUC) of 0.982 on enterprise benchmark datasets with an inference latency under 15 milliseconds .
+
+--- EXTRACTIVE BASELINE SUMMARY ---
+Cloud computing environments host distributed microservices that generate massive volumes of heterogeneous network flow telemetry and system call logs. Security engineers constructed a spatial-temporal Graph Neural Network (GNN) framework that models cloud infrastructure as a dynamic graph. In this graph, compute nodes, containers, and databases serve as vertices, while TCP/IP connections, API calls, and IAM permissions constitute edges.
+
+ROUGE-1 F1: 0.4301 | ROUGE-2 F1: 0.1319 | ROUGE-L F1: 0.2366 | BERTScore: 0.8354
+============================================================
+
+[DOC_004] Transformer Attention Networks for Arrhythmia Detection from ECG
+Category: Biomedical Engineering
+Original Length: 129 words | Compression: 63.57%
+
+--- GROUND TRUTH REFERENCE SUMMARY ---
+A multi-head self-attention Transformer network analyzes 12-lead ECG signals to detect cardiac arrhythmias with 99.1% sensitivity, providing interpretable attention heatmaps over P-wave and QRS complexes for clinical support.
+
+--- GENERATED ABSTRACTIVE SUMMARY (LLM) ---
+Traditional 12-lead electrocardiogram interpretation by cardiologists is constrained by fatigue and inter-observer variability . Researchers developed a multi-head Self-Attention Transformer network capable of processing raw 12 lead voltage streams at 500 Hz sampling rates . The self-attention heatmaps highlight clinically salient P-wave and QRS complex morphology .
+
+--- EXTRACTIVE BASELINE SUMMARY ---
+Cardiovascular diseases represent a leading cause of global mortality, with cardiac arrhythmias requiring rapid, accurate clinical diagnosis. Traditional 12-lead electrocardiogram (ECG) interpretation by cardiologists is constrained by fatigue and inter-observer variability. Deep learning architectures have advanced automated ECG analysis, but standard convolutional models often struggle to capture long-range rhythmic dependencies spanning several cardiac cycles.
+
+ROUGE-1 F1: 0.4337 | ROUGE-2 F1: 0.2963 | ROUGE-L F1: 0.3855 | BERTScore: 0.8471
+============================================================
+
+[DOC_007] Satellite Multispectral AI for Deforestation and Carbon Sink Mapping
+Category: Environmental Science & Remote Sensing
+Original Length: 132 words | Compression: 63.64%
+
+--- GROUND TRUTH REFERENCE SUMMARY ---
+Hierarchical temporal U-Nets analyze multispectral satellite imagery and SAR data to monitor deforestation and quantify above-ground biomass with R2=0.91, providing near-real-time verification for carbon credit registries.
+
+--- GENERATED ABSTRACTIVE SUMMARY (LLM) ---
+European Space Agency Sentinel-2 and NASA Landsat satellites capture terabytes of optical and near-infrared multispectral imagery daily . A hierarchical U-Net architecture integrated with temporal attention was deployed to segment rainforest canopy density, illegal logging roads, and wildfire burns across 5 million square kilometers of the Amazon .
+
+--- EXTRACTIVE BASELINE SUMMARY ---
+Monitoring global deforestation and carbon sequestration dynamics requires continuous, wide-area remote sensing analytics. Analyzing this deluge of satellite data requires robust deep learning segmentation models that remain resilient against heavy cloud cover and seasonal phenological shifts. The model cross-references synthetic aperture radar (SAR) data from Sentinel-1 to penetrate cloud cover during the monsoon season.
+
+ROUGE-1 F1: 0.2963 | ROUGE-2 F1: 0.0253 | ROUGE-L F1: 0.1235 | BERTScore: 0.8094
+============================================================
+

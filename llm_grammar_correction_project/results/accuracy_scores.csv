@@ -1,0 +1,3 @@
+exact_match,levenshtein_distance,token_precision,token_recall,token_f1,semantic_preservation,is_over_correction,is_under_correction,id,input_sentence,prediction,reference,error_type
+True,0,1.0,1.0,1.0,0.7778,False,False,1,"If the voltage will increase, the semiconductor device can damaged.","If the voltage increases, the semiconductor device can be damaged.","If the voltage increases, the semiconductor device can be damaged.",Conditional Tense & Passive Voice
+True,0,1.0,1.0,1.0,0.8182,False,False,2,"Although it was raining heavy, but we continued the field test.","Although it was raining heavily, we continued the field test.","Although it was raining heavily, we continued the field test.",Conjunction Redundancy & Adverb Form

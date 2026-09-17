@@ -1,0 +1,65 @@
+[
+  {
+    "id": "DOC_005",
+    "title": "Graph Neural Networks for Zero-Day Cloud Intrusion Detection",
+    "generated_summary": "Traditional signature-based Intrusion Detection Systems fail against zero-day exploits and multi-stage Advanced Persistent Threats . Security engineers constructed a spatial-temporal Graph Neural Network (GNN) framework that models cloud infrastructure as a dynamic graph . The framework achieved an Area Under the ROC Curve (AUC) of 0.982 on enterprise benchmark datasets with an inference latency under 15 milliseconds .",
+    "latency_seconds": 3.05,
+    "metrics": {
+      "rouge1_f1": 0.4301,
+      "rouge1_precision": 0.3333,
+      "rouge1_recall": 0.6061,
+      "rouge2_f1": 0.1319,
+      "rouge2_precision": 0.1017,
+      "rouge2_recall": 0.1875,
+      "rougeL_f1": 0.2366,
+      "rougeL_precision": 0.1833,
+      "rougeL_recall": 0.3333,
+      "bertscore_f1": 0.8354,
+      "summary_words": 58,
+      "length_compliant": true,
+      "word_compression_pct": 55.04
+    }
+  },
+  {
+    "id": "DOC_004",
+    "title": "Transformer Attention Networks for Arrhythmia Detection from ECG",
+    "generated_summary": "Traditional 12-lead electrocardiogram interpretation by cardiologists is constrained by fatigue and inter-observer variability . Researchers developed a multi-head Self-Attention Transformer network capable of processing raw 12 lead voltage streams at 500 Hz sampling rates . The self-attention heatmaps highlight clinically salient P-wave and QRS complex morphology .",
+    "latency_seconds": 2.694,
+    "metrics": {
+      "rouge1_f1": 0.4337,
+      "rouge1_precision": 0.36,
+      "rouge1_recall": 0.5455,
+      "rouge2_f1": 0.2963,
+      "rouge2_precision": 0.2449,
+      "rouge2_recall": 0.375,
+      "rougeL_f1": 0.3855,
+      "rougeL_precision": 0.32,
+      "rougeL_recall": 0.4848,
+      "bertscore_f1": 0.8471,
+      "summary_words": 47,
+      "length_compliant": true,
+      "word_compression_pct": 63.57
+    }
+  },
+  {
+    "id": "DOC_007",
+    "title": "Satellite Multispectral AI for Deforestation and Carbon Sink Mapping",
+    "generated_summary": "European Space Agency Sentinel-2 and NASA Landsat satellites capture terabytes of optical and near-infrared multispectral imagery daily . A hierarchical U-Net architecture integrated with temporal attention was deployed to segment rainforest canopy density, illegal logging roads, and wildfire burns across 5 million square kilometers of the Amazon .",
+    "latency_seconds": 2.399,
+    "metrics": {
+      "rouge1_f1": 0.2963,
+      "rouge1_precision": 0.2449,
+      "rouge1_recall": 0.375,
+      "rouge2_f1": 0.0253,
+      "rouge2_precision": 0.0208,
+      "rouge2_recall": 0.0323,
+      "rougeL_f1": 0.1235,
+      "rougeL_precision": 0.102,
+      "rougeL_recall": 0.1562,
+      "bertscore_f1": 0.8094,
+      "summary_words": 48,
+      "length_compliant": true,
+      "word_compression_pct": 63.64
+    }
+  }
+]

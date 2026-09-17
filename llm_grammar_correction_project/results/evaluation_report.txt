@@ -1,0 +1,21 @@
+======================================================================
+GRAMMAR ERROR CORRECTION & REWRITING DIAGNOSTIC REPORT
+======================================================================
+
+1. PERFORMANCE BREAKDOWN BY ERROR CATEGORY:
+----------------------------------------------------------------------
+• Conditional Tense & Passive Voice   | Count: 1  | Match: 100.0% | Lev Dist: 0.0 | F1: 1.0
+• Conjunction Redundancy & Adverb Form | Count: 1  | Match: 100.0% | Lev Dist: 0.0 | F1: 1.0
+
+2. SUMMARY OF FAILURE PATTERNS:
+----------------------------------------------------------------------
+• Under-Correction Count : 0
+• Over-Correction Count  : 0
+• Non-Exact Matches      : 0
+
+3. RECOMMENDATIONS FOR PROMPT OPTIMIZATION:
+----------------------------------------------------------------------
+• Use 'minimal' prompt template when preserving domain identifiers and exact terminology is critical.
+• Use 'standard' prompt template for general technical report proofreading to balance accuracy and fluency.
+• Use 'rewrite' / 'academic' prompt template when sentence restructuring and formal passive voice are desired.
+======================================================================

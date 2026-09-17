@@ -1,0 +1,5 @@
+{
+  "DOC_005": "A dynamic Graph Neural Network framework detects zero-day cloud intrusions by analyzing network telemetry and IAM permissions as graph embeddings, achieving a 0.982 AUC and enabling sub-15ms automated threat response.",
+  "DOC_004": "A multi-head self-attention Transformer network analyzes 12-lead ECG signals to detect cardiac arrhythmias with 99.1% sensitivity, providing interpretable attention heatmaps over P-wave and QRS complexes for clinical support.",
+  "DOC_007": "Hierarchical temporal U-Nets analyze multispectral satellite imagery and SAR data to monitor deforestation and quantify above-ground biomass with R2=0.91, providing near-real-time verification for carbon credit registries."
+}

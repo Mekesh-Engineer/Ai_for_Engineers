@@ -1,0 +1,28 @@
+{
+  "active_mode": "ollama",
+  "ollama": {
+    "base_url": "http://localhost:11434",
+    "active_model": "qwen2.5:7b",
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "max_tokens": 1024,
+    "stream": true
+  },
+  "local_model": {
+    "directory": "./models/saved_models/grammar_corrector_model",
+    "checkpoint_fallback": "google/flan-t5-large",
+    "device": "cpu",
+    "max_length": 256,
+    "min_length": 5,
+    "temperature": 0.2,
+    "num_beams": 4,
+    "early_stopping": true
+  },
+  "correction": {
+    "default_level": "standard",
+    "available_levels": ["minimal", "standard", "comprehensive_rewrite", "error_detection", "academic_polish"],
+    "preserve_meaning": true,
+    "chunk_size": 800,
+    "chunk_overlap": 100
+  }
+}

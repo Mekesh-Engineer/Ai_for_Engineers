@@ -216,7 +216,7 @@ def generate_clustering_report(
     ]
 
     report_text = "\n".join(lines)
-    with open(report_path, "w") as f:
+    with open(report_path, "w", encoding="utf-8") as f:
         f.write(report_text)
 
     print(f"\n[Evaluation] Clustering report saved → {report_path}")

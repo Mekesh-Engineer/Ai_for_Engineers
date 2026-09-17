@@ -1,0 +1,77 @@
+{
+  "studio": {
+    "default_mode": "ollama",
+    "ollama": {
+      "base_url": "http://localhost:11434",
+      "default_model": "qwen2.5:7b",
+      "timeout_seconds": 120,
+      "temperature": 0.7,
+      "top_p": 0.9,
+      "context_window": 8192
+    },
+    "local_model": {
+      "directory": "./models",
+      "preferred_model_path": "./models/saved_models/summarizer_model",
+      "device": "auto",
+      "torch_dtype": "float32",
+      "max_input_tokens": 1024,
+      "max_output_tokens": 256
+    },
+    "chunking": {
+      "max_chunk_tokens": 1500,
+      "chunk_overlap_tokens": 150,
+      "hierarchical_threshold_tokens": 2500
+    },
+    "default_system_profile": "general",
+    "web_server": {
+      "host": "127.0.0.1",
+      "port": 8000,
+      "cors_origins": ["*"]
+    }
+  },
+  "model": {
+    "default_model_name": "sshleifer/distilbart-cnn-12-6",
+    "fallback_model_name": "t5-small",
+    "high_quality_model_name": "facebook/bart-large-cnn",
+    "device": "auto",
+    "torch_dtype": "float32"
+  },
+  "generation": {
+    "min_length": 30,
+    "max_length": 120,
+    "num_beams": 4,
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "length_penalty": 2.0,
+    "no_repeat_ngram_size": 3,
+    "early_stopping": true,
+    "do_sample": false
+  },
+  "extractive": {
+    "num_sentences": 3,
+    "algorithm": "textrank_tfidf",
+    "similarity_threshold": 0.2
+  },
+  "dataset": {
+    "raw_csv_path": "data/raw/articles.csv",
+    "cleaned_csv_path": "data/processed/cleaned_articles.csv",
+    "test_docs_json_path": "data/processed/test_documents.json",
+    "reference_summaries_json_path": "data/summaries/reference_summaries.json",
+    "generated_summaries_json_path": "data/summaries/generated_summaries.json",
+    "train_ratio": 0.8,
+    "val_ratio": 0.1,
+    "test_ratio": 0.1,
+    "min_doc_words": 80,
+    "max_doc_words": 2500
+  },
+  "evaluation": {
+    "metrics": ["rouge1", "rouge2", "rougeL", "bertscore", "compression_ratio", "length_compliance"],
+    "rouge_use_stemmer": true,
+    "target_summary_length_words": 60,
+    "length_tolerance_percentage": 30.0
+  },
+  "execution": {
+    "random_seed": 42,
+    "batch_size": 4
+  }
+}

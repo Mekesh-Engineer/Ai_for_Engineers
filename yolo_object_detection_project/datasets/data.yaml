@@ -1,0 +1,6 @@
+path: E:\Projects\AI & ML\yolo_object_detection_project
+train: data/images/train
+val: data/images/val
+test: data/images/test
+names:
+  0: person

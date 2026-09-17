@@ -1,0 +1,40 @@
+=================================================================
+   CNN EEE DOMAIN CLASSIFICATION REPORT (SOLAR PV PANEL FAULTS)
+=================================================================
+  Dataset Name       : Solar_PV_Fault_Dataset
+  Application        : Solar PV Panel Thermal & Electroluminescence Fault Classification
+  Model Architecture : SolarPV_CNN
+  Total Test Samples : 1,000
+  Overall Accuracy   : 93.10%
+  Test Loss          : 0.1576
+  Macro F1-Score     : 0.9297
+-----------------------------------------------------------------
+  Per-Class Classification Metrics:
+-----------------------------------------------------------------
+               precision    recall  f1-score   support
+
+Healthy_Panel     0.7837    1.0000    0.8787       250
+  Micro_Crack     1.0000    0.7240    0.8399       250
+Hotspot_Fault     1.0000    1.0000    1.0000       250
+ Dust_Soiling     1.0000    1.0000    1.0000       250
+
+     accuracy                         0.9310      1000
+    macro avg     0.9459    0.9310    0.9297      1000
+ weighted avg     0.9459    0.9310    0.9297      1000
+
+-----------------------------------------------------------------
+  Confusion Matrix (Row=Actual, Column=Predicted):
+-----------------------------------------------------------------
+[[250   0   0   0]
+ [ 69 181   0   0]
+ [  0   0 250   0]
+ [  0   0   0 250]]
+-----------------------------------------------------------------
+  Key Domain Observations:
+  1. High test classification accuracy confirms strong thermographic spatial feature learning.
+  2. Conv2D layers effectively detect fracture lines (Micro-Cracks) and localized Gaussian thermal peaks (Hotspots).
+  3. Data augmentation (affine shifts, flips) improves robustness to panel orientation variations.
+  4. Thermal thermography combined with CNN provides automated real-time inspection for solar farms.
+=================================================================
+  END OF REPORT
+=================================================================

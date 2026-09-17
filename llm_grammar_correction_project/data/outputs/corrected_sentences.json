@@ -1,0 +1,32 @@
+[
+  {
+    "exact_match": true,
+    "levenshtein_distance": 0,
+    "token_precision": 1.0,
+    "token_recall": 1.0,
+    "token_f1": 1.0,
+    "semantic_preservation": 0.7778,
+    "is_over_correction": false,
+    "is_under_correction": false,
+    "id": 1,
+    "input_sentence": "If the voltage will increase, the semiconductor device can damaged.",
+    "prediction": "If the voltage increases, the semiconductor device can be damaged.",
+    "reference": "If the voltage increases, the semiconductor device can be damaged.",
+    "error_type": "Conditional Tense & Passive Voice"
+  },
+  {
+    "exact_match": true,
+    "levenshtein_distance": 0,
+    "token_precision": 1.0,
+    "token_recall": 1.0,
+    "token_f1": 1.0,
+    "semantic_preservation": 0.8182,
+    "is_over_correction": false,
+    "is_under_correction": false,
+    "id": 2,
+    "input_sentence": "Although it was raining heavy, but we continued the field test.",
+    "prediction": "Although it was raining heavily, we continued the field test.",
+    "reference": "Although it was raining heavily, we continued the field test.",
+    "error_type": "Conjunction Redundancy & Adverb Form"
+  }
+]

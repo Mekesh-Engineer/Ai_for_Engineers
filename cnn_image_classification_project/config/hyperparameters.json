@@ -1,0 +1,60 @@
+{
+  "dataset": {
+    "name": "Solar_PV_Fault_Dataset",
+    "domain": "Electrical and Electronics Engineering (EEE)",
+    "application": "Solar PV Panel Thermal & Electroluminescence Fault Classification",
+    "raw_dir": "data/raw/solar_pv_faults",
+    "processed_dir": "data/processed",
+    "num_classes": 4,
+    "class_names": [
+      "Healthy_Panel",
+      "Micro_Crack",
+      "Hotspot_Fault",
+      "Dust_Soiling"
+    ],
+    "image_shape": [1, 28, 28],
+    "train_val_split_ratio": 0.8333333333333334
+  },
+  "preprocessing": {
+    "normalize_mean": 0.35,
+    "normalize_std": 0.15
+  },
+  "augmentation": {
+    "enable": true,
+    "rotation_degrees": 15,
+    "affine_translate": [0.05, 0.05],
+    "random_crop_padding": 2,
+    "horizontal_flip": true,
+    "vertical_flip": true
+  },
+  "model": {
+    "name": "SolarPV_CNN",
+    "in_channels": 1,
+    "conv1_filters": 32,
+    "conv2_filters": 64,
+    "kernel_size": 3,
+    "fc1_units": 128,
+    "dropout_rate": 0.5,
+    "num_classes": 4
+  },
+  "training": {
+    "batch_size": 64,
+    "epochs": 15,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "optimizer": "adam",
+    "early_stopping_patience": 5,
+    "random_seed": 42
+  },
+  "output": {
+    "model_path": "models/cnn_model.pt",
+    "results_dir": "results/",
+    "training_history_plot": "results/training_history.png",
+    "confusion_matrix_plot": "results/confusion_matrix.png",
+    "sample_predictions_plot": "results/sample_predictions.png",
+    "misclassified_samples_plot": "results/misclassified_samples.png",
+    "learned_filters_plot": "results/learned_filters.png",
+    "metrics_csv": "results/accuracy_metrics.csv",
+    "report_txt": "results/classification_report.txt"
+  }
+}

@@ -1,3 +1,42 @@
-# Large media files exceeding GitHub's 100MB single-file limit
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Large media files exceeding GitHub's limit
 *.mp4
+*.avi
+*.mov
+*.mkv
 Tutorial_video.mp4
+
+# Large model weights and checkpoints exceeding GitHub's 100MB limit
+*.safetensors
+*.bin
+*.onnx
+models/saved_models/
+**/models/saved_models/**
+llm_text_summarization_project/models/summarizer_checkpoint.pt
+llm_text_summarization_project/models/saved_models/
+llm_grammar_correction_project/models/saved_models/
+
+# Dataset archives
+PennFudanPed.zip
+
+# IDE and OS metadata
+.DS_Store
+Thumbs.db
+.tempmediaStorage/

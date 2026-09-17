@@ -1,0 +1,489 @@
+/**
+ * Local LLM Studio - App Core State, Navigation, and Global Controller
+ */
+
+const AppState = {
+  activeTab: 'dashboard',
+  backendConnected: false,
+  ollamaConnected: false,
+  localModelAvailable: false,
+  activeMode: 'ollama',
+  activeOllamaModel: 'qwen2.5:7b',
+  activeLocalModelPath: '',
+  activeProfile: 'general',
+  selectedProjectFiles: [],
+  conversations: [],
+  currentConversationId: null,
+  sidebarCollapsed: false,
+  recentActivities: []
+};
+
+// Toast notification helper
+function showToast(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  const colors = {
+    info: 'bg-indigo-950/90 border-indigo-500/60 text-indigo-200',
+    success: 'bg-emerald-950/90 border-emerald-500/60 text-emerald-200',
+    warning: 'bg-amber-950/90 border-amber-500/60 text-amber-200',
+    error: 'bg-rose-950/90 border-rose-500/60 text-rose-200'
+  };
+
+  const icons = {
+    info: '<svg class="w-4 h-4 text-indigo-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>',
+    success: '<svg class="w-4 h-4 text-emerald-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>',
+    warning: '<svg class="w-4 h-4 text-amber-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>',
+    error: '<svg class="w-4 h-4 text-rose-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>'
+  };
+
+  toast.className = `flex items-center px-3.5 py-2.5 rounded-xl border backdrop-blur-md shadow-2xl transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-medium ${colors[type] || colors.info}`;
+  toast.innerHTML = `${icons[type] || icons.info}<span class="leading-snug">${message}</span>`;
+
+  container.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.classList.remove('translate-y-2', 'opacity-0');
+  });
+
+  setTimeout(() => {
+    toast.classList.add('opacity-0', '-translate-y-2');
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+// Activity Logging
+function logActivity(text, type = 'info') {
+  const item = {
+    text,
+    type,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+  AppState.recentActivities.unshift(item);
+  if (AppState.recentActivities.length > 8) AppState.recentActivities.pop();
+  renderActivityFeed();
+}
+
+function renderActivityFeed() {
+  const container = document.getElementById('dashboard-activity-feed');
+  if (!container) return;
+
+  if (AppState.recentActivities.length === 0) {
+    container.innerHTML = '<div class="text-xs text-slate-500 py-2 italic">No recent activity yet. Start chatting or analyzing files.</div>';
+    return;
+  }
+
+  container.innerHTML = AppState.recentActivities.map(a => `
+    <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-800/60 last:border-0">
+      <div class="flex items-center space-x-2 truncate">
+        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+        <span class="text-slate-300 truncate">${a.text}</span>
+      </div>
+      <span class="text-[10px] text-slate-500 font-mono flex-shrink-0 ml-2">${a.time}</span>
+    </div>
+  `).join('');
+}
+
+// Sidebar Collapse / Expand Toggle
+function toggleSidebar() {
+  const sidebar = document.getElementById('app-sidebar');
+  if (!sidebar) return;
+
+  AppState.sidebarCollapsed = !AppState.sidebarCollapsed;
+  sidebar.classList.toggle('sidebar-collapsed', AppState.sidebarCollapsed);
+  localStorage.setItem('studio_sidebar_collapsed', AppState.sidebarCollapsed ? 'true' : 'false');
+}
+
+function initSidebarState() {
+  const saved = localStorage.getItem('studio_sidebar_collapsed');
+  if (saved === 'true') {
+    AppState.sidebarCollapsed = true;
+    const sidebar = document.getElementById('app-sidebar');
+    if (sidebar) sidebar.classList.add('sidebar-collapsed');
+  }
+}
+
+// Navigation & Tab Switching
+function switchTab(tabId) {
+  AppState.activeTab = tabId;
+
+  // Update nav buttons
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    const target = btn.getAttribute('data-tab');
+    if (target === tabId) {
+      btn.classList.add('bg-indigo-600/20', 'text-indigo-300', 'border-indigo-500/40');
+      btn.classList.remove('text-slate-400', 'hover:bg-slate-800/60', 'hover:text-slate-200');
+    } else {
+      btn.classList.remove('bg-indigo-600/20', 'text-indigo-300', 'border-indigo-500/40');
+      btn.classList.add('text-slate-400', 'hover:bg-slate-800/60', 'hover:text-slate-200');
+    }
+  });
+
+  // Show active tab panel
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    if (panel.id === `tab-${tabId}`) {
+      panel.classList.remove('hidden');
+    } else {
+      panel.classList.add('hidden');
+    }
+  });
+
+  // On-show module hooks
+  if (tabId === 'chat' && window.ChatModule) {
+    window.ChatModule.onShow();
+  } else if (tabId === 'project' && window.ProjectModule) {
+    window.ProjectModule.onShow();
+  } else if (tabId === 'settings' && window.SettingsModule) {
+    window.SettingsModule.onShow();
+  }
+
+  // Close mobile sidebar if open
+  closeMobileSidebar();
+}
+
+function openMobileSidebar() {
+  const drawer = document.getElementById('app-sidebar');
+  const backdrop = document.getElementById('mobile-sidebar-backdrop');
+  if (drawer) drawer.classList.remove('hidden', '-translate-x-full');
+  if (backdrop) backdrop.classList.remove('hidden');
+}
+
+function closeMobileSidebar() {
+  const drawer = document.getElementById('app-sidebar');
+  const backdrop = document.getElementById('mobile-sidebar-backdrop');
+  if (window.innerWidth < 1024) {
+    if (drawer) drawer.classList.add('-translate-x-full');
+    if (backdrop) backdrop.classList.add('hidden');
+  }
+}
+
+// Check Backend Health and Model Status
+async function checkSystemHealth() {
+  try {
+    const res = await fetch('/api/health');
+    if (res.ok) {
+      const data = await res.json();
+      AppState.backendConnected = true;
+      AppState.ollamaConnected = data.ollama_connected;
+      AppState.localModelAvailable = data.local_model_available;
+      AppState.activeMode = data.active_mode;
+      AppState.activeOllamaModel = data.ollama_model;
+
+      updateStatusBadges();
+      updateModeSelectors();
+    } else {
+      AppState.backendConnected = false;
+      updateStatusBadges();
+    }
+  } catch (err) {
+    AppState.backendConnected = false;
+    updateStatusBadges();
+  }
+}
+
+function updateStatusBadges() {
+  // Backend badge
+  const backendBadge = document.getElementById('badge-backend');
+  if (backendBadge) {
+    backendBadge.innerHTML = AppState.backendConnected
+      ? `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>Backend`
+      : `<span class="w-2 h-2 rounded-full bg-rose-500 mr-1.5"></span>Backend`;
+    backendBadge.className = `flex items-center text-xs font-medium px-2.5 py-1 rounded-full border cursor-pointer ${AppState.backendConnected ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/50' : 'bg-rose-950/40 text-rose-300 border-rose-800/50'}`;
+  }
+
+  // Ollama badge
+  const ollamaBadge = document.getElementById('badge-ollama');
+  if (ollamaBadge) {
+    ollamaBadge.innerHTML = AppState.ollamaConnected
+      ? `<span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5"></span>Ollama (${AppState.activeOllamaModel})`
+      : `<span class="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>Ollama Offline`;
+    ollamaBadge.className = `flex items-center text-xs font-medium px-2.5 py-1 rounded-full border cursor-pointer ${AppState.ollamaConnected ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/50' : 'bg-amber-950/40 text-amber-300 border-amber-800/50'}`;
+  }
+
+  // Local model badge
+  const localBadge = document.getElementById('badge-local-model');
+  if (localBadge) {
+    localBadge.innerHTML = AppState.localModelAvailable
+      ? `<span class="w-2 h-2 rounded-full bg-indigo-400 mr-1.5"></span>Local Model: Ready`
+      : `<span class="w-2 h-2 rounded-full bg-slate-500 mr-1.5"></span>Local Model: None`;
+    localBadge.className = `hidden md:flex items-center text-xs font-medium px-2.5 py-1 rounded-full border cursor-pointer ${AppState.localModelAvailable ? 'bg-indigo-950/40 text-indigo-300 border-indigo-800/50' : 'bg-slate-900/60 text-slate-400 border-slate-700/50'}`;
+  }
+
+  // Active Mode Indicator
+  const activeModePill = document.getElementById('badge-active-mode');
+  if (activeModePill) {
+    activeModePill.innerText = AppState.activeMode === 'ollama' ? `Mode: Ollama (${AppState.activeOllamaModel})` : `Mode: Local Model (Hugging Face)`;
+  }
+}
+
+function updateModeSelectors() {
+  const selects = document.querySelectorAll('.mode-selector-select');
+  selects.forEach(select => {
+    select.value = AppState.activeMode;
+  });
+}
+
+// Global Mode Switch Handler
+async function handleModeSwitch(newMode) {
+  try {
+    const res = await fetch('/api/models/switch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: newMode })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      AppState.activeMode = data.active_mode;
+      updateStatusBadges();
+      updateModeSelectors();
+      logActivity(`Switched active AI engine to ${newMode.toUpperCase()}`);
+      showToast(`Switched active AI backend to ${newMode.toUpperCase()} mode.`, 'success');
+      if (window.ChatModule) window.ChatModule.updateHeader();
+    } else {
+      showToast('Failed to switch model mode.', 'error');
+    }
+  } catch (err) {
+    showToast(`Error switching mode: ${err.message}`, 'error');
+  }
+}
+
+// Global Diagnostics Runner
+async function runSystemDiagnostics() {
+  const modal = document.getElementById('diagnostics-modal');
+  const resultsContainer = document.getElementById('diagnostics-results');
+  if (modal) modal.classList.remove('hidden');
+  if (resultsContainer) {
+    resultsContainer.innerHTML = `<div class="flex items-center justify-center p-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div><span class="ml-3 text-sm text-slate-300">Running full system diagnostic checks...</span></div>`;
+  }
+
+  try {
+    const [ollamaRes, localRes] = await Promise.all([
+      fetch('/api/models/test-ollama', { method: 'POST' }).then(r => r.json()),
+      fetch('/api/models/test-local', { method: 'POST' }).then(r => r.json())
+    ]);
+
+    let html = `
+      <div class="space-y-4 text-sm">
+        <div class="p-4 rounded-xl border ${ollamaRes.test_generation ? 'bg-emerald-950/30 border-emerald-800/60' : 'bg-amber-950/30 border-amber-800/60'}">
+          <div class="flex items-center justify-between font-semibold ${ollamaRes.test_generation ? 'text-emerald-400' : 'text-amber-400'}">
+            <span class="flex items-center">${ollamaRes.test_generation ? '✓' : '✗'} Ollama Backend (Qwen 2.5 7B)</span>
+            <span class="font-mono text-xs">${ollamaRes.latency_seconds || 0}s</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1">${ollamaRes.message}</p>
+          <div class="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-400">
+            <div>Reachable: <span class="${ollamaRes.ollama_reachable ? 'text-emerald-400' : 'text-rose-400'} font-semibold">${ollamaRes.ollama_reachable ? 'Yes' : 'No'}</span></div>
+            <div>Model Present: <span class="${ollamaRes.model_present ? 'text-emerald-400' : 'text-rose-400'} font-semibold">${ollamaRes.model_present ? 'Yes' : 'No'}</span></div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl border ${localRes.model_valid ? 'bg-indigo-950/30 border-indigo-800/60' : 'bg-slate-900/40 border-slate-700/60'}">
+          <div class="flex items-center justify-between font-semibold ${localRes.model_valid ? 'text-indigo-400' : 'text-slate-400'}">
+            <span class="flex items-center">${localRes.model_valid ? '✓' : '✗'} Project Local Model (./models/)</span>
+            <span class="font-mono text-xs">${localRes.latency_seconds || 0}s</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1">${localRes.message}</p>
+          <div class="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-400">
+            <div>Detected: <span class="${localRes.model_detected ? 'text-emerald-400' : 'text-slate-400'} font-semibold">${localRes.model_detected ? 'Yes' : 'No'}</span></div>
+            <div>Loaded & Verified: <span class="${localRes.test_generation ? 'text-emerald-400' : 'text-slate-400'} font-semibold">${localRes.test_generation ? 'Yes' : 'No'}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+    if (resultsContainer) resultsContainer.innerHTML = html;
+  } catch (err) {
+    if (resultsContainer) {
+      resultsContainer.innerHTML = `<div class="p-4 bg-rose-950/40 border border-rose-800/60 text-rose-300 rounded-xl text-xs">Diagnostic error: ${err.message}</div>`;
+    }
+  }
+}
+
+// Global Command Palette
+const CommandPalette = {
+  isOpen: false,
+  commands: [
+    { title: 'New AI Chat', category: 'Chat', icon: '💬', action: () => { switchTab('chat'); if (window.ChatModule) window.ChatModule.newChat(); } },
+    { title: 'Upload & Summarize File', category: 'Files', icon: '📄', action: () => { switchTab('files'); document.getElementById('file-input')?.click(); } },
+    { title: 'Switch to Ollama Mode (Qwen 2.5 7B)', category: 'Engine', icon: '🧠', action: () => handleModeSwitch('ollama') },
+    { title: 'Switch to Project Local Model', category: 'Engine', icon: '⚡', action: () => handleModeSwitch('local_model') },
+    { title: 'Audit Project Architecture', category: 'Project', icon: '🔍', action: () => { switchTab('project'); if (window.ProjectModule) window.ProjectModule.runAnalysis(); } },
+    { title: 'Open AI Debugging Assistant', category: 'Project', icon: '🐞', action: () => { switchTab('project'); document.getElementById('debug-error-msg')?.focus(); } },
+    { title: 'Run System Diagnostics', category: 'System', icon: '🧪', action: () => runSystemDiagnostics() },
+    { title: 'Models & Settings Configuration', category: 'System', icon: '⚙️', action: () => switchTab('settings') },
+    { title: 'Toggle Sidebar', category: 'View', icon: '☰', action: () => toggleSidebar() }
+  ],
+  selectedIndex: 0,
+
+  open() {
+    const modal = document.getElementById('command-palette-modal');
+    const input = document.getElementById('command-palette-input');
+    if (!modal) return;
+
+    this.isOpen = true;
+    modal.classList.remove('hidden');
+    this.render(this.commands);
+    if (input) {
+      input.value = '';
+      setTimeout(() => input.focus(), 50);
+    }
+  },
+
+  close() {
+    const modal = document.getElementById('command-palette-modal');
+    if (modal) modal.classList.add('hidden');
+    this.isOpen = false;
+  },
+
+  render(filtered) {
+    const container = document.getElementById('command-palette-results');
+    if (!container) return;
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="p-6 text-center text-xs text-slate-500">No matching commands found.</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map((cmd, idx) => `
+      <div onclick="CommandPalette.execute(${idx})" class="command-palette-item flex items-center justify-between px-4 py-2.5 rounded-xl text-xs cursor-pointer transition ${idx === this.selectedIndex ? 'bg-indigo-600/30 text-indigo-200 border border-indigo-500/40' : 'text-slate-300 hover:bg-slate-800/60'}">
+        <div class="flex items-center space-x-3">
+          <span class="text-base">${cmd.icon}</span>
+          <span class="font-medium">${cmd.title}</span>
+        </div>
+        <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">${cmd.category}</span>
+      </div>
+    `).join('');
+  },
+
+  filter(query) {
+    const q = query.toLowerCase().trim();
+    const filtered = this.commands.filter(c => c.title.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
+    this.selectedIndex = 0;
+    this.render(filtered);
+  },
+
+  execute(idx) {
+    const input = document.getElementById('command-palette-input')?.value || '';
+    const q = input.toLowerCase().trim();
+    const filtered = this.commands.filter(c => c.title.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
+    const target = filtered[idx] || this.commands[0];
+    if (target && target.action) {
+      this.close();
+      target.action();
+    }
+  }
+};
+
+// Global Keyboard Shortcuts
+window.addEventListener('keydown', (e) => {
+  // Command palette (Ctrl+K or Cmd+K)
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (CommandPalette.isOpen) CommandPalette.close();
+    else CommandPalette.open();
+  }
+
+  // Toggle sidebar (Ctrl+B or Cmd+B)
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+    e.preventDefault();
+    toggleSidebar();
+  }
+
+  // New chat (Ctrl+Shift+N)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'n') {
+    e.preventDefault();
+    switchTab('chat');
+    if (window.ChatModule) window.ChatModule.newChat();
+  }
+
+  // Switch to Ollama (Ctrl+Shift+O)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'o') {
+    e.preventDefault();
+    handleModeSwitch('ollama');
+  }
+
+  // Switch to Local (Ctrl+Shift+L)
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
+    e.preventDefault();
+    handleModeSwitch('local_model');
+  }
+
+  // Upload file (Ctrl+U)
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'u') {
+    e.preventDefault();
+    switchTab('files');
+    document.getElementById('file-input')?.click();
+  }
+
+  // Escape closes all open modals
+  if (e.key === 'Escape') {
+    closeModal('diagnostics-modal');
+    closeModal('custom-profile-modal');
+    closeModal('status-detail-modal');
+    closeModal('keyboard-shortcuts-modal');
+    CommandPalette.close();
+    const drawer = document.getElementById('context-files-drawer');
+    if (drawer) drawer.classList.add('hidden');
+    closeMobileSidebar();
+  }
+});
+
+// Close Modal Helper
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.add('hidden');
+}
+
+// Global Drag & Drop File Upload Overlay
+function initGlobalDragAndDrop() {
+  const overlay = document.getElementById('global-drag-overlay');
+  if (!overlay) return;
+
+  window.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    overlay.classList.remove('hidden');
+  });
+
+  overlay.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    overlay.classList.add('hidden');
+  });
+
+  overlay.addEventListener('drop', (e) => {
+    e.preventDefault();
+    overlay.classList.add('hidden');
+    if (e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      switchTab('files');
+      if (window.FilesModule) window.FilesModule.handleFileUpload(file);
+    }
+  });
+}
+
+// DOM Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  initSidebarState();
+  initGlobalDragAndDrop();
+
+  // Navigation Event Listeners
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.getAttribute('data-tab');
+      switchTab(tabId);
+    });
+  });
+
+  // Command palette search input listener
+  const cmdInput = document.getElementById('command-palette-input');
+  if (cmdInput) {
+    cmdInput.addEventListener('input', (e) => CommandPalette.filter(e.target.value));
+    cmdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        CommandPalette.execute(CommandPalette.selectedIndex);
+      }
+    });
+  }
+
+  // Initial health check & recurring heartbeat
+  checkSystemHealth();
+  setInterval(checkSystemHealth, 10000);
+});

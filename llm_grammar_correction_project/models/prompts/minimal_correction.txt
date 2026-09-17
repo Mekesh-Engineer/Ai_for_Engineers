@@ -1,0 +1,3 @@
+Fix only obvious spelling mistakes, typos, and clear agreement errors in the following text. Do not change the sentence structure or author's voice:
+"{text}"
+Corrected:
