@@ -150,18 +150,18 @@ const SettingsModule = {
     container.innerHTML = '';
     for (const [key, profile] of Object.entries(profiles)) {
       const card = document.createElement('div');
-      card.className = 'glass-panel p-4 rounded-xl border border-slate-700/60 flex flex-col justify-between';
+      card.className = 'glass-panel p-4 rounded-xl border border-[var(--color-border)] flex flex-col justify-between';
       card.innerHTML = `
         <div>
           <div class="flex items-center justify-between mb-1">
-            <h4 class="text-sm font-semibold text-white">${profile.name}</h4>
-            <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded ${key === AppState.activeProfile ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400'}">${key}</span>
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">${profile.name}</h4>
+            <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded ${key === AppState.activeProfile ? 'bg-indigo-600 text-white' : 'bg-[var(--color-elevated)] text-[var(--color-text-muted)] border border-[var(--color-border)]'}">${key}</span>
           </div>
-          <p class="text-xs text-slate-400 mb-3">${profile.description || ''}</p>
-          <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800 text-[11px] text-slate-300 font-mono line-clamp-3">${profile.prompt}</div>
+          <p class="text-xs text-[var(--color-text-secondary)] mb-3">${profile.description || ''}</p>
+          <div class="bg-[var(--color-canvas)] p-2.5 rounded-lg border border-[var(--color-border)] text-[11px] text-[var(--color-text-secondary)] font-mono line-clamp-3">${profile.prompt}</div>
         </div>
-        <div class="mt-3 pt-2 border-t border-slate-800 flex justify-end">
-          <button onclick="SettingsModule.activateProfile('${key}')" class="text-xs px-2.5 py-1 bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 rounded-lg hover:bg-indigo-600 hover:text-white transition">Select Profile</button>
+        <div class="mt-3 pt-2 border-t border-[var(--color-border)] flex justify-end">
+          <button onclick="SettingsModule.activateProfile('${key}')" class="text-xs px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 rounded-lg hover:bg-indigo-600 hover:text-white transition">Select Profile</button>
         </div>
       `;
       container.appendChild(card);
@@ -205,15 +205,15 @@ const SettingsModule = {
         if (localList) {
           const locals = data.local_model.discovered_models || [];
           if (locals.length === 0) {
-            localList.innerHTML = '<div class="text-xs text-slate-500 p-2 italic">No compatible model checkpoints found in ./models/.</div>';
+            localList.innerHTML = '<div class="text-xs text-[var(--color-text-muted)] p-2 italic">No compatible model checkpoints found in ./models/.</div>';
           } else {
             localList.innerHTML = locals.map(m => `
-              <div class="p-2.5 rounded-lg bg-slate-900/60 border border-slate-700/60 flex items-center justify-between text-xs">
+              <div class="p-2.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between text-xs">
                 <div>
-                  <div class="font-medium text-indigo-300 font-mono">${m.name}</div>
-                  <div class="text-[10px] text-slate-400">${m.architecture} | ${m.format} | ${m.size_mb} MB</div>
+                  <div class="font-medium text-indigo-400 font-mono">${m.name}</div>
+                  <div class="text-[10px] text-[var(--color-text-secondary)]">${m.architecture} | ${m.format} | ${m.size_mb} MB</div>
                 </div>
-                <span class="px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800 text-[10px]">Valid Checkpoint</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-medium">Valid Checkpoint</span>
               </div>
             `).join('');
           }
@@ -232,7 +232,7 @@ const SettingsModule = {
     if (btn) btn.disabled = true;
     if (resultBox) {
       resultBox.classList.remove('hidden');
-      resultBox.innerHTML = '<span class="text-xs text-slate-400">Testing connection to Ollama...</span>';
+      resultBox.innerHTML = '<span class="text-xs text-[var(--color-text-secondary)]">Testing connection to Ollama...</span>';
     }
 
     try {
@@ -241,14 +241,14 @@ const SettingsModule = {
       
       const isSuccess = data.test_generation;
       resultBox.innerHTML = `
-        <div class="p-3 rounded-lg border text-xs ${isSuccess ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300' : 'bg-rose-950/40 border-rose-800 text-rose-300'}">
+        <div class="p-3 rounded-lg border text-xs ${isSuccess ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'}">
           <div class="font-semibold mb-1">${isSuccess ? '✓ Ollama Test Passed' : '✗ Ollama Test Failed'} (${data.latency_seconds || 0}s)</div>
-          <div>${data.message}</div>
-          ${data.details?.sample_output ? `<div class="mt-1 font-mono text-[11px] opacity-80">Sample Output: "${data.details.sample_output}"</div>` : ''}
+          <div class="text-[var(--color-text-secondary)]">${data.message}</div>
+          ${data.details?.sample_output ? `<div class="mt-1 font-mono text-[11px] opacity-90 text-[var(--color-text-primary)]">Sample Output: "${data.details.sample_output}"</div>` : ''}
         </div>
       `;
     } catch (err) {
-      resultBox.innerHTML = `<div class="p-3 rounded-lg border border-rose-800 bg-rose-950/40 text-rose-300 text-xs">Test failed: ${err.message}</div>`;
+      resultBox.innerHTML = `<div class="p-3 rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-400 text-xs">Test failed: ${err.message}</div>`;
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -260,7 +260,7 @@ const SettingsModule = {
     if (btn) btn.disabled = true;
     if (resultBox) {
       resultBox.classList.remove('hidden');
-      resultBox.innerHTML = '<span class="text-xs text-slate-400">Validating and loading local model...</span>';
+      resultBox.innerHTML = '<span class="text-xs text-[var(--color-text-secondary)]">Validating and loading local model...</span>';
     }
 
     try {
@@ -269,14 +269,14 @@ const SettingsModule = {
       
       const isSuccess = data.test_generation;
       resultBox.innerHTML = `
-        <div class="p-3 rounded-lg border text-xs ${isSuccess ? 'bg-indigo-950/40 border-indigo-800 text-indigo-300' : 'bg-rose-950/40 border-rose-800 text-rose-300'}">
+        <div class="p-3 rounded-lg border text-xs ${isSuccess ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'}">
           <div class="font-semibold mb-1">${isSuccess ? '✓ Local Model Verified' : '✗ Verification Failed'} (${data.latency_seconds || 0}s)</div>
-          <div>${data.message}</div>
-          ${data.details?.sample_output ? `<div class="mt-1 font-mono text-[11px] opacity-80">Sample Output: "${data.details.sample_output}"</div>` : ''}
+          <div class="text-[var(--color-text-secondary)]">${data.message}</div>
+          ${data.details?.sample_output ? `<div class="mt-1 font-mono text-[11px] opacity-90 text-[var(--color-text-primary)]">Sample Output: "${data.details.sample_output}"</div>` : ''}
         </div>
       `;
     } catch (err) {
-      resultBox.innerHTML = `<div class="p-3 rounded-lg border border-rose-800 bg-rose-950/40 text-rose-300 text-xs">Test failed: ${err.message}</div>`;
+      resultBox.innerHTML = `<div class="p-3 rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-400 text-xs">Test failed: ${err.message}</div>`;
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -335,6 +335,12 @@ const SettingsModule = {
         showToast(`Created profile '${name}'!`, 'success');
         closeModal('custom-profile-modal');
         this.loadSettings();
+        if (window.ChatModule && window.ChatModule.loadProfiles) {
+          window.ChatModule.loadProfiles();
+        }
+      } else {
+        const err = await res.json();
+        throw new Error(err.detail || 'Failed to create profile');
       }
     } catch (err) {
       showToast(`Error creating profile: ${err.message}`, 'error');
@@ -353,8 +359,8 @@ const SettingsModule = {
     if (btn) btn.disabled = true;
     if (spinner) spinner.classList.remove('hidden');
 
-    if (ollamaResultEl) ollamaResultEl.innerHTML = '<div class="text-slate-400 italic">Streaming inference from Ollama (Qwen 2.5 7B)...</div>';
-    if (localResultEl) localResultEl.innerHTML = '<div class="text-slate-400 italic">Executing inference on Local Model (Transformers)...</div>';
+    if (ollamaResultEl) ollamaResultEl.innerHTML = '<div class="text-[var(--color-text-secondary)] italic">Streaming inference from Ollama (Qwen 2.5 7B)...</div>';
+    if (localResultEl) localResultEl.innerHTML = '<div class="text-[var(--color-text-secondary)] italic">Executing inference on Local Model (Transformers)...</div>';
 
     const startTime = Date.now();
 
@@ -364,46 +370,58 @@ const SettingsModule = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: prompt,
+          messages: [{ role: 'user', content: prompt }],
           mode: 'ollama',
-          system_profile: 'general',
-          stream: false
+          profile: 'general'
         })
-      }).then(r => r.json());
+      }).then(async r => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.detail || `HTTP ${r.status}`);
+        return data;
+      });
 
       // Execute Local Model Request
       const localPromise = fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: prompt,
+          messages: [{ role: 'user', content: prompt }],
           mode: 'local_model',
-          system_profile: 'general',
-          stream: false
+          profile: 'general'
         })
-      }).then(r => r.json());
+      }).then(async r => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.detail || `HTTP ${r.status}`);
+        return data;
+      });
 
       const [ollamaRes, localRes] = await Promise.allSettled([ollamaPromise, localPromise]);
 
       // Render Ollama Result
       if (ollamaResultEl) {
-        if (ollamaRes.status === 'fulfilled' && !ollamaRes.value.error) {
-          const resp = ollamaRes.value.response || ollamaRes.value.content || '';
-          ollamaResultEl.innerHTML = window.marked ? marked.parse(resp) : resp;
+        if (ollamaRes.status === 'fulfilled' && ollamaRes.value) {
+          const respObj = ollamaRes.value.response;
+          const text = (respObj && typeof respObj === 'object' && respObj.text) 
+            ? respObj.text 
+            : (typeof respObj === 'string' ? respObj : (ollamaRes.value.content || ''));
+          ollamaResultEl.innerHTML = typeof marked !== 'undefined' ? marked.parse(text) : text;
         } else {
-          const err = ollamaRes.status === 'rejected' ? ollamaRes.reason?.message : ollamaRes.value?.detail || 'Execution error';
-          ollamaResultEl.innerHTML = `<div class="p-3 bg-rose-950/40 text-rose-300 rounded-lg text-xs">Ollama Error: ${err}</div>`;
+          const err = ollamaRes.status === 'rejected' ? (ollamaRes.reason?.message || ollamaRes.reason) : (ollamaRes.value?.detail || 'Execution error');
+          ollamaResultEl.innerHTML = `<div class="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-lg text-xs">Ollama Error: ${err}</div>`;
         }
       }
 
       // Render Local Model Result
       if (localResultEl) {
-        if (localRes.status === 'fulfilled' && !localRes.value.error) {
-          const resp = localRes.value.response || localRes.value.content || '';
-          localResultEl.innerHTML = window.marked ? marked.parse(resp) : resp;
+        if (localRes.status === 'fulfilled' && localRes.value) {
+          const respObj = localRes.value.response;
+          const text = (respObj && typeof respObj === 'object' && respObj.text) 
+            ? respObj.text 
+            : (typeof respObj === 'string' ? respObj : (localRes.value.content || ''));
+          localResultEl.innerHTML = typeof marked !== 'undefined' ? marked.parse(text) : text;
         } else {
-          const err = localRes.status === 'rejected' ? localRes.reason?.message : localRes.value?.detail || 'Local model error or unavailable';
-          localResultEl.innerHTML = `<div class="p-3 bg-rose-950/40 text-rose-300 rounded-lg text-xs">Local Model Error: ${err}</div>`;
+          const err = localRes.status === 'rejected' ? (localRes.reason?.message || localRes.reason) : (localRes.value?.detail || 'Local model error or unavailable');
+          localResultEl.innerHTML = `<div class="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-lg text-xs">Local Model Error: ${err}</div>`;
         }
       }
 

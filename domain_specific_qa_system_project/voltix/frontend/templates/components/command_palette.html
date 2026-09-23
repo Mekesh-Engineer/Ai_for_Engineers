@@ -1,0 +1,99 @@
+<!-- Command Palette (Ctrl+K or ⌘K) -->
+<div id="modal-command-palette" class="cmd-palette-backdrop hidden">
+    <div class="cmd-palette-modal flex flex-col">
+        <!-- Search Input Bar -->
+        <div class="p-3 border-b border-white/[0.08] flex items-center gap-2.5 bg-neutral-900/80">
+            <i class="fa-solid fa-magnifying-glass text-neutral-400 text-xs"></i>
+            <input type="text" id="cmd-palette-input" placeholder="Type a command or search sessions..." class="w-full bg-transparent text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none">
+            <span class="cmd-kbd">ESC</span>
+        </div>
+
+        <!-- Command Items List -->
+        <div id="cmd-palette-list" class="max-h-80 overflow-y-auto p-1.5 space-y-0.5 text-xs">
+            <div class="px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Quick Actions</div>
+            <div class="cmd-item" data-action="new-chat">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-plus text-neutral-400 w-4 text-center"></i>
+                    <span>Start New Chat</span>
+                </div>
+                <span class="cmd-kbd">Ctrl+N</span>
+            </div>
+            <div class="cmd-item" data-action="open-tools">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-calculator text-neutral-400 w-4 text-center"></i>
+                    <span>Engineering Solvers & Tools</span>
+                </div>
+            </div>
+            <div class="cmd-item" data-action="open-projects">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-regular fa-folder-open text-neutral-400 w-4 text-center"></i>
+                    <span>Manage Workspaces</span>
+                </div>
+            </div>
+            <div class="cmd-item" data-action="open-settings">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-gear text-neutral-400 w-4 text-center"></i>
+                    <span>Settings & Hyperparameters</span>
+                </div>
+            </div>
+            <div class="cmd-item" data-action="export-chat">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-download text-neutral-400 w-4 text-center"></i>
+                    <span>Export Active Conversation</span>
+                </div>
+            </div>
+            <div class="cmd-item" data-action="toggle-theme">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-moon text-neutral-400 w-4 text-center"></i>
+                    <span>Toggle Dark / Light Theme</span>
+                </div>
+            </div>
+
+            <div class="px-2.5 py-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-500 border-t border-white/[0.06]">AI Inference Models</div>
+            <div class="cmd-item" data-action="set-model" data-value="auto">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-bolt text-amber-400 w-4 text-center"></i>
+                    <span>Auto (Dynamic Routing)</span>
+                </div>
+                <span class="text-[10px] text-neutral-500 font-mono">Dynamic</span>
+            </div>
+            <div class="cmd-item" data-action="set-model" data-value="qwen2.5:7b">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-microchip text-emerald-400 w-4 text-center"></i>
+                    <span>Qwen 2.5 7B (Local Specialist)</span>
+                </div>
+                <span class="text-[10px] text-emerald-400 font-mono">Local</span>
+            </div>
+            <div class="cmd-item" data-action="set-model" data-value="deepseek-v4-flash:cloud">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-bolt-lightning text-cyan-400 w-4 text-center"></i>
+                    <span>DeepSeek V4 Flash</span>
+                </div>
+                <span class="text-[10px] text-cyan-400 font-mono">Cloud</span>
+            </div>
+            <div class="cmd-item" data-action="set-model" data-value="gemma4:31b-cloud">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-brain text-purple-400 w-4 text-center"></i>
+                    <span>Gemma 4 31B</span>
+                </div>
+                <span class="text-[10px] text-purple-400 font-mono">Cloud</span>
+            </div>
+            <div class="cmd-item" data-action="set-model" data-value="gpt-oss:120b-cloud">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-atom text-rose-400 w-4 text-center"></i>
+                    <span>GPT-OSS 120B</span>
+                </div>
+                <span class="text-[10px] text-rose-400 font-mono">Cloud</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-2 border-t border-white/[0.06] bg-neutral-950 px-3 flex items-center justify-between text-[11px] text-neutral-500">
+            <div class="flex items-center gap-2">
+                <span><kbd class="cmd-kbd">↑</kbd> <kbd class="cmd-kbd">↓</kbd> Navigate</span>
+                <span><kbd class="cmd-kbd">↵</kbd> Select</span>
+            </div>
+            <span>VOLTIX Quick Actions</span>
+        </div>
+    </div>
+</div>

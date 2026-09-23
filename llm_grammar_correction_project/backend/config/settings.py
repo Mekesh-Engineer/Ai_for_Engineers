@@ -23,6 +23,10 @@ class StudioSettings:
         self.raw_api_config = self._load_json(self.api_config_path)
         self.raw_prompts = self._load_json(self.prompts_path)
 
+        server_cfg = self.raw_api_config.get("server", {})
+        self.server_host = os.getenv("STUDIO_HOST", server_cfg.get("host", "127.0.0.1"))
+        self.server_port = int(os.getenv("STUDIO_PORT", server_cfg.get("port", 8501)))
+
         studio_cfg = self.raw_model_config.get("studio", {})
         self.default_mode = studio_cfg.get("default_mode", "ollama")
         self.active_mode = self.default_mode

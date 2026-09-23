@@ -51,10 +51,10 @@ const FilesModule = {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.file-task-btn').forEach(b => {
           b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-500');
-          b.classList.add('bg-slate-900', 'text-slate-300', 'border-slate-800');
+          b.classList.add('bg-[var(--color-surface)]', 'text-[var(--color-text-secondary)]', 'border-[var(--color-border)]');
         });
         btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-500');
-        btn.classList.remove('bg-slate-900', 'text-slate-300', 'border-slate-800');
+        btn.classList.remove('bg-[var(--color-surface)]', 'text-[var(--color-text-secondary)]', 'border-[var(--color-border)]');
         this.activeTask = btn.getAttribute('data-task');
       });
     });
@@ -74,12 +74,12 @@ const FilesModule = {
 
   classifyFile(filename, ext) {
     ext = (ext || '').toLowerCase();
-    if (['.py', '.js', '.ts', '.html', '.css', '.c', '.cpp', '.java', '.sql'].includes(ext)) return { label: 'Source Code', badge: '💻 Code', color: 'text-indigo-400 bg-indigo-950/60 border-indigo-800' };
-    if (['.pdf'].includes(ext)) return { label: 'PDF Document', badge: '📕 PDF', color: 'text-rose-400 bg-rose-950/60 border-rose-800' };
-    if (['.docx', '.doc'].includes(ext)) return { label: 'Word Document', badge: '📘 DOCX', color: 'text-blue-400 bg-blue-950/60 border-blue-800' };
-    if (['.csv'].includes(ext)) return { label: 'Tabular Dataset', badge: '📊 CSV', color: 'text-emerald-400 bg-emerald-950/60 border-emerald-800' };
-    if (['.json', '.yaml', '.yml', '.toml'].includes(ext)) return { label: 'Config / JSON', badge: '⚙️ Config', color: 'text-amber-400 bg-amber-950/60 border-amber-800' };
-    return { label: 'Text Document', badge: '📝 Text', color: 'text-slate-400 bg-slate-900 border-slate-800' };
+    if (['.py', '.js', '.ts', '.html', '.css', '.c', '.cpp', '.java', '.sql'].includes(ext)) return { label: 'Source Code', badge: '💻 Code', color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30' };
+    if (['.pdf'].includes(ext)) return { label: 'PDF Document', badge: '📕 PDF', color: 'text-rose-400 bg-rose-500/10 border-rose-500/30' };
+    if (['.docx', '.doc'].includes(ext)) return { label: 'Word Document', badge: '📘 DOCX', color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' };
+    if (['.csv'].includes(ext)) return { label: 'Tabular Dataset', badge: '📊 CSV', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' };
+    if (['.json', '.yaml', '.yml', '.toml'].includes(ext)) return { label: 'Config / JSON', badge: '⚙️ Config', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' };
+    return { label: 'Text Document', badge: '📝 Text', color: 'text-[var(--color-text-secondary)] bg-[var(--color-elevated)] border-[var(--color-border)]' };
   },
 
   async handleFileUpload(file) {
@@ -120,17 +120,17 @@ const FilesModule = {
     if (!container) return;
 
     if (this.uploadedFilesList.length === 0) {
-      container.innerHTML = '<div class="text-[11px] text-slate-500 p-2 italic">No uploaded files yet.</div>';
+      container.innerHTML = '<div class="text-[11px] text-[var(--color-text-muted)] p-2 italic">No uploaded files yet.</div>';
       return;
     }
 
     container.innerHTML = this.uploadedFilesList.map((d, idx) => {
       const cls = this.classifyFile(d.document.filename, '.' + d.document.file_type.toLowerCase());
       return `
-        <div onclick="FilesModule.selectUploadedFile(${idx})" class="p-2.5 rounded-xl border transition cursor-pointer flex items-center justify-between text-xs ${this.currentDocument === d ? 'bg-indigo-950/40 border-indigo-500/50 text-indigo-200' : 'bg-slate-950/60 border-slate-800 hover:bg-slate-800/60 text-slate-300'}">
+        <div onclick="FilesModule.selectUploadedFile(${idx})" class="p-2.5 rounded-xl border transition cursor-pointer flex items-center justify-between text-xs ${this.currentDocument === d ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-300' : 'bg-[var(--color-surface)] border-[var(--color-border)] hover:bg-[var(--color-elevated)] text-[var(--color-text-primary)]'}">
           <div class="truncate flex-1 pr-2">
             <div class="font-medium truncate">${d.document.filename}</div>
-            <div class="text-[10px] text-slate-500 mt-0.5">${d.document.word_count} words • ~${d.document.estimated_tokens} tokens</div>
+            <div class="text-[10px] text-[var(--color-text-muted)] mt-0.5">${d.document.word_count} words • ~${d.document.estimated_tokens} tokens</div>
           </div>
           <span class="text-[10px] px-2 py-0.5 rounded border ${cls.color}">${cls.badge}</span>
         </div>
@@ -229,11 +229,11 @@ const FilesModule = {
 
     if (resultStats) {
       resultStats.innerHTML = `
-        <span class="bg-indigo-950/60 text-indigo-300 border border-indigo-800/60 px-2 py-0.5 rounded text-xs font-mono">Engine: ${result.mode_used}</span>
-        <span class="bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 px-2 py-0.5 rounded text-xs">${result.summary_words} words</span>
-        <span class="bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded text-xs">Compression: ${(result.compression_ratio * 100).toFixed(1)}%</span>
-        <span class="bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded text-xs font-mono">${result.duration_seconds}s</span>
-        ${result.is_hierarchical ? `<span class="bg-violet-950/60 text-violet-300 border border-violet-800/60 px-2 py-0.5 rounded text-xs font-semibold">Hierarchical (${result.total_chunks} Chunks)</span>` : ''}
+        <span class="bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded text-xs font-mono">Engine: ${result.mode_used}</span>
+        <span class="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded text-xs">${result.summary_words} words</span>
+        <span class="bg-[var(--color-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-border)] px-2 py-0.5 rounded text-xs">Compression: ${(result.compression_ratio * 100).toFixed(1)}%</span>
+        <span class="bg-[var(--color-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-border)] px-2 py-0.5 rounded text-xs font-mono">${result.duration_seconds}s</span>
+        ${result.is_hierarchical ? `<span class="bg-violet-500/10 text-violet-300 border border-violet-500/30 px-2 py-0.5 rounded text-xs font-semibold">Hierarchical (${result.total_chunks} Chunks)</span>` : ''}
       `;
     }
 
@@ -244,11 +244,12 @@ const FilesModule = {
     resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
   },
 
-  copyResult() {
+  async copyResult() {
     const resultContent = document.getElementById('file-summary-content');
     if (resultContent) {
-      navigator.clipboard.writeText(resultContent.innerText);
-      showToast('Summary copied to clipboard', 'success');
+      const ok = await copyToClipboard(resultContent.innerText);
+      if (ok) showToast('Summary copied to clipboard', 'success');
+      else showToast('Failed to copy', 'error');
     }
   },
 
@@ -291,8 +292,12 @@ const FilesModule = {
   },
 
   askSuggestedQuestion(questionText) {
+    if (!this.currentDocument) {
+      showToast('Please upload or select a document first.', 'warning');
+      return;
+    }
     switchTab('chat');
-    if (window.ChatModule && this.currentDocument) {
+    if (window.ChatModule) {
       window.ChatModule.attachedChatFiles = [{
         filename: this.currentDocument.document.filename,
         size_bytes: this.currentDocument.document.size_bytes,

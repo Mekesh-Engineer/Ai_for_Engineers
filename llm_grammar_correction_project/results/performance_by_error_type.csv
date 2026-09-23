@@ -1,3 +1,7 @@
-error_type,sample_count,exact_match_pct,avg_lev_distance,avg_token_f1,over_correction_pct,under_correction_pct
-Conditional Tense & Passive Voice,1,100.0,0.0,1.0,0.0,0.0
-Conjunction Redundancy & Adverb Form,1,100.0,0.0,1.0,0.0,0.0
+error_type,sample_count,exact_match_pct,avg_lev_distance,avg_token_f1,avg_gleu_score,over_correction_pct,under_correction_pct
+Clause Structure & Word Choice,1,100.0,0.0,1.0,1.0,0.0,0.0
+Comparative Adjective & Preposition,1,100.0,0.0,1.0,1.0,0.0,0.0
+Conditional Tense & Passive Voice,1,100.0,0.0,1.0,1.0,0.0,0.0
+Conjunction Redundancy & Adverb Form,1,100.0,0.0,1.0,1.0,0.0,0.0
+Preposition Redundancy & Verb Agreement,1,100.0,0.0,1.0,1.0,0.0,0.0
+Uncountable Noun,1,100.0,0.0,1.0,1.0,0.0,0.0

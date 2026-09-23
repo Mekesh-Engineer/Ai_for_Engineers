@@ -4,261 +4,401 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Local LLM Studio — AI Grammar Correction & Text Rewriting Workstation</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M13 10V3L4 14h7v7l9-11h-7z'/></svg>">
+  
+  <!-- Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/static/css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
           colors: {
-            brand: {
-              50: '#eef2ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              900: '#1e1b4b',
+            studio: {
+              canvas: 'var(--color-canvas)',
+              surface: 'var(--color-surface)',
+              elevated: 'var(--color-elevated)',
+              border: 'var(--color-border)',
+              accent: 'var(--color-accent)'
             }
           }
         }
       }
     }
   </script>
-</head>
-<body class="bg-[#090d16] text-slate-100 flex flex-col h-screen w-screen overflow-hidden antialiased select-none">
 
-  <!-- TOP HEADER -->
-  <header class="h-14 border-b border-slate-800/80 bg-[#0f172a]/80 backdrop-blur-xl flex items-center justify-between px-4 z-40 flex-shrink-0">
+  <!-- Marked.js for Markdown Rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Custom Design System Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css?v=1.1.0">
+
+  <!-- Immediate Theme Initializer -->
+  <script>
+    (function() {
+      try {
+        var theme = localStorage.getItem('studio_theme') || 'dark';
+        if (theme === 'light') {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        } else {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="bg-[var(--color-canvas)] text-[var(--color-text-primary)] font-sans h-screen w-screen flex flex-col antialiased selection:bg-indigo-600 selection:text-white overflow-hidden">
+
+  <!-- Global Drag & Drop Upload Overlay -->
+  <div id="global-drag-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-opacity duration-200">
+    <div class="glass-panel p-10 rounded-2xl border-2 border-dashed border-indigo-500 text-center space-y-3 shadow-2xl scale-100">
+      <div class="w-14 h-14 rounded-xl bg-indigo-500/10 text-indigo-400 mx-auto flex items-center justify-center">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+      </div>
+      <h3 class="text-base font-semibold text-[var(--color-text-primary)]">Drop document to proofread & rewrite</h3>
+      <p class="text-xs text-[var(--color-text-secondary)]">Extracts text and loads it directly into the Document Proofreader</p>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div id="mobile-sidebar-backdrop" onclick="closeMobileSidebar()" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"></div>
+
+  <!-- TOP WORKSTATION CONTROL BAR -->
+  <header class="h-14 border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 backdrop-blur-md px-4 flex items-center justify-between flex-shrink-0 z-30">
     <div class="flex items-center space-x-3">
-      <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      <!-- Sidebar Toggle Button -->
+      <button id="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+B)" class="p-2 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-elevated)] transition border border-transparent hover:border-[var(--color-border)]">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
       </button>
-      <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/25 text-sm">
-          AG
+
+      <!-- App Logo & Title -->
+      <div class="flex items-center space-x-2.5">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-sm">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
         </div>
         <div>
-          <h1 class="text-xs font-bold text-slate-100 tracking-wide flex items-center gap-1.5">
-            LOCAL LLM STUDIO
-            <span class="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">EXP 8: GEC & REWRITE</span>
-          </h1>
-          <p class="text-[10px] text-slate-400">Grammar Error Correction • Academic Polish • Text Rewriting</p>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-semibold tracking-tight text-[var(--color-text-primary)]">Local LLM Studio</span>
+            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium">EXP 8: GEC & REWRITE</span>
+          </div>
+          <p class="text-[10px] text-[var(--color-text-muted)] hidden sm:block">Grammar Correction • Academic Polish • Text Rewriting Workstation</p>
         </div>
       </div>
     </div>
 
-    <!-- Center Mode Selector -->
-    <div class="hidden md:flex items-center space-x-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800/80">
-      <label class="flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition has-[:checked]:bg-indigo-600 has-[:checked]:text-white text-slate-400">
-        <input type="radio" name="header_mode" value="ollama" class="hidden mode-toggle-radio" checked>
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-        <span>Ollama (Qwen 2.5 7B)</span>
-      </label>
-      <label class="flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition has-[:checked]:bg-violet-600 has-[:checked]:text-white text-slate-400">
-        <input type="radio" name="header_mode" value="local_model" class="hidden mode-toggle-radio">
-        <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
-        <span>Project Local Model</span>
-      </label>
-    </div>
+    <!-- Live Status, Engine Switcher & Workstation Actions -->
+    <div class="flex items-center space-x-2">
+      <!-- Real-Time Status Badges -->
+      <div id="badge-backend" class="flex items-center text-[11px] font-medium px-2.5 py-1 rounded-md border border-[var(--color-border)] bg-[var(--color-elevated)] text-[var(--color-text-secondary)] cursor-pointer">
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-500 mr-1.5"></span>Backend
+      </div>
+      <div id="badge-ollama" class="flex items-center text-[11px] font-medium px-2.5 py-1 rounded-md border border-[var(--color-border)] bg-[var(--color-elevated)] text-[var(--color-text-secondary)] cursor-pointer">
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-500 mr-1.5"></span>Ollama
+      </div>
+      <div id="badge-local-model" class="hidden md:flex items-center text-[11px] font-medium px-2.5 py-1 rounded-md border border-[var(--color-border)] bg-[var(--color-elevated)] text-[var(--color-text-secondary)] cursor-pointer">
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-500 mr-1.5"></span>Local Model
+      </div>
 
-    <!-- Right Badges & Command Palette Trigger -->
-    <div class="flex items-center space-x-2.5">
-      <button onclick="openCommandPalette()" class="hidden sm:flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 hover:text-slate-200 transition">
-        <span>⌘K Command Palette</span>
+      <!-- Engine Mode Dropdown -->
+      <div class="flex items-center bg-[var(--color-elevated)] rounded-lg border border-[var(--color-border)] px-1">
+        <select onchange="handleModeSwitch(this.value)" class="mode-selector-select bg-transparent text-xs font-medium text-[var(--color-text-primary)] focus:outline-none px-2 py-1 cursor-pointer">
+          <option value="ollama">Engine: Ollama (Qwen 2.5 7B)</option>
+          <option value="local_model">Engine: Project Local Model</option>
+        </select>
+      </div>
+
+      <!-- Theme Switcher Button -->
+      <button id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme (Dark / Light)" class="p-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition flex items-center justify-center">
+        <svg id="theme-icon-sun" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <svg id="theme-icon-moon" class="w-4 h-4 text-indigo-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
       </button>
-      <div id="badge-backend" class="flex items-center text-xs px-2.5 py-1 rounded-full border bg-slate-900 text-slate-400 border-slate-800">
-        <span class="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>Backend
-      </div>
-      <div id="badge-ollama" class="hidden sm:flex items-center text-xs px-2.5 py-1 rounded-full border bg-slate-900 text-slate-400 border-slate-800">
-        <span class="w-2 h-2 rounded-full bg-slate-500 mr-1.5"></span>Ollama
-      </div>
+
+      <!-- Command Palette Trigger -->
+      <button onclick="CommandPalette.open()" title="Command Palette (Ctrl+K)" class="hidden sm:flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] transition font-mono">
+        <span>⌘K</span>
+      </button>
+
+      <!-- Diagnostics Modal Trigger -->
+      <button onclick="runSystemDiagnostics()" title="Run Diagnostics" class="px-2.5 py-1 rounded-lg bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-xs font-medium text-[var(--color-text-primary)] flex items-center transition">
+        <svg class="w-3.5 h-3.5 mr-1.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span class="hidden md:inline">Diagnostics</span>
+      </button>
+
+      <!-- Keyboard Shortcuts Trigger -->
+      <button onclick="document.getElementById('keyboard-shortcuts-modal')?.classList.remove('hidden')" title="Keyboard Shortcuts (?)" class="p-1.5 rounded-lg bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-xs font-mono text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition">
+        ?
+      </button>
     </div>
   </header>
 
-  <!-- MAIN APP CONTAINER -->
-  <div class="flex-1 flex overflow-hidden relative">
-
-    <!-- SIDEBAR -->
-    <aside id="app-sidebar" class="w-[260px] flex-shrink-0 bg-[#0c1222] border-r border-slate-800/80 flex flex-col justify-between p-3 z-30 transition-all duration-300">
-      <div class="space-y-6">
+  <!-- MAIN WORKSPACE LAYOUT -->
+  <div class="flex flex-1 overflow-hidden relative min-h-0">
+    
+    <!-- MINIMAL COLLAPSIBLE SIDEBAR NAVIGATION -->
+    <aside id="app-sidebar" class="w-64 border-r border-[var(--color-border)] bg-[var(--color-surface)] p-3 flex flex-col justify-between flex-shrink-0 z-20 transition-all duration-300 h-full overflow-y-auto">
+      <div class="space-y-4">
+        
+        <!-- Group 1: WORKSPACE -->
         <div>
-          <div class="sidebar-group-title text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-2">Workstation Navigation</div>
-          <nav class="space-y-1">
+          <div class="sidebar-group-title text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] px-3 mb-1.5">Workspace</div>
+          <div class="space-y-0.5">
             <div class="nav-btn-wrapper relative">
-              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-indigo-300 bg-indigo-600/20 border border-indigo-500/40" data-tab="dashboard">
-                <svg class="w-4 h-4 mr-2.5 flex-shrink-0 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                <span class="sidebar-text">Overview & Metrics</span>
+              <button data-tab="dashboard" class="nav-btn w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium transition bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+                <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="sidebar-text truncate">Dashboard</span>
               </button>
-              <div class="sidebar-tooltip">Overview & Metrics</div>
+              <div class="sidebar-tooltip">Dashboard</div>
             </div>
+
             <div class="nav-btn-wrapper relative">
-              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200" data-tab="chat">
+              <button data-tab="chat" class="nav-btn w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium transition text-[var(--color-text-secondary)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)]">
                 <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                <span class="sidebar-text">Interactive AI Chat</span>
+                <span class="sidebar-text truncate">Interactive AI Chat</span>
               </button>
-              <div class="sidebar-tooltip">Interactive AI Chat</div>
+              <div class="sidebar-tooltip">Interactive Chat</div>
             </div>
+
             <div class="nav-btn-wrapper relative">
-              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200" data-tab="files">
+              <button data-tab="files" class="nav-btn w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium transition text-[var(--color-text-secondary)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)]">
                 <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                <span class="sidebar-text">Document Proofreader</span>
+                <span class="sidebar-text truncate">Document Proofreader</span>
               </button>
               <div class="sidebar-tooltip">Document Proofreader</div>
             </div>
+
             <div class="nav-btn-wrapper relative">
-              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200" data-tab="project">
+              <button data-tab="project" class="nav-btn w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium transition text-[var(--color-text-secondary)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)]">
                 <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                <span class="sidebar-text">Doc & Code Auditor</span>
+                <span class="sidebar-text truncate">Doc & Code Auditor</span>
               </button>
               <div class="sidebar-tooltip">Doc & Code Auditor</div>
             </div>
-            <div class="nav-btn-wrapper relative">
-              <button class="nav-btn w-full flex items-center px-3 py-2 rounded-xl text-xs font-medium transition text-slate-400 hover:bg-slate-800/60 hover:text-slate-200" data-tab="settings">
-                <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
-                <span class="sidebar-text">Model Workbench</span>
-              </button>
-              <div class="sidebar-tooltip">Model Workbench</div>
-            </div>
-          </nav>
+          </div>
         </div>
+
+        <!-- Group 2: AI TOOLS -->
+        <div>
+          <div class="sidebar-group-title text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] px-3 mb-1.5">AI Tools</div>
+          <div class="space-y-0.5">
+            <div class="nav-btn-wrapper relative">
+              <button onclick="switchTab('files')" class="w-full flex items-center px-3 py-1.5 rounded-lg text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)] transition">
+                <svg class="w-3.5 h-3.5 mr-2.5 flex-shrink-0 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                <span class="sidebar-text truncate">Proofreader</span>
+              </button>
+              <div class="sidebar-tooltip">Proofreader</div>
+            </div>
+
+            <div class="nav-btn-wrapper relative">
+              <button onclick="switchTab('project')" class="w-full flex items-center px-3 py-1.5 rounded-lg text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)] transition">
+                <svg class="w-3.5 h-3.5 mr-2.5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="sidebar-text truncate">Grammar Auditor</span>
+              </button>
+              <div class="sidebar-tooltip">Grammar Auditor</div>
+            </div>
+
+            <div class="nav-btn-wrapper relative">
+              <button onclick="switchTab('project'); setTimeout(() => document.getElementById('debug-error-msg')?.focus(), 150)" class="w-full flex items-center px-3 py-1.5 rounded-lg text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)] transition">
+                <svg class="w-3.5 h-3.5 mr-2.5 flex-shrink-0 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <span class="sidebar-text truncate">AI Debugger</span>
+              </button>
+              <div class="sidebar-tooltip">AI Debugger</div>
+            </div>
+
+            <div class="nav-btn-wrapper relative">
+              <button onclick="switchTab('settings'); setTimeout(() => document.getElementById('model-comparison-section')?.scrollIntoView({behavior:'smooth'}), 150)" class="w-full flex items-center px-3 py-1.5 rounded-lg text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)] transition">
+                <svg class="w-3.5 h-3.5 mr-2.5 flex-shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <span class="sidebar-text truncate">Model Comparison</span>
+              </button>
+              <div class="sidebar-tooltip">Compare Models</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Group 3: SYSTEM -->
+        <div>
+          <div class="sidebar-group-title text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] px-3 mb-1.5">System</div>
+          <div class="space-y-0.5">
+            <div class="nav-btn-wrapper relative">
+              <button data-tab="settings" class="nav-btn w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium transition text-[var(--color-text-secondary)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)]">
+                <svg class="w-4 h-4 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span class="sidebar-text truncate">Models & Settings</span>
+              </button>
+              <div class="sidebar-tooltip">Settings</div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Footer Info -->
-      <div class="sidebar-project-box p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 text-[11px] text-slate-400">
-        <div class="flex items-center justify-between font-semibold text-slate-300 mb-1">
-          <span>Experiment 8</span>
-          <span class="text-emerald-400 font-mono text-[10px]">Active</span>
+      <!-- Sidebar Dynamic Project Context Card -->
+      <div class="sidebar-project-box p-3 rounded-xl bg-[var(--color-elevated)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)]">
+        <div class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Active Backend</div>
+        <div id="badge-active-mode" class="font-mono text-[11px] text-[var(--color-text-primary)] truncate">Mode: Ollama (qwen2.5:7b)</div>
+        <div class="mt-2 pt-2 border-t border-[var(--color-border)] flex items-center justify-between text-[11px]">
+          <span class="text-[var(--color-text-muted)]">Project Scope</span>
+          <span id="sidebar-project-files-count" class="font-mono text-indigo-400">Loading...</span>
         </div>
-        <div class="text-[10px] text-slate-500">Lang-8 / JFLEG Corpus</div>
-        <div class="text-[10px] text-slate-500 mt-1">Dual-Mode Local AI</div>
       </div>
     </aside>
 
-    <!-- CONTENT PANELS -->
-    <main class="flex-1 flex flex-col overflow-hidden bg-[#090d16] relative">
+    <!-- MAIN CONTENT VIEWPORT -->
+    <main class="flex-1 min-h-0 overflow-hidden p-4 bg-[var(--color-canvas)] relative flex flex-col">
 
-      <!-- TAB 1: DASHBOARD / OVERVIEW -->
-      <div id="tab-dashboard" class="tab-panel flex-1 overflow-y-auto p-6 space-y-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+      <!-- ========================================== -->
+      <!-- TAB 1: DASHBOARD                           -->
+      <!-- ========================================== -->
+      <section id="tab-dashboard" class="tab-panel overflow-y-auto h-full flex-1 space-y-6 pr-1">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] pb-4">
           <div>
-            <h2 class="text-xl font-bold text-white tracking-tight">Grammar Correction & Text Rewriting Studio</h2>
-            <p class="text-xs text-slate-400 mt-1">Automated Grammar Error Correction (GEC), multi-level prompt rewriting, and quantitative evaluation benchmarks.</p>
+            <h2 class="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">Grammar Correction & Rewriting Studio</h2>
+            <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">Automated Grammar Error Correction (GEC), multi-level prompt rewriting, and quantitative evaluation benchmarks.</p>
           </div>
-          <div class="flex items-center space-x-3">
-            <button onclick="switchTab('files')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/25 transition">
-              + Proofread Document
+          <div class="flex items-center space-x-2">
+            <button onclick="switchTab('files')" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition flex items-center shadow-sm flex-shrink-0">
+              <svg class="w-3.5 h-3.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+              Proofread Document
             </button>
-            <button onclick="switchTab('chat')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+            <button onclick="switchTab('chat')" class="px-3.5 py-2 rounded-lg bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] font-medium text-xs transition flex items-center shadow-sm flex-shrink-0">
+              <svg class="w-3.5 h-3.5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
               Open AI Chat
             </button>
           </div>
         </div>
 
-        <!-- Metric Highlights Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="glass-panel p-4 rounded-2xl border border-slate-800">
-            <div class="text-slate-400 text-xs font-medium">Exact Match Accuracy</div>
-            <div class="text-2xl font-bold text-indigo-400 mt-1">65.0% - 85.0%</div>
-            <div class="text-[11px] text-slate-500 mt-1">Gold-standard Lang-8 / JFLEG target</div>
+        <!-- Quick Architecture Metrics Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="glass-panel p-3.5 rounded-xl">
+            <div class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Exact Match Target</div>
+            <div class="text-sm font-semibold text-indigo-400">65.0% — 85.0%</div>
+            <div class="text-[11px] text-[var(--color-text-secondary)] mt-1 flex items-center font-mono">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Lang-8 / JFLEG Corpus
+            </div>
           </div>
-          <div class="glass-panel p-4 rounded-2xl border border-slate-800">
-            <div class="text-slate-400 text-xs font-medium">Levenshtein Edit Distance</div>
-            <div class="text-2xl font-bold text-emerald-400 mt-1">3.2 - 6.8</div>
-            <div class="text-[11px] text-slate-500 mt-1">Low character edits per sentence</div>
+
+          <div class="glass-panel p-3.5 rounded-xl">
+            <div class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Levenshtein Edit Dist</div>
+            <div class="text-sm font-semibold text-emerald-400">3.2 — 6.8 Edits</div>
+            <div class="text-[11px] text-[var(--color-text-secondary)] mt-1 flex items-center font-mono">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Low Character Edits
+            </div>
           </div>
-          <div class="glass-panel p-4 rounded-2xl border border-slate-800">
-            <div class="text-slate-400 text-xs font-medium">Token-Level F1 Score</div>
-            <div class="text-2xl font-bold text-amber-400 mt-1">0.912 - 0.965</div>
-            <div class="text-[11px] text-slate-500 mt-1">High word overlap and precision</div>
+
+          <div class="glass-panel p-3.5 rounded-xl">
+            <div class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Token F1 Score</div>
+            <div class="text-sm font-semibold text-amber-400">0.912 — 0.965</div>
+            <div class="text-[11px] text-[var(--color-text-secondary)] mt-1">High Precision & Recall</div>
           </div>
-          <div class="glass-panel p-4 rounded-2xl border border-slate-800">
-            <div class="text-slate-400 text-xs font-medium">Over-Correction Rate</div>
-            <div class="text-2xl font-bold text-purple-400 mt-1">&lt; 5.0%</div>
-            <div class="text-[11px] text-slate-500 mt-1">Controlled semantic preservation</div>
+
+          <div class="glass-panel p-3.5 rounded-xl">
+            <div class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Over-Correction Rate</div>
+            <div class="text-sm font-semibold text-violet-400">&lt; 5.0% Rate</div>
+            <div class="text-[11px] text-[var(--color-text-secondary)] mt-1">Semantic Preservation</div>
           </div>
         </div>
 
-        <!-- Dual Mode Architecture Card -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="glass-panel p-5 rounded-2xl border border-indigo-500/30">
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <h3 class="text-sm font-bold text-slate-100">Mode 1: Ollama Mode (Qwen 2.5 7B)</h3>
+        <!-- Dual-Mode Operating Architecture Interactive Diagram -->
+        <div class="glass-panel p-4 rounded-xl">
+          <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider mb-3 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span>
+            Dual-Model Runtime Architecture (Experiment 8)
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="p-3.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="font-medium text-indigo-400 text-xs">Mode 1 — Ollama Daemon</span>
+                <span class="text-[9px] bg-indigo-500/10 text-indigo-300 px-1.5 py-0.5 rounded font-mono">Default Engine</span>
               </div>
-              <span class="text-[10px] font-mono bg-emerald-950/60 text-emerald-300 border border-emerald-800/50 px-2 py-0.5 rounded">REST API</span>
+              <p class="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                Connects over local REST protocol with Ollama (<code class="font-mono text-[10px]">127.0.0.1:11434</code>) executing Qwen 2.5 7B for multi-turn editing, academic polishing, and grammar error diagnosis.
+              </p>
+              <div class="mt-3">
+                <button onclick="handleModeSwitch('ollama')" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition font-medium">Activate Ollama Mode</button>
+              </div>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
-              Connects to locally running Ollama service (<code class="text-indigo-300">http://localhost:11434</code>) executing Qwen 2.5 7B for multi-turn editing, academic polishing, and error diagnosis.
-            </p>
-            <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-              <span>Model: <b class="text-slate-200">qwen2.5:7b</b></span>
-              <button onclick="switchActiveMode('ollama')" class="text-indigo-400 hover:text-indigo-300 font-semibold">Activate Mode →</button>
+
+            <div class="p-3.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="font-medium text-violet-400 text-xs">Mode 2 — Project Local Model</span>
+                <span class="text-[9px] bg-violet-500/10 text-violet-300 px-1.5 py-0.5 rounded font-mono">Standalone Seq2Seq</span>
+              </div>
+              <p class="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                Loads PyTorch / Safetensors weights directly from <code class="font-mono text-[10px]">./models/saved_models/grammar_corrector_model/</code> via Hugging Face Transformers with global caching.
+              </p>
+              <div class="mt-3">
+                <button onclick="handleModeSwitch('local_model')" class="text-xs px-2.5 py-1.5 bg-violet-600 hover:bg-violet-500 text-white rounded-lg transition font-medium">Activate Local Mode</button>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div class="glass-panel p-5 rounded-2xl border border-violet-500/30">
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
-                <h3 class="text-sm font-bold text-slate-100">Mode 2: Project Local Model Mode</h3>
-              </div>
-              <span class="text-[10px] font-mono bg-indigo-950/60 text-indigo-300 border border-indigo-800/50 px-2 py-0.5 rounded">PyTorch / Safetensors</span>
+        <!-- Quick Launch Action Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <div onclick="switchTab('chat')" class="glass-panel glass-panel-hover p-4 rounded-xl cursor-pointer">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
-              Direct offline Transformer Seq2Seq runtime loading standalone weights in <code class="text-violet-300">./models/saved_models/grammar_corrector_model/</code> with in-memory process caching.
-            </p>
-            <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-              <span>Path: <b class="text-slate-200">./models/saved_models/</b></span>
-              <button onclick="switchActiveMode('local_model')" class="text-violet-400 hover:text-violet-300 font-semibold">Activate Mode →</button>
+            <h4 class="font-medium text-xs text-[var(--color-text-primary)] mb-1">Interactive AI Chat</h4>
+            <p class="text-xs text-[var(--color-text-secondary)]">Stream reasoning, edit text with multi-turn context, attach documents, and inspect prompt token budgets.</p>
+          </div>
+
+          <div onclick="switchTab('files')" class="glass-panel glass-panel-hover p-4 rounded-xl cursor-pointer">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
             </div>
+            <h4 class="font-medium text-xs text-[var(--color-text-primary)] mb-1">Document Proofreader</h4>
+            <p class="text-xs text-[var(--color-text-secondary)]">Upload documents or paste text. Multi-level proofreading, academic polish, and side-by-side diffs.</p>
+          </div>
+
+          <div onclick="switchTab('project')" class="glass-panel glass-panel-hover p-4 rounded-xl cursor-pointer">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center mb-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+            </div>
+            <h4 class="font-medium text-xs text-[var(--color-text-primary)] mb-1">Doc & Code Grammar Auditor</h4>
+            <p class="text-xs text-[var(--color-text-secondary)]">Audit repository READMEs, code docstrings, verify quality heuristics, and isolate runtime bugs.</p>
           </div>
         </div>
 
         <!-- Recent Activity Feed -->
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Live Workstation Activity</h3>
-            <span class="text-[10px] text-slate-500">Auto-logged</span>
+        <div class="glass-panel p-4 rounded-xl">
+          <div class="flex items-center justify-between mb-2.5 border-b border-[var(--color-border)] pb-2">
+            <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider flex items-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2"></span>
+              Recent Workspace Activity
+            </h3>
+            <span class="text-[10px] text-[var(--color-text-muted)] font-mono">Live Stream</span>
           </div>
           <div id="dashboard-activity-feed" class="space-y-1">
-            <div class="text-xs text-slate-500 py-2 italic">No recent activity yet. Start chatting or proofreading.</div>
+            <div class="text-xs text-[var(--color-text-muted)] py-2 italic">No recent activity yet. Start chatting or proofreading text.</div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- TAB 2: INTERACTIVE AI CHAT -->
-      <div id="tab-chat" class="tab-panel hidden flex-1 flex overflow-hidden min-h-0">
-        <!-- Left Conversations History -->
-        <div class="w-64 border-r border-slate-800/80 bg-[#0c1222] flex flex-col p-3 z-20 flex-shrink-0 hidden md:flex">
-          <div class="flex items-center justify-between mb-2.5">
-            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Conversations</span>
-            <button id="new-chat-btn" class="p-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs transition">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            </button>
-          </div>
-          <input id="search-conversations-input" type="text" placeholder="Search chats..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-slate-200 placeholder-slate-500 mb-2.5 focus:outline-none focus:border-indigo-500">
-          <div id="conversations-history-list" class="flex-1 overflow-y-auto space-y-1">
-            <div class="text-[11px] text-slate-500 p-2 italic">No conversations yet.</div>
-          </div>
-        </div>
+      <!-- ========================================== -->
+      <!-- TAB 2: INTERACTIVE AI CHAT (3-PANEL)       -->
+      <!-- ========================================== -->
+      <section id="tab-chat" class="tab-panel hidden h-full flex-1 flex flex-col min-h-0 overflow-hidden space-y-2">
+        
+        <!-- Chat Control Bar -->
+        <div class="glass-panel px-3 py-2 rounded-xl flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
+          <div class="flex items-center space-x-2">
+            <span id="chat-model-badge" class="text-xs font-mono px-2.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/30">
+              Model: Ollama (qwen2.5:7b)
+            </span>
 
-        <!-- Center Chat Area -->
-        <div class="flex-1 flex flex-col min-w-0 bg-[#090d16] relative min-h-0 overflow-hidden">
-          <!-- Chat Header Bar -->
-          <div class="h-12 border-b border-slate-800/80 bg-[#0f172a]/60 backdrop-blur-md flex items-center justify-between px-4 z-20 flex-shrink-0">
-            <div class="flex items-center space-x-3">
-              <span id="chat-model-badge" class="text-xs font-semibold text-slate-200">Model: Ollama (qwen2.5:7b)</span>
-              <div id="chat-streaming-badge" class="hidden items-center space-x-1 text-[10px] text-indigo-400 font-mono animate-pulse">
-                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                <span>Generating tokens...</span>
-              </div>
-            </div>
-            <div class="flex items-center space-x-2">
-              <select id="chat-profile-select" class="text-xs bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-slate-300 focus:outline-none focus:border-indigo-500">
+            <div class="flex items-center space-x-1.5 text-xs text-[var(--color-text-secondary)]">
+              <span class="hidden sm:inline">Profile:</span>
+              <select id="chat-profile-select" class="bg-[var(--color-elevated)] border border-[var(--color-border)] rounded-md px-2 py-1 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-indigo-500">
                 <option value="standard_corrector">Standard Grammar Corrector</option>
                 <option value="minimal">Minimal Proofreader</option>
                 <option value="academic_polish">Academic & Research Polisher</option>
@@ -266,383 +406,654 @@
                 <option value="error_diagnostician">Grammar Error Diagnostician</option>
                 <option value="general">General Assistant</option>
               </select>
-              <button id="chat-context-toggle-btn" class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 text-xs transition" title="Toggle AI Context Inspector">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              </button>
-              <button id="chat-clear-btn" class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 text-xs transition" title="Clear chat">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-              </button>
             </div>
           </div>
 
-          <!-- DEDICATED MESSAGES SCROLL CONTAINER -->
-          <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-            <!-- Rendered by chat.js -->
-          </div>
+          <div class="flex items-center space-x-1.5">
+            <!-- Project Context Drawer Trigger -->
+            <button id="chat-context-toggle-btn" class="px-2.5 py-1 rounded-md bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] flex items-center transition">
+              <svg class="w-3.5 h-3.5 mr-1 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+              <span>Context</span>
+              <span id="context-count-badge" class="hidden ml-1.5 bg-indigo-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+            </button>
 
-          <!-- Scroll-to-bottom Floating Button -->
-          <button id="chat-scroll-bottom-btn" class="hidden absolute bottom-24 right-6 px-3 py-1.5 rounded-full bg-indigo-600/90 hover:bg-indigo-600 text-white text-xs font-medium shadow-xl backdrop-blur-md transition flex items-center space-x-1.5 z-30">
-            <span class="scroll-btn-text">↓ Scroll to bottom</span>
-          </button>
+            <!-- Export Conversation Dropdown -->
+            <div class="relative group">
+              <button class="px-2.5 py-1 rounded-md bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] text-xs transition">
+                Export ▾
+              </button>
+              <div class="absolute right-0 top-full mt-1 w-36 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-xl py-1 hidden group-hover:block z-30 text-xs">
+                <button onclick="ChatModule.exportConversation('markdown')" class="w-full text-left px-3 py-1.5 hover:bg-[var(--color-elevated)] text-[var(--color-text-secondary)]">Markdown (.md)</button>
+                <button onclick="ChatModule.exportConversation('json')" class="w-full text-left px-3 py-1.5 hover:bg-[var(--color-elevated)] text-[var(--color-text-secondary)]">JSON (.json)</button>
+                <button onclick="ChatModule.exportConversation('txt')" class="w-full text-left px-3 py-1.5 hover:bg-[var(--color-elevated)] text-[var(--color-text-secondary)]">Plain Text (.txt)</button>
+              </div>
+            </div>
 
-          <!-- Composer Bar -->
-          <div class="border-t border-slate-800/80 bg-[#0c1222] p-3 flex-shrink-0 z-20">
-            <div id="chat-attached-files-badges" class="hidden flex flex-wrap gap-1.5 mb-2"></div>
-            <form id="chat-form" class="flex items-end space-x-2 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-2 focus-within:border-indigo-500/80 transition">
-              <input type="file" id="chat-file-input" class="hidden">
-              <button type="button" id="chat-attach-btn" class="p-2 text-slate-400 hover:text-indigo-400 transition rounded-xl hover:bg-slate-800" title="Attach file to message">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-              </button>
-              <textarea id="chat-input" rows="1" placeholder="Enter sentence or prompt to correct (Shift+Enter for new line)..." class="flex-1 bg-transparent border-0 text-xs text-slate-200 placeholder-slate-500 focus:outline-none resize-none py-1.5 px-1 max-h-32"></textarea>
-              <button type="submit" id="chat-send-btn" class="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-md shadow-indigo-600/20">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-              </button>
-              <button type="button" id="chat-stop-btn" class="hidden p-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white transition">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path></svg>
-              </button>
-            </form>
+            <button id="new-chat-btn" class="px-2.5 py-1 rounded-md bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600 hover:text-white text-xs font-medium transition">
+              + New Chat
+            </button>
+            <button id="chat-clear-btn" class="px-2.5 py-1 rounded-md bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] text-xs transition">
+              Clear
+            </button>
           </div>
         </div>
 
-        <!-- Right AI Context Inspector -->
-        <div id="ai-context-inspector" class="w-72 border-l border-slate-800/80 bg-[#0c1222] p-4 flex flex-col justify-between hidden xl:flex z-20 flex-shrink-0">
-          <div class="space-y-4">
-            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-              <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Context Inspector</span>
-              <span id="inspector-mode-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">qwen2.5:7b</span>
+        <!-- 3-Panel Chat Body Layout -->
+        <div class="flex-1 flex space-x-2.5 min-h-0 overflow-hidden">
+          
+          <!-- LEFT PANEL: Conversation History -->
+          <div class="hidden md:flex flex-col w-60 glass-panel rounded-xl p-2.5 flex-shrink-0 min-h-0 overflow-hidden">
+            <div class="flex items-center justify-between mb-2 px-1 flex-shrink-0">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Sessions</span>
+              <span class="text-[10px] font-mono text-[var(--color-text-muted)]">History</span>
             </div>
-            <div>
-              <div class="text-[11px] font-semibold text-slate-400 mb-1">Active Profile</div>
-              <div id="inspector-profile-badge" class="text-xs text-indigo-300 font-mono bg-slate-900 p-2 rounded-lg border border-slate-800">standard_corrector</div>
-            </div>
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-[11px] font-semibold text-slate-400">Workspace Files Context</span>
-                <span id="inspector-files-count" class="text-[10px] text-slate-500">0 files</span>
-              </div>
-              <div id="chat-context-files-list" class="max-h-56 overflow-y-auto space-y-1 bg-slate-900/60 p-2 rounded-xl border border-slate-800">
-                <!-- Loaded by chat.js -->
-              </div>
-            </div>
+            <input type="text" id="search-conversations-input" placeholder="Search sessions..." class="w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-2.5 py-1 text-xs text-[var(--color-text-primary)] mb-2 focus:outline-none focus:border-indigo-500 flex-shrink-0">
+            <div id="conversation-history-list" class="flex-1 min-h-0 overflow-y-auto space-y-1"></div>
           </div>
-          <div class="text-[10px] text-slate-500 italic text-center pt-3 border-t border-slate-800/80">
-            Selected workspace files are injected into system prompt context.
-          </div>
-        </div>
-      </div>
 
-      <!-- TAB 3: DOCUMENT PROOFREADER & REWRITER -->
-      <div id="tab-files" class="tab-panel hidden flex-1 overflow-y-auto p-6 space-y-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+          <!-- CENTER PANEL: Messages Stream & Composer -->
+          <div class="flex-1 flex flex-col glass-panel rounded-xl min-h-0 overflow-hidden relative">
+            
+            <!-- Context Files Selection Overlay -->
+            <div id="context-files-drawer" class="hidden absolute top-0 left-0 right-0 z-30 bg-[var(--color-surface)]/95 backdrop-blur-md border-b border-[var(--color-border)] p-4 shadow-xl max-h-60 flex flex-col">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-[var(--color-text-primary)]">Select Project Files for LLM Context:</span>
+                <button onclick="document.getElementById('context-files-drawer').classList.add('hidden')" class="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]">Close ×</button>
+              </div>
+              <div id="context-files-list" class="flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-40"></div>
+            </div>
+
+            <!-- Messages Stream -->
+            <div id="chat-messages-container" class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 space-y-3 relative"></div>
+
+            <!-- Floating Scroll-to-Bottom Pill Button -->
+            <button id="chat-scroll-bottom-btn" onclick="ChatModule.scrollToBottom(true)" class="hidden absolute bottom-24 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-medium shadow-lg backdrop-blur-md border border-indigo-400/30 flex items-center space-x-1.5 transition-all duration-200 cursor-pointer">
+              <span class="scroll-btn-icon text-xs">↓</span>
+              <span class="scroll-btn-text">Scroll to bottom</span>
+            </button>
+
+            <!-- Generation Loading Bar -->
+            <div id="chat-loading-indicator" class="hidden px-4 py-1.5 text-xs text-indigo-400 flex items-center bg-indigo-500/10 border-t border-indigo-500/20 flex-shrink-0 font-mono">
+              <span class="animate-spin rounded-full h-3 w-3 border-b-2 border-indigo-400 mr-2"></span>
+              Generating response with Qwen 2.5 7B...
+            </div>
+
+            <!-- Attached Files Chips -->
+            <div id="chat-attached-chips" class="hidden px-3 py-1.5 border-t border-[var(--color-border)] bg-[var(--color-surface)]/50 flex flex-wrap gap-1.5 flex-shrink-0"></div>
+
+            <!-- Composer Input Bar -->
+            <div class="p-3 border-t border-[var(--color-border)] bg-[var(--color-surface)]/80 flex-shrink-0">
+              <form id="chat-form" class="flex items-end space-x-2">
+                <button type="button" id="chat-attach-btn" title="Attach file to context" class="p-2 rounded-lg bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-indigo-400 transition flex-shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                </button>
+                <input type="file" id="chat-file-input" class="hidden" accept=".txt,.md,.py,.js,.ts,.html,.css,.json,.yaml,.yml,.csv,.pdf,.docx">
+
+                <textarea id="chat-input" rows="1" placeholder="Type text to correct, ask grammar questions, or request rewriting... (Shift+Enter for newline)" class="flex-1 bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-3 py-2 text-xs sm:text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-indigo-500 resize-none max-h-32"></textarea>
+                
+                <button type="submit" id="chat-send-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium text-xs sm:text-sm transition shadow-sm flex items-center flex-shrink-0">
+                  <span>Send</span>
+                  <svg class="w-3.5 h-3.5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+
+                <button type="button" id="chat-stop-btn" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-medium text-xs sm:text-sm transition flex items-center flex-shrink-0">
+                  <span>Stop</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- RIGHT PANEL: Context Inspector -->
+          <div id="ai-context-inspector" class="hidden xl:flex flex-col w-64 glass-panel rounded-xl p-3 flex-shrink-0 min-h-0 overflow-y-auto space-y-3">
+            <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-2 flex-shrink-0">
+              <h4 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Context Inspector</h4>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            </div>
+
+            <div class="space-y-2.5 text-xs">
+              <div>
+                <span class="text-[var(--color-text-muted)] block text-[10px] uppercase font-semibold">Active Engine</span>
+                <span id="inspector-model-name" class="font-medium text-indigo-400 font-mono text-[11px]">Qwen 2.5 7B</span>
+              </div>
+
+              <div>
+                <span class="text-[var(--color-text-muted)] block text-[10px] uppercase font-semibold">System Profile</span>
+                <span id="inspector-profile-name" class="font-medium text-[var(--color-text-primary)] text-[11px]">STANDARD CORRECTOR</span>
+              </div>
+
+              <div>
+                <span class="text-[var(--color-text-muted)] block text-[10px] uppercase font-semibold">Context Files Attached</span>
+                <span id="inspector-files-count" class="font-medium text-[var(--color-text-primary)] text-[11px]">0 files</span>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-[10px] text-[var(--color-text-muted)] mb-1">
+                  <span>Token Budget</span>
+                  <span id="inspector-token-est" class="font-mono text-amber-400">~0 / 32k</span>
+                </div>
+                <div class="w-full h-1.5 bg-[var(--color-surface)] rounded-full overflow-hidden border border-[var(--color-border)]">
+                  <div id="inspector-token-bar" class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-300" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2.5 border-t border-[var(--color-border)]">
+              <div class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-1.5">Prompt Templates</div>
+              <div class="space-y-1">
+                <button onclick="ChatModule.setPromptAndSend('Proofread and correct the grammatical and punctuation errors in this paragraph: ')" class="w-full text-left text-xs p-2 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-border)] transition truncate">
+                  Grammar Correction
+                </button>
+                <button onclick="ChatModule.setPromptAndSend('Polish this text for a high-impact academic publication with formal terminology: ')" class="w-full text-left text-xs p-2 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-border)] transition truncate">
+                  Academic Polish
+                </button>
+                <button onclick="ChatModule.setPromptAndSend('Diagnose all grammatical errors in this text, identifying error categories and explaining rules: ')" class="w-full text-left text-xs p-2 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-border)] transition truncate">
+                  Diagnose Errors
+                </button>
+                <button onclick="ChatModule.setPromptAndSend('Rewrite this text to be more concise and clear while maintaining all core meanings: ')" class="w-full text-left text-xs p-2 rounded-lg bg-[var(--color-surface)] hover:bg-[var(--color-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-border)] transition truncate">
+                  Clarity & Conciseness
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 3: DOCUMENT PROOFREADER & REWRITER     -->
+      <!-- ========================================== -->
+      <section id="tab-files" class="tab-panel hidden overflow-y-auto h-full flex-1 space-y-5 pr-1">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-border)] pb-3">
           <div>
-            <h2 class="text-xl font-bold text-white tracking-tight">Document Proofreading & Text Rewriting Studio</h2>
-            <p class="text-xs text-slate-400 mt-1">Multi-format file upload, automated error repair, style polishing, and side-by-side diff visualization.</p>
+            <h2 class="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">Document Proofreading & Text Rewriting Studio</h2>
+            <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">Parse multi-format documents (.pdf, .docx, .py, .txt, .md) with automated error repair, style polishing, and side-by-side diff visualization.</p>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Left Column: Upload & Options -->
-          <div class="space-y-4">
-            <!-- Drop zone -->
-            <div id="file-drop-zone" class="glass-panel p-6 rounded-2xl border-2 border-dashed border-slate-700/80 hover:border-indigo-500/80 cursor-pointer text-center transition">
-              <input type="file" id="file-input" class="hidden">
-              <div class="w-12 h-12 rounded-xl bg-indigo-600/15 text-indigo-400 mx-auto mb-3 flex items-center justify-center">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          
+          <!-- Upload & Controls Column -->
+          <div class="lg:col-span-1 space-y-3">
+            
+            <!-- Drag and Drop Zone -->
+            <div id="file-drop-zone" class="glass-panel border-2 border-dashed border-[var(--color-border)] hover:border-indigo-500 rounded-xl p-5 text-center cursor-pointer transition">
+              <input type="file" id="file-input" class="hidden" accept=".txt,.md,.py,.js,.ts,.html,.css,.json,.yaml,.yml,.csv,.pdf,.docx">
+              <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 mx-auto flex items-center justify-center mb-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
               </div>
-              <div class="text-xs font-semibold text-slate-200">Click or drag & drop documents here</div>
-              <div class="text-[10px] text-slate-500 mt-1">Supports .txt, .md, .py, .pdf, .docx, .csv, .json</div>
-              <div id="file-upload-indicator" class="hidden mt-3 text-xs text-indigo-400 animate-pulse">Parsing document...</div>
+              <h3 class="text-xs font-semibold text-[var(--color-text-primary)]">Drop document or click to upload</h3>
+              <p class="text-[10px] text-[var(--color-text-muted)] mt-1 font-mono">PDF, DOCX, TXT, MD, PY, JS, CSV, JSON</p>
+            </div>
+
+            <!-- Upload Indicator -->
+            <div id="file-upload-indicator" class="hidden p-2.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-300 flex items-center font-mono">
+              <span class="animate-spin rounded-full h-3 w-3 border-b-2 border-indigo-400 mr-2"></span>
+              Extracting text and calculating tokens...
             </div>
 
             <!-- Metadata Card -->
-            <div id="file-metadata-card" class="hidden glass-panel p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
-              <div class="font-bold text-slate-200 truncate" id="meta-filename">document.txt</div>
-              <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1 border-t border-slate-800">
-                <div>Format: <span id="meta-type" class="text-slate-200">TXT</span></div>
-                <div>Words: <span id="meta-words" class="text-slate-200">0</span></div>
-                <div>Tokens: <span id="meta-tokens" class="text-slate-200">0</span></div>
-                <div>Chunks: <span id="meta-chunks" class="text-slate-200">1</span></div>
+            <div id="file-metadata-card" class="hidden glass-panel p-3.5 rounded-xl space-y-2.5">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Document Metadata</h4>
+                <div id="file-classification-badge"></div>
+              </div>
+              <div class="space-y-1.5 text-xs text-[var(--color-text-secondary)]">
+                <div class="flex justify-between"><span class="text-[var(--color-text-muted)]">File:</span><span id="meta-filename" class="font-mono text-indigo-400 truncate max-w-[160px]"></span></div>
+                <div class="flex justify-between"><span class="text-[var(--color-text-muted)]">Format:</span><span id="meta-type" class="font-mono uppercase"></span></div>
+                <div class="flex justify-between"><span class="text-[var(--color-text-muted)]">Size:</span><span id="meta-size"></span></div>
+                <div class="flex justify-between"><span class="text-[var(--color-text-muted)]">Words:</span><span id="meta-words"></span></div>
+                <div class="flex justify-between"><span class="text-[var(--color-text-muted)]">Est. Tokens:</span><span id="meta-tokens" class="text-amber-400 font-mono"></span></div>
+                <div class="flex justify-between"><span class="text-[var(--color-text-muted)]">Pipeline:</span><span id="meta-chunks" class="text-indigo-400 font-semibold font-mono"></span></div>
               </div>
             </div>
 
-            <!-- Correction Level Selector -->
-            <div class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-2">
-              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Correction & Rewriting Level</label>
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="minimal">🔍 Minimal</button>
-                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-indigo-600 text-white border-indigo-500" data-level="standard">⚡ Standard GEC</button>
-                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="rewrite">✨ Full Rewrite</button>
-                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="academic">🎓 Academic</button>
-                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="technical">💻 Technical</button>
-                <button type="button" class="correction-level-btn p-2 rounded-xl text-xs font-medium border bg-slate-900 text-slate-300 border-slate-800" data-level="diagnose">🩺 Error Diag</button>
+            <!-- Correction & Rewriting Level Selector -->
+            <div class="glass-panel p-3.5 rounded-xl space-y-2.5">
+              <h4 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Correction & Rewriting Level</h4>
+              <div class="grid grid-cols-2 gap-1.5 text-xs">
+                <button data-level="minimal" class="file-task-btn bg-[var(--color-surface)] text-[var(--color-text-secondary)] p-2 rounded-lg font-medium transition text-left border border-[var(--color-border)]">🔍 Minimal</button>
+                <button data-level="standard" class="file-task-btn bg-indigo-600 text-white p-2 rounded-lg font-medium transition text-left border border-indigo-500">⚡ Standard GEC</button>
+                <button data-level="rewrite" class="file-task-btn bg-[var(--color-surface)] text-[var(--color-text-secondary)] p-2 rounded-lg font-medium transition text-left border border-[var(--color-border)]">✨ Full Rewrite</button>
+                <button data-level="academic" class="file-task-btn bg-[var(--color-surface)] text-[var(--color-text-secondary)] p-2 rounded-lg font-medium transition text-left border border-[var(--color-border)]">🎓 Academic</button>
+                <button data-level="technical" class="file-task-btn bg-[var(--color-surface)] text-[var(--color-text-secondary)] p-2 rounded-lg font-medium transition text-left border border-[var(--color-border)]">💻 Technical</button>
+                <button data-level="diagnose" class="file-task-btn bg-[var(--color-surface)] text-[var(--color-text-secondary)] p-2 rounded-lg font-medium transition text-left border border-[var(--color-border)]">🩺 Error Diag</button>
+              </div>
+              <div>
+                <label class="text-[10px] text-[var(--color-text-muted)] block mb-1">Custom Directives (Optional):</label>
+                <input type="text" id="file-custom-instructions" placeholder="e.g. Preserve passive voice, British English spelling..." class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-indigo-500">
+              </div>
+              <button id="run-proofread-btn" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium text-xs transition shadow-sm flex items-center justify-center">
+                <span id="proofread-spinner" class="hidden animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2"></span>
+                Execute Proofreading & Rewriting
+              </button>
+            </div>
+
+            <!-- Upload History -->
+            <div class="glass-panel p-3.5 rounded-xl space-y-2">
+              <div class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Uploaded Sessions</div>
+              <div id="uploaded-files-history-list" class="space-y-1 max-h-40 overflow-y-auto">
+                <div class="text-[11px] text-[var(--color-text-muted)] p-2 italic">No uploaded files yet.</div>
               </div>
             </div>
-
-            <!-- Custom Instructions -->
-            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
-              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Custom Instructions (Optional)</label>
-              <input type="text" id="file-custom-instructions" placeholder="e.g. Preserve passive voice, keep UK spelling..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
-            </div>
-
-            <!-- Run Button -->
-            <button id="run-proofread-btn" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-xl shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
-              <span id="proofread-spinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>Execute Proofreading & Rewriting</span>
-            </button>
           </div>
 
-          <!-- Center & Right: Text Input & Output -->
-          <div class="lg:col-span-2 space-y-4">
-            <!-- Raw Text Input -->
-            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Input Text / Document Content</span>
-                <span class="text-[11px] text-slate-500">Edit or type directly</span>
+          <!-- Document Preview & Results Column -->
+          <div class="lg:col-span-2 space-y-3">
+            
+            <!-- Raw Text Input Area -->
+            <div class="glass-panel p-3.5 rounded-xl space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Input Text / Document Content</span>
+                <span class="text-[11px] text-[var(--color-text-muted)]">Direct text editing supported</span>
               </div>
-              <textarea id="file-raw-text-input" rows="7" placeholder="Paste or type text containing grammatical errors, spelling mistakes, or draft sentences here..." class="w-full bg-slate-950/80 border border-slate-800/80 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono"></textarea>
+              <textarea id="file-raw-text-input" rows="6" placeholder="Paste or type text containing grammatical errors, spelling mistakes, or draft sentences here..." class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg p-2.5 text-xs text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-indigo-500 font-mono"></textarea>
             </div>
 
-            <!-- Results Section -->
-            <div id="proofread-results-container" class="hidden glass-panel p-5 rounded-2xl border border-indigo-500/40 space-y-4">
-              <!-- Metrics Banner -->
-              <div class="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                <div class="flex items-center space-x-4 text-xs font-mono">
-                  <div>Latency: <b id="res-duration" class="text-indigo-300">0s</b></div>
-                  <div>Levenshtein: <b id="res-edit-dist" class="text-emerald-300">0</b></div>
-                  <div>Token F1: <b id="res-token-f1" class="text-amber-300">0%</b></div>
-                  <div>Words: <b id="res-words-count" class="text-slate-200">0 → 0</b></div>
+            <!-- Result Card -->
+            <div id="proofread-results-container" class="hidden glass-panel p-4 rounded-xl space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--color-border)] pb-2.5 gap-2">
+                <div>
+                  <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Corrected Output & Evaluation</h3>
+                  <div id="proofread-summary-stats" class="flex flex-wrap items-center gap-1 mt-1"></div>
                 </div>
-                <div class="flex items-center space-x-2">
-                  <button id="toggle-diff-view-btn" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition">
-                    Show Inline Diff View
-                  </button>
-                  <button id="download-proofread-btn" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition" title="Download result">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                  </button>
-                  <button id="send-proofread-to-chat-btn" class="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition">
-                    Send to Chat →
-                  </button>
+                <div class="flex items-center space-x-1.5 flex-shrink-0">
+                  <button id="toggle-diff-view-btn" class="px-2.5 py-1 bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] rounded-md transition font-medium">Show Inline Diff</button>
+                  <button id="copy-proofread-btn" onclick="FilesModule.copyResult()" class="px-2.5 py-1 bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] rounded-md transition">Copy</button>
+                  <button id="download-proofread-btn" class="px-2.5 py-1 bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] rounded-md transition">Download .md</button>
+                  <button id="send-proofread-to-chat-btn" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-xs text-white rounded-md transition font-medium">Send to Chat →</button>
                 </div>
               </div>
 
-              <!-- Output Box: Clean Markdown -->
-              <div id="proofread-output-card" class="p-4 rounded-xl bg-slate-950/90 border border-slate-800">
-                <div class="text-[11px] font-bold text-slate-400 uppercase mb-2">Clean Corrected Output</div>
-                <div id="proofread-output-text" class="markdown-body"></div>
+              <!-- Output Box: Clean Corrected Text -->
+              <div id="proofread-output-card" class="space-y-1">
+                <div class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase">Clean Corrected Output:</div>
+                <div id="proofread-output-text" class="markdown-body text-xs sm:text-sm bg-[var(--color-canvas)] p-3 rounded-lg border border-[var(--color-border)]"></div>
               </div>
 
               <!-- Output Box: Inline Diff -->
-              <div id="proofread-diff-card" class="hidden p-4 rounded-xl bg-slate-950/90 border border-slate-800">
-                <div class="text-[11px] font-bold text-slate-400 uppercase mb-2">Inline Diff (~~Deletions~~ vs. **Additions**)</div>
-                <div id="proofread-diff-text" class="markdown-body"></div>
+              <div id="proofread-diff-card" class="hidden space-y-1">
+                <div class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase">Inline Diff (~~Deletions~~ vs. **Additions**):</div>
+                <div id="proofread-diff-text" class="markdown-body text-xs sm:text-sm bg-[var(--color-canvas)] p-3 rounded-lg border border-[var(--color-border)]"></div>
+              </div>
+              
+              <!-- Follow-up Questions -->
+              <div class="pt-2.5 border-t border-[var(--color-border)]">
+                <div class="text-[10px] font-semibold text-[var(--color-text-muted)] mb-1.5">Suggested Inquiries:</div>
+                <div class="flex flex-wrap gap-1">
+                  <button onclick="FilesModule.askSuggestedQuestion('Explain why these grammatical errors were made and the grammatical rules involved.')" class="px-2 py-0.5 rounded-md bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] text-[11px] transition">Explain grammar rules</button>
+                  <button onclick="FilesModule.askSuggestedQuestion('Provide alternative vocabulary suggestions to make the phrasing more sophisticated.')" class="px-2 py-0.5 rounded-md bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] text-[11px] transition">Vocabulary alternatives</button>
+                  <button onclick="FilesModule.askSuggestedQuestion('Assess whether the tone of this text is fully compliant with peer-reviewed academic standards.')" class="px-2 py-0.5 rounded-md bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] text-[11px] transition">Check academic tone</button>
+                  <button onclick="FilesModule.askSuggestedQuestion('Generate a list of grammar exercises based on the mistakes found in this text.')" class="px-2 py-0.5 rounded-md bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] text-[11px] transition">Generate practice drills</button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- TAB 4: REPOSITORY DOC & CODE AUDITOR -->
-      <div id="tab-project" class="tab-panel hidden flex-1 overflow-y-auto p-6 space-y-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-5">
+            <!-- Extracted Text Preview -->
+            <div class="glass-panel p-3.5 rounded-xl">
+              <div class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider mb-2">Extracted Stream Preview</div>
+              <div id="file-content-preview" class="h-44 overflow-y-auto bg-[var(--color-canvas)] p-3 rounded-lg border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] font-mono whitespace-pre-wrap">Upload a document or enter text above to preview stream.</div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: PROJECT DOC & CODE AUDITOR          -->
+      <!-- ========================================== -->
+      <section id="tab-project" class="tab-panel hidden overflow-y-auto h-full flex-1 space-y-5 pr-1">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-border)] pb-3">
           <div>
-            <h2 class="text-xl font-bold text-white tracking-tight">Repository Documentation & Docstring Grammar Auditor</h2>
-            <p class="text-xs text-slate-400 mt-1">Audit workspace README files, code comments, docstrings, and diagnose syntax/runtime errors.</p>
-          </div>
-          <div class="flex items-center space-x-3">
-            <button id="run-project-audit-btn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/25 transition flex items-center space-x-2">
-              <span id="project-audit-spinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>Run Workspace Audit</span>
-            </button>
+            <h2 class="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">Repository Documentation & Grammar Auditor</h2>
+            <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">Audit workspace README files, code comments, docstrings, and diagnose syntax/runtime errors.</p>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Left: Tree & File Selector -->
-          <div class="space-y-4">
-            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
-              <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-800">
-                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Workspace Tree</span>
-                <span id="project-selected-files-count" class="text-[10px] text-indigo-400 font-mono">3 files selected</span>
-              </div>
-              <div id="project-tree-container" class="max-h-72 overflow-y-auto space-y-0.5 font-mono text-xs">
-                <!-- Loaded by project.js -->
-              </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          
+          <!-- Tree & Context Selection Column -->
+          <div class="lg:col-span-1 space-y-3">
+            <div class="glass-panel p-3.5 rounded-xl">
+              <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider mb-2">Project Directory Tree</h3>
+              <div id="project-tree-container" class="h-56 overflow-y-auto bg-[var(--color-canvas)] p-2 rounded-lg border border-[var(--color-border)] font-mono"></div>
             </div>
 
-            <!-- Error Debugger -->
-            <div class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3">
-              <span class="text-xs font-bold text-slate-300 uppercase tracking-wider block">AI Code & Model Debugger</span>
-              <form id="project-debug-form" class="space-y-2.5">
-                <input type="text" id="debug-error-message" placeholder="Error message (e.g. ValueError, KeyError)..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
-                <textarea id="debug-stack-trace" rows="3" placeholder="Paste traceback or logs..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500"></textarea>
-                <input type="text" id="debug-relevant-file" placeholder="Relevant file path (optional)..." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
-                <button type="submit" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
-                  Diagnose Error with AI →
-                </button>
-              </form>
-              <div id="debug-diagnosis-output" class="hidden p-3 rounded-xl bg-slate-950 border border-slate-800 mt-2"></div>
+            <div class="glass-panel p-3.5 rounded-xl space-y-2.5">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Audit Scope Files</h3>
+                <div class="space-x-1 text-[10px]">
+                  <button id="project-select-all-btn" class="text-indigo-400 hover:underline">Select All</button>
+                  <span class="text-[var(--color-text-muted)]">|</span>
+                  <button id="project-clear-all-btn" class="text-[var(--color-text-muted)] hover:underline">Clear</button>
+                </div>
+              </div>
+              <div id="project-analysis-file-list" class="max-h-40 overflow-y-auto space-y-0.5"></div>
+              
+              <button id="run-project-analysis-btn" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium text-xs transition flex items-center justify-center shadow-sm">
+                <span id="project-analysis-spinner" class="hidden animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2"></span>
+                Audit Documentation & Docstring Quality
+              </button>
+
+              <button id="send-project-to-chat-btn" class="w-full py-1.5 bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] text-[var(--color-text-primary)] rounded-lg font-medium text-xs transition border border-[var(--color-border)]">
+                Send Selected Files to Chat Context →
+              </button>
             </div>
           </div>
 
-          <!-- Right: Audit Results & Heuristics -->
-          <div class="lg:col-span-2 space-y-4">
-            <div id="project-audit-results" class="hidden glass-panel p-5 rounded-2xl border border-indigo-500/30 space-y-5">
-              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <h3 class="text-sm font-bold text-white">Documentation & Grammar Audit Report</h3>
+          <!-- Report & Debugger Column -->
+          <div class="lg:col-span-2 space-y-3">
+            
+            <!-- Health Score Bar -->
+            <div class="glass-panel p-3.5 rounded-xl space-y-2">
+              <div class="flex items-center justify-between">
+                <span id="project-health-score-text" class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Documentation Health: 100%</span>
+                <span class="text-[10px] text-[var(--color-text-muted)] font-mono">Static Heuristic Engine</span>
+              </div>
+              <div class="w-full h-1.5 bg-[var(--color-surface)] rounded-full overflow-hidden border border-[var(--color-border)]">
+                <div id="project-health-bar" class="h-full bg-gradient-to-r from-emerald-500 to-indigo-500 transition-all duration-500" style="width: 100%"></div>
+              </div>
+              <div id="project-health-checks" class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1"></div>
+            </div>
+
+            <!-- Analysis Report Output -->
+            <div id="project-analysis-results" class="hidden glass-panel p-4 rounded-xl space-y-2">
+              <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
+                <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Workspace Grammar & Doc Report</h3>
                 <div class="flex items-center space-x-2">
-                  <button id="export-audit-report-btn" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition">Export .md</button>
-                  <button id="send-audit-to-chat-btn" class="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs transition">Send to Chat →</button>
+                  <button id="export-audit-report-btn" class="px-2.5 py-1 bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] rounded-md transition">Export .md</button>
+                  <button id="send-audit-to-chat-btn" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-xs text-white rounded-md transition font-medium">Send to Chat →</button>
+                </div>
+              </div>
+              <div id="project-report-markdown" class="markdown-body text-xs sm:text-sm mt-2"></div>
+            </div>
+
+            <!-- AI Debugger Assistant -->
+            <div class="glass-panel p-4 rounded-xl space-y-3">
+              <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider flex items-center">
+                <svg class="w-4 h-4 mr-1.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                AI Error Diagnosis & Debugging Assistant
+              </h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div>
+                  <label class="block text-[10px] text-[var(--color-text-muted)] mb-1">Error Message / Symptom:</label>
+                  <input type="text" id="debug-error-msg" placeholder="e.g. ValueError: Shapes must match" class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-primary)] focus:outline-none focus:border-rose-500">
+                </div>
+                <div>
+                  <label class="block text-[10px] text-[var(--color-text-muted)] mb-1">Relevant File:</label>
+                  <select id="debug-file-select" class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-primary)] focus:outline-none focus:border-rose-500 font-mono"></select>
                 </div>
               </div>
 
-              <!-- Heuristic Checks Grid -->
               <div>
-                <div class="text-[11px] font-bold text-slate-400 uppercase mb-2">Automated Quality Checks</div>
-                <div id="project-heuristics-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                <label class="block text-[10px] text-[var(--color-text-muted)] mb-1">Stack Trace / Logs:</label>
+                <textarea id="debug-stack-trace" rows="3" placeholder="Paste traceback or runtime logs here..." class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg p-2.5 text-xs font-mono text-[var(--color-text-primary)] focus:outline-none focus:border-rose-500"></textarea>
               </div>
 
-              <!-- Full Markdown Report -->
-              <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800">
-                <div id="project-audit-report-text" class="markdown-body"></div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <input type="text" id="debug-expected" placeholder="Expected behavior (Optional)" class="bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-primary)] focus:outline-none focus:border-rose-500">
+                <input type="text" id="debug-actual" placeholder="Actual behavior (Optional)" class="bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-primary)] focus:outline-none focus:border-rose-500">
+              </div>
+
+              <button id="run-debugger-btn" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-medium transition flex items-center shadow-sm">
+                <span id="debugger-spinner" class="hidden animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></span>
+                Diagnose Root Cause & Fix
+              </button>
+
+              <div id="debugger-result-card" class="hidden mt-2 p-3 rounded-lg bg-[var(--color-canvas)] border border-[var(--color-border)]">
+                <h4 class="text-xs font-semibold text-rose-400 uppercase tracking-wider mb-1.5">Diagnosis & Patch Recommendation</h4>
+                <div id="debugger-output" class="markdown-body text-xs"></div>
               </div>
             </div>
+          </div>
 
-            <!-- Quick file browser -->
-            <div class="glass-panel p-4 rounded-2xl border border-slate-800">
-              <div class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">Key Repository Files</div>
-              <div id="project-files-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 5: MODELS, SETTINGS & COMPARISON       -->
+      <!-- ========================================== -->
+      <section id="tab-settings" class="tab-panel hidden overflow-y-auto h-full flex-1 space-y-5 pr-1">
+        <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">Model Workbench & System Configuration</h2>
+            <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">Manage Ollama daemon parameters, inspect local PyTorch checkpoints, validate dual-mode inference, and edit system profiles.</p>
+          </div>
+          <button id="save-settings-btn" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition shadow-sm">
+            Save Settings
+          </button>
+        </div>
+
+        <!-- Mode Configuration Panels -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- Ollama Mode Panel -->
+          <div id="ollama-config-panel" class="glass-panel p-4 rounded-xl border border-[var(--color-border)] space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <input type="radio" id="mode-ollama-radio" name="model_mode" value="ollama" class="mode-toggle-radio text-indigo-600">
+                <label for="mode-ollama-radio" class="font-semibold text-[var(--color-text-primary)] cursor-pointer text-xs">Mode 1: Ollama Backend</label>
+              </div>
+              <span class="text-[10px] font-mono bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/20">qwen2.5:7b</span>
+            </div>
+            <div class="space-y-2.5 text-xs">
+              <div>
+                <label class="text-[10px] text-[var(--color-text-muted)] block mb-1">Ollama API URL:</label>
+                <input type="text" id="settings-ollama-url" value="http://localhost:11434" class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-primary)] font-mono text-xs">
+              </div>
+              <div>
+                <label class="text-[10px] text-[var(--color-text-muted)] block mb-1">Selected Ollama Model:</label>
+                <select id="settings-ollama-model-select" class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-primary)] font-mono text-xs"></select>
+              </div>
+              <div class="flex space-x-2 pt-1">
+                <button id="test-ollama-btn" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition text-xs font-medium">Test Ollama</button>
+                <button id="refresh-ollama-btn" class="px-3 py-1.5 bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] rounded-lg transition text-xs">Refresh Models</button>
+              </div>
+              <div id="ollama-test-result" class="hidden mt-2"></div>
+            </div>
+          </div>
+
+          <!-- Local Model Mode Panel -->
+          <div id="local-config-panel" class="glass-panel p-4 rounded-xl border border-[var(--color-border)] space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <input type="radio" id="mode-local-radio" name="model_mode" value="local_model" class="mode-toggle-radio text-violet-600">
+                <label for="mode-local-radio" class="font-semibold text-[var(--color-text-primary)] cursor-pointer text-xs">Mode 2: Project Local Model</label>
+              </div>
+              <span class="text-[10px] font-mono bg-violet-500/10 text-violet-300 px-2 py-0.5 rounded border border-violet-500/20">Transformers Seq2Seq</span>
+            </div>
+            <div class="space-y-2.5 text-xs">
+              <div>
+                <label class="text-[10px] text-[var(--color-text-muted)] block mb-1">Local Model Checkpoint Directory:</label>
+                <input type="text" id="settings-local-dir" value="./models" readonly class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-muted)] font-mono text-xs">
+              </div>
+              <div>
+                <label class="text-[10px] text-[var(--color-text-muted)] block mb-1">Discovered Checkpoints in ./models/:</label>
+                <div id="discovered-local-models-list" class="space-y-1 max-h-28 overflow-y-auto"></div>
+              </div>
+              <div class="flex space-x-2 pt-1">
+                <button id="test-local-btn" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-500 text-white rounded-lg transition text-xs font-medium">Test Local Model</button>
+              </div>
+              <div id="local-test-result" class="hidden mt-2"></div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- TAB 5: SETTINGS & WORKBENCH -->
-      <div id="tab-settings" class="tab-panel hidden flex-1 overflow-y-auto p-6 space-y-6">
-        <div class="border-b border-slate-800/80 pb-5">
-          <h2 class="text-xl font-bold text-white tracking-tight">Model Workbench & System Configuration</h2>
-          <p class="text-xs text-slate-400 mt-1">Configure Ollama daemon parameters, validate local checkpoint weights, test dual-mode inference, and edit system profiles.</p>
-        </div>
+        <!-- DUAL-MODEL COMPARISON WORKBENCH -->
+        <div id="model-comparison-section" class="glass-panel p-4 rounded-xl space-y-3">
+          <div class="border-b border-[var(--color-border)] pb-2">
+            <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider flex items-center">
+              <span class="mr-1.5">⚡</span> Dual-Model Side-by-Side Sentence Evaluation Workbench
+            </h3>
+            <p class="text-xs text-[var(--color-text-secondary)] mt-0.5">Concurrently execute the same ungrammatical input sentence across Ollama and Project Local Model to assess correction quality.</p>
+          </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Ollama Configuration -->
-          <div id="ollama-config-panel" class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm font-bold text-slate-100 flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                <span>Ollama Mode Configuration</span>
-              </h3>
-              <button id="refresh-ollama-btn" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">Refresh Models</button>
-            </div>
-            <div class="space-y-2">
-              <label class="text-xs text-slate-400">Ollama API Endpoint</label>
-              <input type="text" id="settings-ollama-url" value="http://localhost:11434" class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
-            </div>
-            <div class="flex items-center space-x-2">
-              <button id="test-ollama-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
-                Test Connection & Latency
+          <div class="space-y-1.5">
+            <label class="text-[10px] text-[var(--color-text-muted)] block">Evaluation Input Sentence:</label>
+            <div class="flex space-x-2">
+              <input type="text" id="compare-prompt-input" value="He go to the laboratory yesterday for doing the experiment." class="flex-1 bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--color-text-primary)]">
+              <button id="run-model-comparison-btn" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium transition flex items-center flex-shrink-0">
+                <span id="compare-spinner" class="hidden animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></span>
+                Run Dual Comparison
               </button>
             </div>
-            <div id="ollama-test-output" class="hidden"></div>
-            <div class="pt-3 border-t border-slate-800">
-              <div class="text-[11px] font-semibold text-slate-400 mb-2">Available Ollama Models</div>
-              <div id="ollama-models-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
-            </div>
           </div>
 
-          <!-- Local Model Configuration -->
-          <div id="local-config-panel" class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm font-bold text-slate-100 flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-violet-400"></span>
-                <span>Local Model Checkpoint Configuration</span>
-              </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <div class="p-3 rounded-lg bg-[var(--color-surface)] border border-indigo-500/30 space-y-1.5">
+              <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-1 text-xs">
+                <span class="font-medium text-indigo-400">Ollama (Qwen 2.5 7B)</span>
+                <span class="text-[9px] bg-indigo-500/10 text-indigo-300 px-1.5 py-0.2 rounded font-mono">:11434</span>
+              </div>
+              <div id="compare-ollama-output" class="markdown-body text-xs min-h-[100px] text-[var(--color-text-muted)] italic">Click "Run Dual Comparison" to execute inference.</div>
             </div>
-            <div class="space-y-2">
-              <label class="text-xs text-slate-400">Local Models Storage Directory</label>
-              <input type="text" id="settings-local-dir" value="./models" class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
-            </div>
-            <div class="flex items-center space-x-2">
-              <button id="test-local-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
-                Validate Checkpoint & PyTorch Load
-              </button>
-            </div>
-            <div id="local-test-output" class="hidden"></div>
-            <div class="pt-3 border-t border-slate-800">
-              <div class="text-[11px] font-semibold text-slate-400 mb-2">Discovered Model Checkpoints in ./models/</div>
-              <div id="local-models-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+
+            <div class="p-3 rounded-lg bg-[var(--color-surface)] border border-violet-500/30 space-y-1.5">
+              <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-1 text-xs">
+                <span class="font-medium text-violet-400">Project Local Model</span>
+                <span class="text-[9px] bg-violet-500/10 text-violet-300 px-1.5 py-0.2 rounded font-mono">./models/</span>
+              </div>
+              <div id="compare-local-output" class="markdown-body text-xs min-h-[100px] text-[var(--color-text-muted)] italic">Click "Run Dual Comparison" to execute inference.</div>
             </div>
           </div>
         </div>
 
-        <!-- Dual-Mode Model Comparison Workbench -->
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+        <!-- System Prompt Profiles Manager -->
+        <div class="glass-panel p-4 rounded-xl space-y-3">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-sm font-bold text-slate-100">Dual-Mode Side-by-Side Comparison Workbench</h3>
-              <p class="text-xs text-slate-400">Execute identical input sentences simultaneously on Ollama Qwen 2.5 7B and the Project Local Seq2Seq model.</p>
+              <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">System Role Profiles</h3>
+              <p class="text-xs text-[var(--color-text-secondary)]">Specialized prompt engineering configurations tailoring grammar correction, academic tone, and error analysis.</p>
             </div>
-            <button id="run-model-comparison-btn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition">
-              Run Dual Benchmark
+            <button onclick="document.getElementById('custom-profile-modal').classList.remove('hidden')" class="px-2.5 py-1 bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] text-xs font-medium text-[var(--color-text-primary)] rounded-lg border border-[var(--color-border)]">
+              + Custom Profile
             </button>
           </div>
-          <input type="text" id="model-comparison-input" value="He go to the laboratory yesterday for doing the experiment." class="w-full text-xs bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
-              <div class="text-[11px] font-bold text-indigo-400 mb-2">Ollama Mode (Qwen 2.5 7B) Output</div>
-              <div id="comparison-ollama-output" class="text-xs text-slate-400 italic">Click 'Run Dual Benchmark' to generate.</div>
-            </div>
-            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
-              <div class="text-[11px] font-bold text-violet-400 mb-2">Project Local Model Output</div>
-              <div id="comparison-local-output" class="text-xs text-slate-400 italic">Click 'Run Dual Benchmark' to generate.</div>
-            </div>
+          <div id="settings-profiles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+
+        <!-- Workspace & Density Preferences -->
+        <div class="glass-panel p-4 rounded-xl space-y-2 text-xs">
+          <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Workspace Preferences</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <label class="flex items-center space-x-2 text-[var(--color-text-secondary)] cursor-pointer">
+              <input type="checkbox" id="pref-compact-mode" class="rounded border-[var(--color-border)] text-indigo-600">
+              <span>Compact UI Density</span>
+            </label>
+            <label class="flex items-center space-x-2 text-[var(--color-text-secondary)] cursor-pointer">
+              <input type="checkbox" id="pref-glass-effects" checked class="rounded border-[var(--color-border)] text-indigo-600">
+              <span>Surface Blurs</span>
+            </label>
+            <label class="flex items-center space-x-2 text-[var(--color-text-secondary)] cursor-pointer">
+              <input type="checkbox" id="pref-reduced-motion" class="rounded border-[var(--color-border)] text-indigo-600">
+              <span>Reduced Motion</span>
+            </label>
           </div>
         </div>
 
-        <!-- System Profiles Manager -->
-        <div class="space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-white">System Prompt Profiles</h3>
-          </div>
-          <div id="settings-profiles-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Rendered by settings.js -->
-          </div>
-        </div>
-      </div>
-
+      </section>
     </main>
   </div>
 
-  <!-- COMMAND PALETTE MODAL -->
-  <div id="command-palette-modal" class="hidden fixed inset-0 z-50 command-palette-backdrop flex items-start justify-center pt-24 px-4" onclick="if(event.target === this) closeCommandPalette()">
-    <div class="w-full max-w-xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-      <div class="p-3 border-b border-slate-800 flex items-center space-x-2">
-        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        <input type="text" id="command-palette-input" placeholder="Type a command or search actions..." class="w-full bg-transparent border-0 text-xs text-slate-100 placeholder-slate-500 focus:outline-none">
-        <span class="text-[10px] text-slate-500 font-mono px-1.5 py-0.5 rounded bg-slate-800">ESC</span>
+  <!-- ========================================== -->
+  <!-- MODALS & OVERLAYS                          -->
+  <!-- ========================================== -->
+
+  <!-- Command Palette Modal (Ctrl+K) -->
+  <div id="command-palette-modal" class="hidden fixed inset-0 z-50 flex items-start justify-center pt-20 command-palette-backdrop p-4">
+    <div class="glass-panel w-full max-w-lg rounded-xl border border-[var(--color-border)] shadow-2xl overflow-hidden flex flex-col">
+      <div class="p-3 border-b border-[var(--color-border)] flex items-center space-x-2">
+        <svg class="w-4 h-4 text-[var(--color-text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <input type="text" id="command-palette-input" placeholder="Type a command or action..." class="flex-1 bg-transparent text-xs text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none">
+        <span class="text-[10px] font-mono bg-[var(--color-canvas)] border border-[var(--color-border)] text-[var(--color-text-muted)] px-1.5 py-0.5 rounded">ESC</span>
       </div>
-      <div id="command-palette-list" class="max-h-72 overflow-y-auto p-2 space-y-1">
-        <!-- Rendered by app.js -->
+      <div id="command-palette-results" class="p-1.5 max-h-72 overflow-y-auto space-y-0.5"></div>
+    </div>
+  </div>
+
+  <!-- Diagnostics Modal -->
+  <div id="diagnostics-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="glass-panel w-full max-w-md rounded-xl p-4 space-y-3 border border-[var(--color-border)] shadow-2xl">
+      <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
+        <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider flex items-center">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          System Connectivity Diagnostics
+        </h3>
+        <button onclick="closeModal('diagnostics-modal')" class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] text-sm">×</button>
+      </div>
+      <div id="diagnostics-results"></div>
+      <div class="flex justify-end pt-2 border-t border-[var(--color-border)]">
+        <button onclick="closeModal('diagnostics-modal')" class="px-3 py-1 bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] text-xs font-medium rounded-lg">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- GLOBAL DRAG & DROP OVERLAY -->
-  <div id="global-drag-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-    <div class="p-8 rounded-3xl border-2 border-dashed border-indigo-500 bg-indigo-950/40 text-center backdrop-blur-xl">
-      <div class="text-2xl mb-2">📄</div>
-      <div class="text-base font-bold text-white">Drop File to Proofread & Rewriting Studio</div>
-      <div class="text-xs text-indigo-300 mt-1">Release file anywhere to open in Document Proofreader</div>
+  <!-- Custom Profile Creation Modal -->
+  <div id="custom-profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="glass-panel w-full max-w-md rounded-xl p-4 space-y-3 border border-[var(--color-border)] shadow-2xl text-xs">
+      <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
+        <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Create Custom Profile</h3>
+        <button onclick="closeModal('custom-profile-modal')" class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] text-sm">×</button>
+      </div>
+      
+      <div class="space-y-2">
+        <div>
+          <label class="text-[10px] text-[var(--color-text-muted)] block mb-1">Profile Name:</label>
+          <input type="text" id="new-profile-name" placeholder="e.g. Legal & Contract Proofreader" class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-primary)]">
+        </div>
+        <div>
+          <label class="text-[10px] text-[var(--color-text-muted)] block mb-1">Identifier Key:</label>
+          <input type="text" id="new-profile-id" placeholder="e.g. legal_proofreader" class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-primary)] font-mono">
+        </div>
+        <div>
+          <label class="text-[10px] text-[var(--color-text-muted)] block mb-1">Description:</label>
+          <input type="text" id="new-profile-desc" placeholder="Specialized for precision legal phrasing" class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-[var(--color-text-primary)]">
+        </div>
+        <div>
+          <label class="text-[10px] text-[var(--color-text-muted)] block mb-1">System Prompt Instructions:</label>
+          <textarea id="new-profile-prompt" rows="3" placeholder="You are an expert legal contract proofreader..." class="w-full bg-[var(--color-canvas)] border border-[var(--color-border)] rounded-lg p-2 text-[var(--color-text-primary)] font-mono text-xs"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-2 border-t border-[var(--color-border)]">
+        <button onclick="closeModal('custom-profile-modal')" class="px-2.5 py-1 bg-[var(--color-elevated)] border border-[var(--color-border)] text-[var(--color-text-secondary)] rounded-lg">Cancel</button>
+        <button id="save-custom-profile-btn" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium">Save Profile</button>
+      </div>
     </div>
   </div>
 
-  <!-- TOAST CONTAINER -->
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="keyboard-shortcuts-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="glass-panel w-full max-w-sm rounded-xl p-4 space-y-3 border border-[var(--color-border)] shadow-2xl text-xs">
+      <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-2">
+        <h3 class="text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider">Keyboard Shortcuts</h3>
+        <button onclick="closeModal('keyboard-shortcuts-modal')" class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] text-sm">×</button>
+      </div>
+      
+      <div class="space-y-1.5 text-xs">
+        <div class="flex justify-between py-1 border-b border-[var(--color-border)]"><span class="text-[var(--color-text-secondary)]">Command Palette</span><span class="font-mono text-indigo-400 bg-[var(--color-canvas)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">Ctrl + K</span></div>
+        <div class="flex justify-between py-1 border-b border-[var(--color-border)]"><span class="text-[var(--color-text-secondary)]">Toggle Sidebar</span><span class="font-mono text-indigo-400 bg-[var(--color-canvas)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">Ctrl + B</span></div>
+        <div class="flex justify-between py-1 border-b border-[var(--color-border)]"><span class="text-[var(--color-text-secondary)]">New AI Chat</span><span class="font-mono text-indigo-400 bg-[var(--color-canvas)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">Ctrl + Shift + N</span></div>
+        <div class="flex justify-between py-1 border-b border-[var(--color-border)]"><span class="text-[var(--color-text-secondary)]">Switch to Ollama</span><span class="font-mono text-indigo-400 bg-[var(--color-canvas)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">Ctrl + Shift + O</span></div>
+        <div class="flex justify-between py-1 border-b border-[var(--color-border)]"><span class="text-[var(--color-text-secondary)]">Switch to Local Model</span><span class="font-mono text-indigo-400 bg-[var(--color-canvas)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">Ctrl + Shift + L</span></div>
+        <div class="flex justify-between py-1 border-b border-[var(--color-border)]"><span class="text-[var(--color-text-secondary)]">Upload Document</span><span class="font-mono text-indigo-400 bg-[var(--color-canvas)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">Ctrl + U</span></div>
+        <div class="flex justify-between py-1"><span class="text-[var(--color-text-secondary)]">Close Dialogs</span><span class="font-mono text-indigo-400 bg-[var(--color-canvas)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">Escape</span></div>
+      </div>
 
-  <!-- SCRIPTS -->
-  <script src="/static/js/app.js"></script>
-  <script src="/static/js/chat.js"></script>
-  <script src="/static/js/files.js"></script>
-  <script src="/static/js/project.js"></script>
-  <script src="/static/js/settings.js"></script>
+      <div class="flex justify-end pt-2 border-t border-[var(--color-border)]">
+        <button onclick="closeModal('keyboard-shortcuts-modal')" class="px-3 py-1 bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-lg">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 max-w-sm"></div>
+
+  <!-- Application Modules with Cache Busting -->
+  <script src="/static/js/app.js?v=1.1.0"></script>
+  <script src="/static/js/chat.js?v=1.1.0"></script>
+  <script src="/static/js/files.js?v=1.1.0"></script>
+  <script src="/static/js/project.js?v=1.1.0"></script>
+  <script src="/static/js/settings.js?v=1.1.0"></script>
 </body>
 </html>

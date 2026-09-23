@@ -33,10 +33,18 @@ llm_text_summarization_project/models/summarizer_checkpoint.pt
 llm_text_summarization_project/models/saved_models/
 llm_grammar_correction_project/models/saved_models/
 
-# Dataset archives
-PennFudanPed.zip
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
 
 # IDE and OS metadata
 .DS_Store
 Thumbs.db
 .tempmediaStorage/
+

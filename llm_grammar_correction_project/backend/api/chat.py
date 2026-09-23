@@ -18,7 +18,10 @@ CONVERSATIONS: Dict[str, Dict[str, Any]] = {}
 
 class ChatRequest(BaseModel):
     conversation_id: Optional[str] = None
-    messages: List[ChatMessage]
+    messages: Optional[List[ChatMessage]] = None
+    prompt: Optional[str] = None
+    history: Optional[List[Dict[str, Any]]] = None
+    attached_files: Optional[List[Dict[str, Any]]] = None
     system_prompt: Optional[str] = None
     profile: Optional[str] = None
     mode: Optional[str] = None
@@ -59,9 +62,39 @@ def build_context_augmented_messages(req: ChatRequest) -> List[ChatMessage]:
         augmented_sys_prompt += f"\n\n[PROJECT CONTEXT - The following files from the project are provided for reference]:\n{context_str}\n[END OF PROJECT CONTEXT]"
 
     final_messages = [ChatMessage(role="system", content=augmented_sys_prompt)]
-    for m in req.messages:
-        if m.role != "system":
-            final_messages.append(m)
+
+    # 1. If structured messages list was provided
+    if req.messages:
+        for m in req.messages:
+            if m.role != "system":
+                final_messages.append(m)
+        return final_messages
+
+    # 2. Process attachments
+    attached_blocks = []
+    if req.attached_files:
+        for af in req.attached_files:
+            fname = af.get("filename", "file.txt")
+            cnt = af.get("content", "")
+            attached_blocks.append(f"--- Attached File: {fname} ---\n{cnt}")
+
+    user_text = req.prompt or ""
+    if attached_blocks:
+        attachment_str = f"[ATTACHED FILES: {len(attached_blocks)}]\n" + "\n\n".join(attached_blocks) + "\n[END OF ATTACHMENTS]\n\n"
+        user_text = attachment_str + user_text
+
+    # 3. If history was provided, add past turns
+    if req.history:
+        for h in req.history:
+            role = h.get("role", "user")
+            content = h.get("content", "")
+            if role != "system" and content:
+                final_messages.append(ChatMessage(role=role, content=content))
+
+    # 4. Append the current user prompt if not already the last message in history
+    if user_text:
+        if not req.history or (req.history and req.history[-1].get("content") != user_text):
+            final_messages.append(ChatMessage(role="user", content=user_text))
 
     return final_messages
 
@@ -79,10 +112,16 @@ async def chat_endpoint(req: ChatRequest):
     )
 
     now = time.time()
+    chat_history_msgs = [m.model_dump() for m in final_messages if m.role != "system"]
+    chat_history_msgs.append({"role": "assistant", "content": res.text})
+
+    title_source = req.prompt or (req.messages[0].content if req.messages else "New Chat")
+    conv_title = (title_source.strip().split("\n")[0])[:40]
+
     if conv_id not in CONVERSATIONS:
         CONVERSATIONS[conv_id] = {
             "id": conv_id,
-            "title": req.messages[0].content[:40] if req.messages else "New Chat",
+            "title": conv_title or "New Chat",
             "created_at": now,
             "updated_at": now,
             "mode": provider.mode_name,
@@ -91,7 +130,7 @@ async def chat_endpoint(req: ChatRequest):
         }
 
     CONVERSATIONS[conv_id]["updated_at"] = now
-    CONVERSATIONS[conv_id]["messages"] = [m.model_dump() for m in req.messages] + [{"role": "assistant", "content": res.text}]
+    CONVERSATIONS[conv_id]["messages"] = chat_history_msgs
 
     return {
         "conversation_id": conv_id,
@@ -121,6 +160,7 @@ async def stream_chat_endpoint(req: ChatRequest):
                 payload = {
                     "type": "token",
                     "text": chunk.text,
+                    "token": chunk.text,
                     "done": chunk.done,
                     "model": chunk.model,
                     "finish_reason": chunk.finish_reason,
@@ -130,10 +170,17 @@ async def stream_chat_endpoint(req: ChatRequest):
 
             now = time.time()
             full_reply = "".join(accumulated_text)
+            
+            chat_history_msgs = [m.model_dump() for m in final_messages if m.role != "system"]
+            chat_history_msgs.append({"role": "assistant", "content": full_reply})
+
+            title_source = req.prompt or (req.messages[0].content if req.messages else "New Chat")
+            conv_title = (title_source.strip().split("\n")[0])[:40]
+
             if conv_id not in CONVERSATIONS:
                 CONVERSATIONS[conv_id] = {
                     "id": conv_id,
-                    "title": req.messages[0].content[:40] if req.messages else "New Chat",
+                    "title": conv_title or "New Chat",
                     "created_at": now,
                     "updated_at": now,
                     "mode": provider.mode_name,
@@ -141,12 +188,14 @@ async def stream_chat_endpoint(req: ChatRequest):
                     "messages": []
                 }
             CONVERSATIONS[conv_id]["updated_at"] = now
-            CONVERSATIONS[conv_id]["messages"] = [m.model_dump() for m in req.messages] + [{"role": "assistant", "content": full_reply}]
+            CONVERSATIONS[conv_id]["messages"] = chat_history_msgs
 
             yield f"data: {json.dumps({'type': 'end', 'conversation_id': conv_id})}\n\n"
         except Exception as e:
             studio_logger.error(f"SSE stream error: {e}")
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 

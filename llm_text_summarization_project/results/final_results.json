@@ -1,0 +1,375 @@
+{
+  "experiment": "Experiment 7: LLM Text Summarization & Prompt Engineering",
+  "timestamp": "2026-09-22 09:15:41",
+  "status": "PASS",
+  "test_suite": {
+    "total_tests": 28,
+    "passed_tests": 28,
+    "failed_tests": 0,
+    "details": [
+      {
+        "name": "1. Dataset Loading & Preprocessing",
+        "expected": ">= 10 documents, cleaned text without HTML/entities",
+        "actual": "10 documents, cleaned='Machine Learning in Healthcare.'",
+        "status": "PASS",
+        "duration": 0.007,
+        "error": "None"
+      },
+      {
+        "name": "2. 60/10/30 Train/Val/Test Split",
+        "expected": "6 Train, 1 Val, 3 Test documents",
+        "actual": "6 Train, 1 Val, 3 Test",
+        "status": "PASS",
+        "duration": 0.0029,
+        "error": "None"
+      },
+      {
+        "name": "3. Prompt Template Manager & Loading",
+        "expected": "v1, few_shot, v2, best templates available",
+        "actual": "Keys: ['v1', 'few_shot', 'v2', 'best']",
+        "status": "PASS",
+        "duration": 0.0008,
+        "error": "None"
+      },
+      {
+        "name": "4. Zero-Shot Prompt Generation (v1)",
+        "expected": "Formatted prompt containing source text and 2-3 sentence constraint",
+        "actual": "Length: 786 chars, contains document: True",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "5. Few-Shot Prompt Generation (few_shot)",
+        "expected": "In-context demonstration example and target document",
+        "actual": "Length: 1166 chars, has example: True",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "6. Constrained Prompt Generation (v2)",
+        "expected": "Explicit length (under 100 words) & tone constraints",
+        "actual": "Length: 990 chars, constraints embedded: True",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "7. Best Prompt Generation (best_prompt)",
+        "expected": "CORE TAKEAWAY and KEY INSIGHTS bullet structure",
+        "actual": "Length: 1240 chars, structured headers present: True",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "8. BART/DistilBART Model Loading",
+        "expected": "AbstractiveSummarizer pipeline initialized and ready",
+        "actual": "Model: sshleifer/distilbart-cnn-12-6, device: cpu, is_ready: True",
+        "status": "PASS",
+        "duration": 5.015,
+        "error": "None"
+      },
+      {
+        "name": "9. Abstractive Summarization Generation",
+        "expected": "Coherent generated text with word count between 10 and 95 words",
+        "actual": "Generated 40 words in 1.96s",
+        "status": "PASS",
+        "duration": 1.9569,
+        "error": "None"
+      },
+      {
+        "name": "10. Autoregressive Beam Search Decoding",
+        "expected": "Beam search execution with num_beams=4",
+        "actual": "Decoded 44 words, latency: 5.18s",
+        "status": "PASS",
+        "duration": 5.1833,
+        "error": "None"
+      },
+      {
+        "name": "11. Extractive Baseline (TextRank/TF-IDF)",
+        "expected": "Salient sentence extraction from source text",
+        "actual": "Extracted 43 words from source document",
+        "status": "PASS",
+        "duration": 0.0004,
+        "error": "None"
+      },
+      {
+        "name": "12. ROUGE-1 Calculation (Unigram Overlap)",
+        "expected": "Exact match F1 = 1.000; valid F1 for candidate summary",
+        "actual": "Exact F1: 1.0000, Candidate F1: 0.3692",
+        "status": "PASS",
+        "duration": 0.0021,
+        "error": "None"
+      },
+      {
+        "name": "13. ROUGE-2 Calculation (Bigram Syntactic)",
+        "expected": "Exact match F1 = 1.000; valid bigram overlap score",
+        "actual": "Exact F1: 1.0000, Candidate F1: 0.1270",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "14. ROUGE-L Calculation (Longest Subsequence)",
+        "expected": "Exact match F1 = 1.000; valid LCS overlap score",
+        "actual": "Exact F1: 1.0000, Candidate F1: 0.2769",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "15. BERTScore Semantic Similarity",
+        "expected": "BERTScore F1 between 0.50 and 1.00 with contextual embeddings",
+        "actual": "BERTScore P: 0.8031, R: 0.8057, F1: 0.8044",
+        "status": "PASS",
+        "duration": 2.5259,
+        "error": "None"
+      },
+      {
+        "name": "16. Precision, Recall, F1 Harmonic Consistency",
+        "expected": "F1 == (2 * P * R) / (P + R)",
+        "actual": "P=0.3077, R=0.4615, Computed F1=0.3692, Formula F1=0.3692",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "17. Word-Count & Text Statistics",
+        "expected": "Document words: 73",
+        "actual": "Statistics module words: 73, sentences: 3",
+        "status": "PASS",
+        "duration": 0.0004,
+        "error": "None"
+      },
+      {
+        "name": "18. Compression-Ratio Calculation",
+        "expected": "Word compression: 45.21%",
+        "actual": "Compression: 45.21%, char compression: 47.34%",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "19. Length-Compliance Assessment",
+        "expected": "Compliance verification against target bounds",
+        "actual": "Actual: 40w, Target: 50w, Compliant: True",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "20. Unified Quality & Factual Consistency",
+        "expected": "Comprehensive evaluation bundle with ROUGE, BERTScore, compression",
+        "actual": "ROUGE-1: 0.3692, BERTScore: 0.8044, Comp: 45.21%",
+        "status": "PASS",
+        "duration": 0.0517,
+        "error": "None"
+      },
+      {
+        "name": "21. Local Model Prompt Inference Pipeline",
+        "expected": "Prompt-engineered local inference execution",
+        "actual": "Generated 40 words in 1.82s",
+        "status": "PASS",
+        "duration": 1.8248,
+        "error": "None"
+      },
+      {
+        "name": "22. FastAPI Backend Health Check",
+        "expected": "HTTP 200, status='healthy'",
+        "actual": "HTTP 200, status=healthy, backend=True",
+        "status": "PASS",
+        "duration": 0.2978,
+        "error": "None"
+      },
+      {
+        "name": "23. File-Upload API Endpoint (/api/files/upload)",
+        "expected": "HTTP 200, status='success'",
+        "actual": "HTTP 200, filename: cloud_security_gnn.txt",
+        "status": "PASS",
+        "duration": 0.0123,
+        "error": "None"
+      },
+      {
+        "name": "24. Document Text Extraction & Token Estimation",
+        "expected": "Accurate text extraction, word count, estimated tokens",
+        "actual": "73 words, ~94 tokens extracted",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "25. Chat API Endpoint (/api/chat)",
+        "expected": "HTTP 200, valid assistant response message",
+        "actual": "HTTP 200, response length: 137 chars",
+        "status": "PASS",
+        "duration": 1.198,
+        "error": "None"
+      },
+      {
+        "name": "26. Live Summarization Quality Response",
+        "expected": "Context-augmented technical abstractive summary returned in chat response",
+        "actual": "Generated: 'Graph Neural Networks (GNNs) have emerged as a dominant architect...'",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "27. Response Latency & Token Telemetry",
+        "expected": "Telemetry fields duration_seconds, total_tokens, mode",
+        "actual": "Latency: 1.168s, Total Tokens: 257, Engine: local_model",
+        "status": "PASS",
+        "duration": 0.0,
+        "error": "None"
+      },
+      {
+        "name": "28. Frontend / Backend Web Integration",
+        "expected": "HTTP 200, serves Local LLM Studio HTML UI with interactive chat workspace",
+        "actual": "HTTP 200, HTML length: 79158 chars",
+        "status": "PASS",
+        "duration": 0.0155,
+        "error": "None"
+      }
+    ]
+  },
+  "aggregate_metrics": {
+    "mean_rouge1_f1": 0.3867,
+    "mean_rouge2_f1": 0.1512,
+    "mean_rougeL_f1": 0.2485,
+    "mean_bertscore_f1": 0.8306,
+    "mean_word_compression_pct": 60.75,
+    "mean_generation_latency_seconds": 2.64
+  },
+  "per_document_results": [
+    {
+      "id": "DOC_005",
+      "category": "Cybersecurity & Cloud Systems",
+      "title": "Graph Neural Networks for Zero-Day Cloud Intrusion Detection",
+      "doc_word_count": 129,
+      "ref_word_count": 30,
+      "summary_words": 58,
+      "generated_summary": "Traditional signature-based Intrusion Detection Systems fail against zero-day exploits and multi-stage Advanced Persistent Threats . Security engineers constructed a spatial-temporal Graph Neural Network (GNN) framework that models cloud infrastructure as a dynamic graph . The framework achieved an Area Under the ROC Curve (AUC) of 0.982 on enterprise benchmark datasets with an inference latency under 15 milliseconds .",
+      "reference_summary": "A dynamic Graph Neural Network framework detects zero-day cloud intrusions by analyzing network telemetry and IAM permissions as graph embeddings, achieving a 0.982 AUC and enabling sub-15ms automated threat response.",
+      "extractive_summary": "Cloud computing environments host distributed microservices that generate massive volumes of heterogeneous network flow telemetry and system call logs. Security engineers constructed a spatial-temporal Graph Neural Network (GNN) framework that models cloud infrastructure as a dynamic graph. In this graph, compute nodes, containers, and databases serve as vertices, while TCP/IP connections, API calls, and IAM permissions constitute edges.",
+      "rouge1_precision": 0.3333,
+      "rouge1_recall": 0.6061,
+      "rouge1_f1": 0.4301,
+      "rouge2_precision": 0.1017,
+      "rouge2_recall": 0.1875,
+      "rouge2_f1": 0.1319,
+      "rougeL_precision": 0.1833,
+      "rougeL_recall": 0.3333,
+      "rougeL_f1": 0.2366,
+      "bertscore_precision": 0.8199,
+      "bertscore_recall": 0.8514,
+      "bertscore_f1": 0.8354,
+      "word_compression_pct": 55.04,
+      "length_compliant": true,
+      "latency_seconds": 2.954,
+      "model_used": "sshleifer/distilbart-cnn-12-6",
+      "prompt_version": "Prompt best",
+      "verification_status": "PASS"
+    },
+    {
+      "id": "DOC_004",
+      "category": "Biomedical Engineering",
+      "title": "Transformer Attention Networks for Arrhythmia Detection from ECG",
+      "doc_word_count": 129,
+      "ref_word_count": 28,
+      "summary_words": 47,
+      "generated_summary": "Traditional 12-lead electrocardiogram interpretation by cardiologists is constrained by fatigue and inter-observer variability . Researchers developed a multi-head Self-Attention Transformer network capable of processing raw 12 lead voltage streams at 500 Hz sampling rates . The self-attention heatmaps highlight clinically salient P-wave and QRS complex morphology .",
+      "reference_summary": "A multi-head self-attention Transformer network analyzes 12-lead ECG signals to detect cardiac arrhythmias with 99.1% sensitivity, providing interpretable attention heatmaps over P-wave and QRS complexes for clinical support.",
+      "extractive_summary": "Cardiovascular diseases represent a leading cause of global mortality, with cardiac arrhythmias requiring rapid, accurate clinical diagnosis. Traditional 12-lead electrocardiogram (ECG) interpretation by cardiologists is constrained by fatigue and inter-observer variability. Deep learning architectures have advanced automated ECG analysis, but standard convolutional models often struggle to capture long-range rhythmic dependencies spanning several cardiac cycles.",
+      "rouge1_precision": 0.36,
+      "rouge1_recall": 0.5455,
+      "rouge1_f1": 0.4337,
+      "rouge2_precision": 0.2449,
+      "rouge2_recall": 0.375,
+      "rouge2_f1": 0.2963,
+      "rougeL_precision": 0.32,
+      "rougeL_recall": 0.4848,
+      "rougeL_f1": 0.3855,
+      "bertscore_precision": 0.8399,
+      "bertscore_recall": 0.8545,
+      "bertscore_f1": 0.8471,
+      "word_compression_pct": 63.57,
+      "length_compliant": true,
+      "latency_seconds": 2.668,
+      "model_used": "sshleifer/distilbart-cnn-12-6",
+      "prompt_version": "Prompt best",
+      "verification_status": "PASS"
+    },
+    {
+      "id": "DOC_007",
+      "category": "Environmental Science & Remote Sensing",
+      "title": "Satellite Multispectral AI for Deforestation and Carbon Sink Mapping",
+      "doc_word_count": 132,
+      "ref_word_count": 26,
+      "summary_words": 48,
+      "generated_summary": "European Space Agency Sentinel-2 and NASA Landsat satellites capture terabytes of optical and near-infrared multispectral imagery daily . A hierarchical U-Net architecture integrated with temporal attention was deployed to segment rainforest canopy density, illegal logging roads, and wildfire burns across 5 million square kilometers of the Amazon .",
+      "reference_summary": "Hierarchical temporal U-Nets analyze multispectral satellite imagery and SAR data to monitor deforestation and quantify above-ground biomass with R2=0.91, providing near-real-time verification for carbon credit registries.",
+      "extractive_summary": "Monitoring global deforestation and carbon sequestration dynamics requires continuous, wide-area remote sensing analytics. Analyzing this deluge of satellite data requires robust deep learning segmentation models that remain resilient against heavy cloud cover and seasonal phenological shifts. The model cross-references synthetic aperture radar (SAR) data from Sentinel-1 to penetrate cloud cover during the monsoon season.",
+      "rouge1_precision": 0.2449,
+      "rouge1_recall": 0.375,
+      "rouge1_f1": 0.2963,
+      "rouge2_precision": 0.0208,
+      "rouge2_recall": 0.0323,
+      "rouge2_f1": 0.0253,
+      "rougeL_precision": 0.102,
+      "rougeL_recall": 0.1562,
+      "rougeL_f1": 0.1235,
+      "bertscore_precision": 0.8049,
+      "bertscore_recall": 0.8139,
+      "bertscore_f1": 0.8094,
+      "word_compression_pct": 63.64,
+      "length_compliant": true,
+      "latency_seconds": 2.298,
+      "model_used": "sshleifer/distilbart-cnn-12-6",
+      "prompt_version": "Prompt best",
+      "verification_status": "PASS"
+    }
+  ],
+  "prompt_engineering_comparison": [
+    {
+      "prompt_version": "Prompt v1",
+      "rouge1_f1": 0.3915,
+      "rouge2_f1": 0.1527,
+      "rougeL_f1": 0.2511,
+      "bertscore_f1": 0.8315,
+      "latency_seconds": 2.595
+    },
+    {
+      "prompt_version": "Prompt v2",
+      "rouge1_f1": 0.3867,
+      "rouge2_f1": 0.1512,
+      "rougeL_f1": 0.2485,
+      "bertscore_f1": 0.8306,
+      "latency_seconds": 2.757
+    },
+    {
+      "prompt_version": "Prompt best",
+      "rouge1_f1": 0.3867,
+      "rouge2_f1": 0.1512,
+      "rougeL_f1": 0.2485,
+      "bertscore_f1": 0.8306,
+      "latency_seconds": 2.677
+    }
+  ],
+  "abstractive_vs_extractive": [
+    {
+      "approach": "Abstractive (BART/LLM)",
+      "rouge1_f1": 0.3867,
+      "rouge2_f1": 0.1512,
+      "rougeL_f1": 0.2485,
+      "bertscore_f1": 0.8306
+    },
+    {
+      "approach": "Extractive (TextRank)",
+      "rouge1_f1": 0.2711,
+      "rouge2_f1": 0.0818,
+      "rougeL_f1": 0.1539,
+      "bertscore_f1": 0.7961
+    }
+  ]
+}

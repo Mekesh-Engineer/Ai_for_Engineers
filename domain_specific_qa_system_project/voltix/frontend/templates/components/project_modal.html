@@ -1,0 +1,33 @@
+<div id="modal-project" class="modal-backdrop hidden">
+    <div class="modal-dialog max-w-xl">
+        <div class="p-4 border-b border-white/[0.08] flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa-regular fa-folder-open text-neutral-400 text-sm"></i>
+                <h3 class="font-semibold text-white text-sm">Project Workspaces</h3>
+            </div>
+            <button id="btn-close-project-modal" class="text-neutral-400 hover:text-white p-1 rounded-md hover:bg-white/5 transition-colors" title="Close">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <div class="p-5 overflow-y-auto space-y-5 text-xs max-h-[75vh]">
+            <!-- Create New Workspace Form -->
+            <div class="bg-neutral-800/50 p-3.5 rounded-xl border border-white/[0.06] space-y-2.5">
+                <div class="font-semibold text-neutral-200">Create New Workspace</div>
+                <input type="text" id="input-new-project-name" placeholder="Workspace name (e.g. Solar Inverter, High Voltage Lab)" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-white/20 transition-colors">
+                <textarea id="input-new-project-desc" rows="2" placeholder="Description or domain scope..." class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-white/20 transition-colors resize-none"></textarea>
+                <button id="btn-create-project" class="py-1.5 px-3.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg text-xs transition-colors self-end">
+                    Create Workspace
+                </button>
+            </div>
+
+            <!-- Existing Workspaces List -->
+            <div>
+                <div class="font-semibold text-neutral-400 uppercase tracking-wider text-[10px] mb-2">Existing Workspaces</div>
+                <div id="projects-list-container" class="space-y-1.5">
+                    <!-- Populated dynamically via VoltixUI.renderProjectManagerList -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

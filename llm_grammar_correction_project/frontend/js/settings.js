@@ -1,5 +1,6 @@
 /**
- * Local LLM Studio - Settings, Models Configuration & Workbench (Grammar Studio)
+ * Local LLM Studio - Settings, Models Configuration & Dual-Model Comparison Workbench
+ * Experiment 8: Automated Grammar Error Correction & Text Rewriting
  */
 
 const SettingsModule = {
@@ -18,9 +19,10 @@ const SettingsModule = {
   },
 
   bindEvents() {
+    // Mode radio toggle buttons
     document.querySelectorAll('.mode-toggle-radio').forEach(radio => {
       radio.addEventListener('change', (e) => {
-        switchActiveMode(e.target.value);
+        handleModeSwitch(e.target.value);
         this.updateVisibleConfigPanels(e.target.value);
       });
     });
@@ -121,6 +123,7 @@ const SettingsModule = {
         const data = await res.json();
         this.settingsData = data;
         
+        // Populate inputs
         const s = data.settings;
         const urlInput = document.getElementById('settings-ollama-url');
         const dirInput = document.getElementById('settings-local-dir');
@@ -128,6 +131,7 @@ const SettingsModule = {
         if (urlInput) urlInput.value = s.ollama.base_url;
         if (dirInput) dirInput.value = s.local_model.directory;
         
+        // Select active radio
         document.querySelectorAll('.mode-toggle-radio').forEach(r => {
           r.checked = (r.value === s.active_mode);
         });
@@ -145,194 +149,227 @@ const SettingsModule = {
     if (!container) return;
 
     container.innerHTML = '';
-    for (const [key, profile] of Object.entries(profiles)) {
+    for (const [key, profile] of Object.entries(profiles || {})) {
+      const isDefault = (key === (this.settingsData?.settings?.system_profile?.active_profile || 'standard_corrector'));
       const card = document.createElement('div');
-      card.className = 'glass-panel p-4 rounded-xl border border-slate-700/60 flex flex-col justify-between';
+      card.className = `glass-panel p-3.5 rounded-xl flex flex-col justify-between space-y-2 border ${isDefault ? 'border-indigo-500/40' : 'border-[var(--color-border)]'}`;
       card.innerHTML = `
         <div>
           <div class="flex items-center justify-between mb-1">
-            <h4 class="text-sm font-semibold text-white">${profile.name}</h4>
-            <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded ${key === AppState.activeProfile ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400'}">${key}</span>
+            <h4 class="font-medium text-xs text-[var(--color-text-primary)]">${profile.name}</h4>
+            ${isDefault ? '<span class="text-[9px] bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-500/20 font-mono">Active</span>' : ''}
           </div>
-          <p class="text-xs text-slate-400 mb-3">${profile.description || ''}</p>
-          <pre class="text-[11px] font-mono text-slate-300 bg-slate-900/80 p-2.5 rounded-lg border border-slate-800 overflow-x-auto whitespace-pre-wrap max-h-24">${profile.prompt}</pre>
+          <p class="text-[11px] text-[var(--color-text-secondary)] line-clamp-2">${profile.description || ''}</p>
+          <div class="mt-2 p-2 rounded bg-[var(--color-canvas)] text-[10px] font-mono text-[var(--color-text-muted)] line-clamp-3 border border-[var(--color-border)]">
+            ${profile.prompt || ''}
+          </div>
         </div>
-        <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between">
-          <button onclick="SettingsModule.applyProfile('${key}')" class="text-xs font-medium text-indigo-400 hover:text-indigo-300">
-            ${key === AppState.activeProfile ? '✓ Active Profile' : 'Set as Active'}
-          </button>
+        <div class="flex justify-end pt-1">
+          <button onclick="SettingsModule.selectProfile('${key}')" class="text-xs px-2.5 py-1 rounded bg-[var(--color-elevated)] hover:bg-indigo-600 hover:text-white transition font-medium text-[var(--color-text-secondary)]">Use Profile</button>
         </div>
       `;
       container.appendChild(card);
     }
   },
 
-  applyProfile(key) {
-    AppState.activeProfile = key;
-    if (window.ChatModule) window.ChatModule.loadProfiles();
-    this.loadSettings();
-    showToast(`Active profile set to '${key}'`, 'success');
-  },
-
-  async refreshModels() {
-    try {
-      const res = await fetch('/api/models');
-      if (res.ok) {
-        const data = await res.json();
-        
-        // Ollama models
-        const ollamaList = document.getElementById('ollama-models-list');
-        if (ollamaList && data.ollama.available_models) {
-          this.discoveredOllamaModels = data.ollama.available_models;
-          ollamaList.innerHTML = data.ollama.available_models.map(m => `
-            <div class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between text-xs">
-              <div>
-                <span class="font-medium text-slate-200 font-mono">${m.name}</span>
-                <span class="text-[10px] text-slate-500 block">${m.size_gb} GB • ${m.family}</span>
-              </div>
-              <button onclick="SettingsModule.selectOllamaModel('${m.name}')" class="px-2.5 py-1 rounded bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600 hover:text-white transition text-xs font-medium">
-                ${m.name === AppState.activeOllamaModel ? '✓ Active' : 'Select'}
-              </button>
-            </div>
-          `).join('');
-        }
-
-        // Local models
-        const localList = document.getElementById('local-models-list');
-        if (localList && data.local_model.discovered_models) {
-          this.discoveredLocalModels = data.local_model.discovered_models;
-          localList.innerHTML = data.local_model.discovered_models.map(m => `
-            <div class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between text-xs">
-              <div>
-                <span class="font-medium text-slate-200 font-mono">${m.name}</span>
-                <span class="text-[10px] text-slate-500 block">${m.size_mb} MB • ${m.format}</span>
-              </div>
-              <button onclick="SettingsModule.selectLocalModel('${m.path}')" class="px-2.5 py-1 rounded bg-violet-600/30 text-violet-300 hover:bg-violet-600 hover:text-white transition text-xs font-medium">
-                Select
-              </button>
-            </div>
-          `).join('');
-        }
-      }
-    } catch (err) {
-      console.warn('Error refreshing models:', err);
-    }
-  },
-
-  async selectOllamaModel(modelName) {
-    try {
-      await fetch('/api/models/switch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'ollama', model_name_or_path: modelName })
-      });
-      AppState.activeOllamaModel = modelName;
-      checkSystemHealth();
-      this.refreshModels();
-      showToast(`Selected Ollama model: ${modelName}`, 'success');
-    } catch (err) {
-      showToast(`Failed to select model: ${err.message}`, 'error');
-    }
-  },
-
-  async selectLocalModel(modelPath) {
-    try {
-      await fetch('/api/models/switch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'local_model', model_name_or_path: modelPath })
-      });
-      checkSystemHealth();
-      this.refreshModels();
-      showToast(`Selected Local Model checkpoint`, 'success');
-    } catch (err) {
-      showToast(`Failed to select local model: ${err.message}`, 'error');
-    }
+  async selectProfile(profileKey) {
+    AppState.activeProfile = profileKey;
+    const select = document.getElementById('chat-profile-select');
+    if (select) select.value = profileKey;
+    showToast(`Active profile set to: ${profileKey}`, 'success');
   },
 
   async testOllama() {
-    const outputEl = document.getElementById('ollama-test-output');
-    showToast('Running diagnostic test on Ollama service...', 'info');
+    const output = document.getElementById('ollama-test-result') || document.getElementById('ollama-test-output');
+    if (output) {
+      output.classList.remove('hidden');
+      output.innerHTML = `<div class="text-xs text-indigo-400 flex items-center"><span class="animate-spin rounded-full h-3 w-3 border-b-2 border-indigo-400 mr-2"></span>Testing Ollama service connectivity...</div>`;
+    }
 
     try {
       const res = await fetch('/api/models/test-ollama', { method: 'POST' });
       const data = await res.json();
-
-      if (outputEl) {
-        outputEl.classList.remove('hidden');
-        outputEl.innerHTML = `
-          <div class="p-3 rounded-xl border ${data.ollama_reachable ? 'border-emerald-500/40 bg-emerald-950/20 text-emerald-300' : 'border-rose-500/40 bg-rose-950/20 text-rose-300'} text-xs">
-            <div class="font-bold mb-1">${data.message}</div>
-            <div class="text-[11px] text-slate-400 font-mono">Latency: ${data.latency_seconds}s | Models: ${data.details?.installed_models?.join(', ') || 'None'}</div>
+      
+      if (output) {
+        output.innerHTML = `
+          <div class="p-2.5 rounded-lg border text-xs ${data.test_generation ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-amber-500/10 border-amber-500/30 text-amber-300'}">
+            <div class="font-semibold">${data.message}</div>
+            <div class="text-[11px] mt-1 font-mono text-[var(--color-text-muted)]">Latency: ${data.latency_seconds || 0}s | Reachable: ${data.ollama_reachable} | Model: ${data.model_present}</div>
           </div>
         `;
       }
-      if (data.ollama_reachable) showToast('Ollama service passed diagnostic tests!', 'success');
-      else showToast('Ollama connection test failed', 'error');
     } catch (err) {
-      showToast(`Test error: ${err.message}`, 'error');
+      if (output) {
+        output.innerHTML = `<div class="p-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-lg text-xs">Test failed: ${err.message}</div>`;
+      }
+    }
+  },
+
+  async refreshModels() {
+    const select = document.getElementById('settings-ollama-model-select');
+    const localList = document.getElementById('discovered-local-models-list') || document.getElementById('local-models-list');
+    const ollamaList = document.getElementById('ollama-models-list');
+
+    try {
+      const res = await fetch('/api/models/list');
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Ollama Select & List
+        if (select && data.ollama_models) {
+          select.innerHTML = '';
+          data.ollama_models.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            if (m.includes('qwen2.5:7b') || m === AppState.activeOllamaModel) opt.selected = true;
+            select.appendChild(opt);
+          });
+        }
+
+        if (ollamaList && data.ollama_models) {
+          ollamaList.innerHTML = data.ollama_models.map(m => `
+            <div class="flex items-center justify-between p-2 rounded-lg bg-[var(--color-canvas)] border border-[var(--color-border)] text-xs font-mono text-indigo-300">
+              <span>${m}</span>
+              <span class="text-[10px] text-emerald-400 font-sans">Ready</span>
+            </div>
+          `).join('');
+        }
+
+        // Local Models List
+        if (localList && data.local_models) {
+          if (data.local_models.length === 0) {
+            localList.innerHTML = `<div class="text-xs text-[var(--color-text-muted)] italic p-2">No model weights detected in ./models/.</div>`;
+          } else {
+            localList.innerHTML = data.local_models.map(m => `
+              <div class="p-2 rounded-lg bg-[var(--color-canvas)] border border-[var(--color-border)] text-xs font-mono text-violet-300">
+                <div class="font-medium truncate">${m.name || m.path}</div>
+                <div class="text-[10px] text-[var(--color-text-muted)]">${m.format || 'Safetensors / PyTorch'} • ${(m.size_bytes ? (m.size_bytes / (1024*1024)).toFixed(1) + ' MB' : 'Local Checkpoint')}</div>
+              </div>
+            `).join('');
+          }
+        }
+
+        showToast('Refreshed local model checkpoints and Ollama catalog.', 'info', 2000);
+      }
+    } catch (err) {
+      console.warn('Failed to refresh models:', err);
     }
   },
 
   async testLocalModel() {
-    const outputEl = document.getElementById('local-test-output');
-    showToast('Testing local Transformer model checkpoint...', 'info');
+    const output = document.getElementById('local-test-result') || document.getElementById('local-test-output');
+    if (output) {
+      output.classList.remove('hidden');
+      output.innerHTML = `<div class="text-xs text-violet-400 flex items-center"><span class="animate-spin rounded-full h-3 w-3 border-b-2 border-violet-400 mr-2"></span>Validating PyTorch / Transformers model checkpoint...</div>`;
+    }
 
     try {
       const res = await fetch('/api/models/test-local', { method: 'POST' });
       const data = await res.json();
-
-      if (outputEl) {
-        outputEl.classList.remove('hidden');
-        outputEl.innerHTML = `
-          <div class="p-3 rounded-xl border ${data.model_valid ? 'border-indigo-500/40 bg-indigo-950/20 text-indigo-300' : 'border-rose-500/40 bg-rose-950/20 text-rose-300'} text-xs">
-            <div class="font-bold mb-1">${data.message}</div>
-            <div class="text-[11px] text-slate-400 font-mono">Latency: ${data.latency_seconds}s | Sample Output: ${data.details?.sample_output || 'N/A'}</div>
+      
+      if (output) {
+        output.innerHTML = `
+          <div class="p-2.5 rounded-lg border text-xs ${data.model_valid ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-amber-500/10 border-amber-500/30 text-amber-300'}">
+            <div class="font-semibold">${data.message}</div>
+            <div class="text-[11px] mt-1 font-mono text-[var(--color-text-muted)]">Latency: ${data.latency_seconds || 0}s | Detected: ${data.model_detected} | Output: ${data.sample_output || 'N/A'}</div>
           </div>
         `;
       }
-      if (data.model_valid) showToast('Local model passed validation!', 'success');
-      else showToast('Local model check failed', 'error');
     } catch (err) {
-      showToast(`Test error: ${err.message}`, 'error');
+      if (output) {
+        output.innerHTML = `<div class="p-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-lg text-xs">Test failed: ${err.message}</div>`;
+      }
     }
   },
 
-  async saveSettings() {
-    const ollamaUrl = document.getElementById('settings-ollama-url')?.value.trim();
-    const localDir = document.getElementById('settings-local-dir')?.value.trim();
+  async runModelComparison() {
+    const input = document.getElementById('compare-prompt-input') || document.getElementById('model-comparison-input');
+    const prompt = input ? input.value.trim() : '';
+    const spinner = document.getElementById('compare-spinner');
+    const ollamaOut = document.getElementById('compare-ollama-output') || document.getElementById('comparison-ollama-output');
+    const localOut = document.getElementById('compare-local-output') || document.getElementById('comparison-local-output');
+
+    if (!prompt) {
+      showToast('Please enter an evaluation sentence to compare.', 'warning');
+      return;
+    }
+
+    if (spinner) spinner.classList.remove('hidden');
+    if (ollamaOut) ollamaOut.innerHTML = `<div class="flex items-center text-xs text-indigo-400"><span class="animate-spin rounded-full h-3 w-3 border-b-2 border-indigo-400 mr-2"></span>Inferring on Ollama Qwen 2.5 7B...</div>`;
+    if (localOut) localOut.innerHTML = `<div class="flex items-center text-xs text-violet-400"><span class="animate-spin rounded-full h-3 w-3 border-b-2 border-violet-400 mr-2"></span>Inferring on Project Local Seq2Seq Model...</div>`;
 
     try {
-      const res = await fetch('/api/settings', {
+      const res = await fetch('/api/models/compare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ollama_base_url: ollamaUrl,
-          active_local_model_path: localDir
-        })
+        body: JSON.stringify({ prompt: prompt })
       });
 
-      if (res.ok) {
-        showToast('Settings saved successfully', 'success');
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Comparison failed');
       }
+
+      const result = await res.json();
+      
+      if (ollamaOut) {
+        const ollamaText = result.ollama?.text || result.ollama_output || 'No response from Ollama.';
+        const ollamaLat = result.ollama?.duration || result.ollama_latency || '0';
+        ollamaOut.innerHTML = `
+          <div class="space-y-2">
+            <div>${(typeof marked !== 'undefined') ? marked.parse(ollamaText) : ollamaText}</div>
+            <div class="text-[10px] text-[var(--color-text-muted)] pt-1 border-t border-[var(--color-border)] font-mono flex justify-between">
+              <span>Latency: ${ollamaLat}s</span>
+              <span>Model: qwen2.5:7b</span>
+            </div>
+          </div>
+        `;
+      }
+
+      if (localOut) {
+        const localText = result.local_model?.text || result.local_output || 'No response from Local Model.';
+        const localLat = result.local_model?.duration || result.local_latency || '0';
+        localOut.innerHTML = `
+          <div class="space-y-2">
+            <div>${(typeof marked !== 'undefined') ? marked.parse(localText) : localText}</div>
+            <div class="text-[10px] text-[var(--color-text-muted)] pt-1 border-t border-[var(--color-border)] font-mono flex justify-between">
+              <span>Latency: ${localLat}s</span>
+              <span>Model: Local Seq2Seq</span>
+            </div>
+          </div>
+        `;
+      }
+
+      logActivity('Executed Dual-Model Side-by-Side Comparison Benchmark');
+      showToast('Dual-Model comparison completed successfully!', 'success');
     } catch (err) {
-      showToast(`Failed to save settings: ${err.message}`, 'error');
+      showToast(`Comparison error: ${err.message}`, 'error');
+      if (ollamaOut) ollamaOut.innerText = `Error: ${err.message}`;
+      if (localOut) localOut.innerText = `Error: ${err.message}`;
+    } finally {
+      if (spinner) spinner.classList.add('hidden');
     }
   },
 
   async createCustomProfile() {
-    const id = document.getElementById('custom-profile-id')?.value.trim();
-    const name = document.getElementById('custom-profile-name')?.value.trim();
-    const desc = document.getElementById('custom-profile-desc')?.value.trim();
-    const prompt = document.getElementById('custom-profile-prompt')?.value.trim();
+    const nameInput = document.getElementById('new-profile-name');
+    const idInput = document.getElementById('new-profile-id');
+    const descInput = document.getElementById('new-profile-desc');
+    const promptInput = document.getElementById('new-profile-prompt');
 
-    if (!id || !name || !prompt) {
-      showToast('Please fill in profile ID, name, and system prompt', 'warning');
+    const name = nameInput ? nameInput.value.trim() : '';
+    const id = idInput ? idInput.value.trim().toLowerCase().replace(/\s+/g, '_') : '';
+    const desc = descInput ? descInput.value.trim() : '';
+    const prompt = promptInput ? promptInput.value.trim() : '';
+
+    if (!name || !id || !prompt) {
+      showToast('Please fill out all required profile fields.', 'warning');
       return;
     }
 
     try {
-      const res = await fetch('/api/settings/profile', {
+      const res = await fetch('/api/settings/profiles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -343,67 +380,45 @@ const SettingsModule = {
         })
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        this.renderProfilesList(data.profiles);
-        showToast(`Profile '${name}' saved!`, 'success');
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Failed to save profile');
       }
+
+      showToast(`Created profile '${name}'!`, 'success');
+      closeModal('custom-profile-modal');
+      this.loadSettings();
+      if (window.ChatModule) window.ChatModule.loadProfiles();
     } catch (err) {
-      showToast(`Error saving profile: ${err.message}`, 'error');
+      showToast(`Error creating profile: ${err.message}`, 'error');
     }
   },
 
-  async runModelComparison() {
-    const testSentence = document.getElementById('model-comparison-input')?.value.trim() || 'He go to the laboratory yesterday for doing the experiment.';
-    const outputOllama = document.getElementById('comparison-ollama-output');
-    const outputLocal = document.getElementById('comparison-local-output');
+  async saveSettings() {
+    const urlInput = document.getElementById('settings-ollama-url');
+    const modelSelect = document.getElementById('settings-ollama-model-select');
 
-    if (outputOllama) outputOllama.innerHTML = '<span class="text-indigo-400 animate-pulse">Running Ollama Qwen 2.5 7B inference...</span>';
-    if (outputLocal) outputLocal.innerHTML = '<span class="text-violet-400 animate-pulse">Running Local Model Seq2Seq inference...</span>';
-
-    showToast('Executing dual-mode side-by-side benchmark...', 'info');
-
-    // Run Ollama
     try {
-      const t0 = Date.now();
-      const res1 = await fetch('/api/files/proofread', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: testSentence, mode: 'ollama', correction_level: 'standard' })
-      });
-      const d1 = await res1.json();
-      const dur1 = ((Date.now() - t0) / 1000).toFixed(2);
-      if (outputOllama) {
-        outputOllama.innerHTML = `
-          <div class="text-[11px] text-slate-400 font-mono mb-1">Latency: ${dur1}s | Edit Distance: ${d1.levenshtein_distance}</div>
-          <div class="text-slate-200 text-xs font-medium">${d1.corrected_text}</div>
-        `;
-      }
-    } catch (e1) {
-      if (outputOllama) outputOllama.innerHTML = `<span class="text-rose-400">Ollama error: ${e1.message}</span>`;
-    }
+      const payload = {
+        ollama_url: urlInput ? urlInput.value.trim() : undefined,
+        ollama_model: modelSelect ? modelSelect.value : undefined
+      };
 
-    // Run Local Model
-    try {
-      const t0 = Date.now();
-      const res2 = await fetch('/api/files/proofread', {
-        method: 'POST',
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: testSentence, mode: 'local_model', correction_level: 'standard' })
+        body: JSON.stringify(payload)
       });
-      const d2 = await res2.json();
-      const dur2 = ((Date.now() - t0) / 1000).toFixed(2);
-      if (outputLocal) {
-        outputLocal.innerHTML = `
-          <div class="text-[11px] text-slate-400 font-mono mb-1">Latency: ${dur2}s | Edit Distance: ${d2.levenshtein_distance}</div>
-          <div class="text-slate-200 text-xs font-medium">${d2.corrected_text}</div>
-        `;
-      }
-    } catch (e2) {
-      if (outputLocal) outputLocal.innerHTML = `<span class="text-rose-400">Local Model error: ${e2.message}</span>`;
-    }
 
-    showToast('Dual-mode comparison complete!', 'success');
+      if (res.ok) {
+        showToast('Settings saved successfully!', 'success');
+        checkSystemHealth();
+      } else {
+        showToast('Failed to save settings.', 'error');
+      }
+    } catch (err) {
+      showToast(`Save error: ${err.message}`, 'error');
+    }
   }
 };
 

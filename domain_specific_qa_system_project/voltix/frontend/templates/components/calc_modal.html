@@ -1,0 +1,321 @@
+<div id="modal-calc" class="modal-backdrop hidden">
+    <div class="modal-dialog max-w-2xl">
+        <!-- Header -->
+        <div class="p-4 border-b border-white/[0.08] flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-calculator text-neutral-400 text-sm"></i>
+                <h3 class="font-semibold text-white text-sm">Engineering Solvers & Tools</h3>
+            </div>
+            <button class="btn-close-calc-modal text-neutral-400 hover:text-white p-1 rounded-md hover:bg-white/5 transition-colors" title="Close">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Horizontal Tab Selector (Clean & Compact) -->
+        <div class="flex items-center border-b border-white/[0.08] bg-neutral-900/60 p-2 gap-1 text-xs overflow-x-auto">
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg bg-neutral-100 text-neutral-900 font-medium transition-all whitespace-nowrap" data-target="form-3phase">
+                3-Phase Power
+            </button>
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 font-medium transition-all whitespace-nowrap" data-target="form-ohms">
+                Ohm's Law
+            </button>
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 font-medium transition-all whitespace-nowrap" data-target="form-motor">
+                Motor Slip
+            </button>
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 font-medium transition-all whitespace-nowrap" data-target="form-converter">
+                Buck/Boost
+            </button>
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 font-medium transition-all whitespace-nowrap" data-target="form-pf">
+                PF Correction
+            </button>
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 font-medium transition-all whitespace-nowrap" data-target="form-battery">
+                Battery EV
+            </button>
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 font-medium transition-all whitespace-nowrap" data-target="form-pv">
+                Solar PV
+            </button>
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 font-medium transition-all whitespace-nowrap" data-target="form-sympy">
+                SymPy Math
+            </button>
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 font-medium transition-all whitespace-nowrap" data-target="form-unit">
+                Unit Convert
+            </button>
+            <button class="tool-tab-btn px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 font-medium transition-all whitespace-nowrap" data-target="form-matlab">
+                MATLAB Code
+            </button>
+        </div>
+
+        <!-- Form Body Area -->
+        <div class="p-5 overflow-y-auto space-y-4 text-xs max-h-[70vh]">
+            <!-- 1. Three Phase Power Form -->
+            <div id="form-3phase" class="tool-form-pane space-y-3.5">
+                <div class="text-[11px] text-neutral-400">
+                    Solves balanced 3-phase circuits: $P = \sqrt{3} \cdot V_L \cdot I_L \cdot \cos\phi$ or calculates full load current $I_L$.
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Power (Watts)</label>
+                        <input type="number" id="calc-3p-power" placeholder="e.g. 15000" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Line Voltage $V_L$ (Volts)</label>
+                        <input type="number" id="calc-3p-voltage" value="415" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Line Current $I_L$ (Amperes)</label>
+                        <input type="number" id="calc-3p-current" placeholder="Leave blank if solving for I" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Power Factor ($\cos\phi$)</label>
+                        <input type="number" id="calc-3p-pf" step="0.01" value="0.85" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                </div>
+                <button id="btn-run-3phase" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Compute 3-Phase Parameters
+                </button>
+            </div>
+
+            <!-- 2. Ohm's Law Form -->
+            <div id="form-ohms" class="tool-form-pane hidden space-y-3.5">
+                <div class="text-[11px] text-neutral-400">
+                    Enter any two values to solve for the remaining electrical quantities ($V = I \cdot R, P = V \cdot I$).
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Voltage (V)</label>
+                        <input type="number" id="calc-v" placeholder="e.g. 230" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Current (A)</label>
+                        <input type="number" id="calc-i" placeholder="e.g. 10" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Resistance (Ω)</label>
+                        <input type="number" id="calc-r" placeholder="e.g. 23" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                </div>
+                <button id="btn-run-ohms" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Solve Ohm's Law
+                </button>
+            </div>
+
+            <!-- 3. Motor Slip & Torque Form -->
+            <div id="form-motor" class="tool-form-pane hidden space-y-3.5">
+                <div class="text-[11px] text-neutral-400">
+                    Calculates synchronous speed $N_s = 120f/P$, slip $s = (N_s - N)/N_s$, and shaft torque $T = 60P/(2\pi N)$.
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Supply Frequency (Hz)</label>
+                        <input type="number" id="calc-motor-freq" value="50" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Number of Poles</label>
+                        <input type="number" id="calc-motor-poles" value="4" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Rotor Speed (RPM)</label>
+                        <input type="number" id="calc-motor-speed" value="1440" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Shaft Power (Watts)</label>
+                        <input type="number" id="calc-motor-power" value="7500" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                </div>
+                <button id="btn-run-motor" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Compute Motor Parameters
+                </button>
+            </div>
+
+            <!-- 4. DC-DC Converter Form -->
+            <div id="form-converter" class="tool-form-pane hidden space-y-3.5">
+                <div class="text-[11px] text-neutral-400">
+                    Sizes inductor $L$, capacitor $C$, and duty ratio $D$ for switch-mode DC-DC converters.
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Converter Topology</label>
+                        <select id="calc-conv-topology" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                            <option value="buck">Buck (Step-Down)</option>
+                            <option value="boost">Boost (Step-Up)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Switching Frequency (Hz)</label>
+                        <input type="number" id="calc-conv-freq" value="50000" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Input Voltage $V_{in}$ (V)</label>
+                        <input type="number" id="calc-conv-vin" value="24" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Output Voltage $V_{out}$ (V)</label>
+                        <input type="number" id="calc-conv-vout" value="5" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block font-medium text-neutral-300 mb-1">Output Load Current $I_{out}$ (A)</label>
+                        <input type="number" id="calc-conv-iout" value="2" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                </div>
+                <button id="btn-run-conv" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Design Converter Components
+                </button>
+            </div>
+
+            <!-- 5. PF Correction Form -->
+            <div id="form-pf" class="tool-form-pane hidden space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Active Power (kW)</label>
+                        <input type="number" id="calc-pf-kw" value="100" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">System Voltage (V)</label>
+                        <input type="number" id="calc-pf-volt" value="415" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Initial PF ($\cos\phi_1$)</label>
+                        <input type="number" id="calc-pf-init" value="0.75" step="0.01" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Target PF ($\cos\phi_2$)</label>
+                        <input type="number" id="calc-pf-target" value="0.98" step="0.01" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                </div>
+                <button id="btn-run-pf" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Size Capacitor Bank
+                </button>
+            </div>
+
+            <!-- 6. Battery & EV Form -->
+            <div id="form-battery" class="tool-form-pane hidden space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Pack Nominal Voltage (V)</label>
+                        <input type="number" id="calc-bat-volt" value="400" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Capacity (Ah)</label>
+                        <input type="number" id="calc-bat-ah" value="100" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">C-Rate Discharge</label>
+                        <input type="number" id="calc-bat-crate" value="1.0" step="0.1" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Consumption (Wh/km)</label>
+                        <input type="number" id="calc-bat-whkm" value="150" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                </div>
+                <button id="btn-run-battery" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Calculate Range & Energy
+                </button>
+            </div>
+
+            <!-- 7. Solar PV Form -->
+            <div id="form-pv" class="tool-form-pane hidden space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Open-Circuit Voltage $V_{oc}$ (V)</label>
+                        <input type="number" id="calc-pv-voc" value="45.0" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Short-Circuit Current $I_{sc}$ (A)</label>
+                        <input type="number" id="calc-pv-isc" value="10.0" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Max Power Voltage $V_{mp}$ (V)</label>
+                        <input type="number" id="calc-pv-vmp" value="36.0" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Max Power Current $I_{mp}$ (A)</label>
+                        <input type="number" id="calc-pv-imp" value="9.2" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block font-medium text-neutral-300 mb-1">Target Array Capacity (kW)</label>
+                        <input type="number" id="calc-pv-target" value="5.0" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                </div>
+                <button id="btn-run-pv" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Evaluate Solar PV Array
+                </button>
+            </div>
+
+            <!-- 8. SymPy Math Form -->
+            <div id="form-sympy" class="tool-form-pane hidden space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Operation</label>
+                        <select id="calc-sympy-op" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                            <option value="solve">Algebraic Solve</option>
+                            <option value="diff">Derivative (d/dx)</option>
+                            <option value="integrate">Integral (∫)</option>
+                            <option value="laplace">Laplace Transform L{f(t)}</option>
+                            <option value="inv_laplace">Inverse Laplace</option>
+                            <option value="tf">Transfer Function H(s)</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block font-medium text-neutral-300 mb-1">Expression</label>
+                        <input type="text" id="calc-sympy-expr" value="exp(-2*t)*sin(5*t)" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 font-mono focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Variable</label>
+                        <input type="text" id="calc-sympy-var" value="t" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 font-mono focus:outline-none focus:border-white/20">
+                    </div>
+                </div>
+                <button id="btn-run-sympy" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Compute Symbolic Solution
+                </button>
+            </div>
+
+            <!-- 9. Unit Converter Form -->
+            <div id="form-unit" class="tool-form-pane hidden space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">Value</label>
+                        <input type="number" id="calc-unit-val" value="15" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">From Unit</label>
+                        <input type="text" id="calc-unit-from" value="kW" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 font-mono focus:outline-none focus:border-white/20">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-neutral-300 mb-1">To Unit</label>
+                        <input type="text" id="calc-unit-to" value="W" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 font-mono focus:outline-none focus:border-white/20">
+                    </div>
+                </div>
+                <button id="btn-run-unit" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Convert Units
+                </button>
+            </div>
+
+            <!-- 10. MATLAB Generator Form -->
+            <div id="form-matlab" class="tool-form-pane hidden space-y-3.5">
+                <div>
+                    <label class="block font-medium text-neutral-300 mb-1">MATLAB Script Type</label>
+                    <select id="calc-matlab-type" class="w-full bg-neutral-900 border border-white/[0.08] p-2 rounded-lg text-neutral-100 focus:outline-none focus:border-white/20">
+                        <option value="torque_speed">Induction Motor Torque-Speed Characteristic</option>
+                        <option value="bode">Control System Bode Frequency Plot</option>
+                        <option value="step">Step Transient Response Analysis</option>
+                        <option value="simulink">Simulink DC Motor Model Blueprint</option>
+                    </select>
+                </div>
+                <button id="btn-run-matlab" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors">
+                    Generate MATLAB / Simulink Code
+                </button>
+            </div>
+
+            <!-- Results Preview Box -->
+            <div id="calc-result" class="hidden mt-4 p-3.5 bg-neutral-900 border border-white/[0.08] rounded-xl space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-medium text-neutral-200">Calculation Output</span>
+                    <button id="btn-copy-calc" class="text-xs text-neutral-400 hover:text-white transition-colors flex items-center gap-1">
+                        <i class="fa-regular fa-copy"></i> <span>Copy</span>
+                    </button>
+                </div>
+                <pre id="calc-result-body" class="text-xs text-neutral-300 font-mono overflow-x-auto max-h-48 p-2.5 bg-black/40 rounded-lg"></pre>
+            </div>
+        </div>
+    </div>
+</div>

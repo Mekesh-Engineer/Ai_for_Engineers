@@ -1,5 +1,6 @@
 /**
- * Local LLM Studio (Grammar Correction & Text Rewriting) - App Core State & Controller
+ * Local LLM Studio - App Core State, Navigation, and Global Controller
+ * Experiment 8: Automated Grammar Error Correction & Text Rewriting
  */
 
 const AppState = {
@@ -18,17 +19,64 @@ const AppState = {
   recentActivities: []
 };
 
-// Toast notification helper
+// Theme Management Engine
+function initTheme() {
+  const saved = localStorage.getItem('studio_theme') || 'dark';
+  applyTheme(saved);
+}
+
+function applyTheme(theme) {
+  const isDark = theme === 'dark';
+  if (isDark) {
+    document.documentElement.classList.add('dark');
+    document.documentElement.classList.remove('light');
+    localStorage.setItem('studio_theme', 'dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('studio_theme', 'light');
+  }
+  updateThemeIcons(isDark);
+}
+
+let _lastThemeToggleTime = 0;
+function toggleTheme() {
+  const now = Date.now();
+  if (now - _lastThemeToggleTime < 200) return; // Prevent double trigger within 200ms
+  _lastThemeToggleTime = now;
+
+  const isDark = document.documentElement.classList.contains('dark');
+  if (isDark) {
+    applyTheme('light');
+    showToast('Switched to Precision Light Theme', 'info', 2000);
+  } else {
+    applyTheme('dark');
+    showToast('Switched to Obsidian Dark Theme', 'info', 2000);
+  }
+}
+
+function updateThemeIcons(isDark) {
+  const sunIcon = document.getElementById('theme-icon-sun');
+  const moonIcon = document.getElementById('theme-icon-moon');
+  if (sunIcon) {
+    sunIcon.style.display = isDark ? 'block' : 'none';
+  }
+  if (moonIcon) {
+    moonIcon.style.display = isDark ? 'none' : 'block';
+  }
+}
+
+// Toast Notification Helper
 function showToast(message, type = 'info', duration = 4000) {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
   const toast = document.createElement('div');
-  const colors = {
-    info: 'bg-indigo-950/90 border-indigo-500/60 text-indigo-200',
-    success: 'bg-emerald-950/90 border-emerald-500/60 text-emerald-200',
-    warning: 'bg-amber-950/90 border-amber-500/60 text-amber-200',
-    error: 'bg-rose-950/90 border-rose-500/60 text-rose-200'
+  const styles = {
+    info: 'bg-[var(--color-surface)] border-indigo-500/40 text-[var(--color-text-primary)]',
+    success: 'bg-[var(--color-surface)] border-emerald-500/40 text-[var(--color-text-primary)]',
+    warning: 'bg-[var(--color-surface)] border-amber-500/40 text-[var(--color-text-primary)]',
+    error: 'bg-[var(--color-surface)] border-rose-500/40 text-[var(--color-text-primary)]'
   };
 
   const icons = {
@@ -38,7 +86,7 @@ function showToast(message, type = 'info', duration = 4000) {
     error: '<svg class="w-4 h-4 text-rose-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>'
   };
 
-  toast.className = `flex items-center px-3.5 py-2.5 rounded-xl border backdrop-blur-md shadow-2xl transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-medium ${colors[type] || colors.info}`;
+  toast.className = `flex items-center px-3 py-2 rounded-lg border shadow-lg transition-all duration-200 transform translate-y-2 opacity-0 text-xs font-medium ${styles[type] || styles.info}`;
   toast.innerHTML = `${icons[type] || icons.info}<span class="leading-snug">${message}</span>`;
 
   container.appendChild(toast);
@@ -48,11 +96,42 @@ function showToast(message, type = 'info', duration = 4000) {
 
   setTimeout(() => {
     toast.classList.add('opacity-0', '-translate-y-2');
-    setTimeout(() => toast.remove(), 300);
+    setTimeout(() => toast.remove(), 250);
   }, duration);
 }
 
-// Activity Logging
+// Robust Clipboard Copy Helper with ExecCommand Fallback
+async function copyToClipboard(text) {
+  if (!text) return false;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      console.warn('Navigator clipboard failed, falling back:', err);
+    }
+  }
+  
+  // Fallback using temporary textarea
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return successful;
+  } catch (err) {
+    console.error('Copy fallback failed:', err);
+    return false;
+  }
+}
+
+// Activity Feed Logger
 function logActivity(text, type = 'info') {
   const item = {
     text,
@@ -69,17 +148,17 @@ function renderActivityFeed() {
   if (!container) return;
 
   if (AppState.recentActivities.length === 0) {
-    container.innerHTML = '<div class="text-xs text-slate-500 py-2 italic">No recent activity yet. Start proofreading or chatting.</div>';
+    container.innerHTML = '<div class="text-xs text-[var(--color-text-muted)] py-2 italic">No recent activity yet. Start chatting or proofreading text.</div>';
     return;
   }
 
   container.innerHTML = AppState.recentActivities.map(a => `
-    <div class="flex items-center justify-between text-xs py-1.5 border-b border-slate-800/60 last:border-0">
+    <div class="flex items-center justify-between text-xs py-1.5 border-b border-[var(--color-border)] last:border-0">
       <div class="flex items-center space-x-2 truncate">
         <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-        <span class="text-slate-300 truncate">${a.text}</span>
+        <span class="text-[var(--color-text-primary)] truncate">${a.text}</span>
       </div>
-      <span class="text-[10px] text-slate-500 font-mono flex-shrink-0 ml-2">${a.time}</span>
+      <span class="text-[10px] text-[var(--color-text-muted)] font-mono flex-shrink-0 ml-2">${a.time}</span>
     </div>
   `).join('');
 }
@@ -88,6 +167,16 @@ function renderActivityFeed() {
 function toggleSidebar() {
   const sidebar = document.getElementById('app-sidebar');
   if (!sidebar) return;
+
+  if (window.innerWidth < 1024) {
+    const isClosed = sidebar.classList.contains('-translate-x-full');
+    if (isClosed) {
+      openMobileSidebar();
+    } else {
+      closeMobileSidebar();
+    }
+    return;
+  }
 
   AppState.sidebarCollapsed = !AppState.sidebarCollapsed;
   sidebar.classList.toggle('sidebar-collapsed', AppState.sidebarCollapsed);
@@ -107,19 +196,19 @@ function initSidebarState() {
 function switchTab(tabId) {
   AppState.activeTab = tabId;
 
-  // Update nav buttons
+  // Update Nav Button active styling
   document.querySelectorAll('.nav-btn').forEach(btn => {
     const target = btn.getAttribute('data-tab');
     if (target === tabId) {
-      btn.classList.add('bg-indigo-600/20', 'text-indigo-300', 'border-indigo-500/40');
-      btn.classList.remove('text-slate-400', 'hover:bg-slate-800/60', 'hover:text-slate-200');
+      btn.classList.add('bg-indigo-500/10', 'text-indigo-400', 'border-indigo-500/30');
+      btn.classList.remove('text-[var(--color-text-secondary)]', 'hover:bg-[var(--color-elevated)]', 'hover:text-[var(--color-text-primary)]');
     } else {
-      btn.classList.remove('bg-indigo-600/20', 'text-indigo-300', 'border-indigo-500/40');
-      btn.classList.add('text-slate-400', 'hover:bg-slate-800/60', 'hover:text-slate-200');
+      btn.classList.remove('bg-indigo-500/10', 'text-indigo-400', 'border-indigo-500/30');
+      btn.classList.add('text-[var(--color-text-secondary)]', 'hover:bg-[var(--color-elevated)]', 'hover:text-[var(--color-text-primary)]');
     }
   });
 
-  // Show active tab panel
+  // Reveal Active Tab Panel
   document.querySelectorAll('.tab-panel').forEach(panel => {
     if (panel.id === `tab-${tabId}`) {
       panel.classList.remove('hidden');
@@ -128,16 +217,17 @@ function switchTab(tabId) {
     }
   });
 
-  // On-show module hooks
+  // Module Lifecycle Hooks
   if (tabId === 'chat' && window.ChatModule) {
     window.ChatModule.onShow();
+  } else if (tabId === 'files' && window.FilesModule) {
+    if (window.FilesModule.onShow) window.FilesModule.onShow();
   } else if (tabId === 'project' && window.ProjectModule) {
     window.ProjectModule.onShow();
   } else if (tabId === 'settings' && window.SettingsModule) {
     window.SettingsModule.onShow();
   }
 
-  // Close mobile sidebar if open
   closeMobileSidebar();
 }
 
@@ -157,7 +247,7 @@ function closeMobileSidebar() {
   }
 }
 
-// Check Backend Health and Model Status
+// System Health Verification
 async function checkSystemHealth() {
   try {
     const res = await fetch('/api/health');
@@ -182,123 +272,242 @@ async function checkSystemHealth() {
 }
 
 function updateStatusBadges() {
-  // Backend badge
+  // Backend Status Badge
   const backendBadge = document.getElementById('badge-backend');
   if (backendBadge) {
     backendBadge.innerHTML = AppState.backendConnected
-      ? `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>Backend`
-      : `<span class="w-2 h-2 rounded-full bg-rose-500 mr-1.5"></span>Backend`;
-    backendBadge.className = `flex items-center text-xs font-medium px-2.5 py-1 rounded-full border cursor-pointer ${AppState.backendConnected ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/50' : 'bg-rose-950/40 text-rose-300 border-rose-800/50'}`;
+      ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>Backend`
+      : `<span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span>Backend`;
+    backendBadge.className = `flex items-center text-[11px] font-medium px-2.5 py-1 rounded-md border cursor-pointer ${AppState.backendConnected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border-rose-500/30'}`;
   }
 
-  // Ollama badge
+  // Ollama Status Badge
   const ollamaBadge = document.getElementById('badge-ollama');
   if (ollamaBadge) {
     ollamaBadge.innerHTML = AppState.ollamaConnected
-      ? `<span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5"></span>Ollama (${AppState.activeOllamaModel})`
-      : `<span class="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>Ollama Offline`;
-    ollamaBadge.className = `flex items-center text-xs font-medium px-2.5 py-1 rounded-full border cursor-pointer ${AppState.ollamaConnected ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/50' : 'bg-amber-950/40 text-amber-300 border-amber-800/50'}`;
+      ? `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>Ollama (${AppState.activeOllamaModel})`
+      : `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>Ollama Offline`;
+    ollamaBadge.className = `flex items-center text-[11px] font-medium px-2.5 py-1 rounded-md border cursor-pointer ${AppState.ollamaConnected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/30'}`;
   }
 
-  // Local model badge
+  // Local Model Status Badge
   const localBadge = document.getElementById('badge-local-model');
   if (localBadge) {
     localBadge.innerHTML = AppState.localModelAvailable
-      ? `<span class="w-2 h-2 rounded-full bg-indigo-400 mr-1.5"></span>Local Model`
-      : `<span class="w-2 h-2 rounded-full bg-slate-500 mr-1.5"></span>Local Model`;
-    localBadge.className = `flex items-center text-xs font-medium px-2.5 py-1 rounded-full border cursor-pointer ${AppState.localModelAvailable ? 'bg-indigo-950/40 text-indigo-300 border-indigo-800/50' : 'bg-slate-900 text-slate-400 border-slate-800'}`;
+      ? `<span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1.5"></span>Local Model: Ready`
+      : `<span class="w-1.5 h-1.5 rounded-full bg-slate-500 mr-1.5"></span>Local Model: None`;
+    localBadge.className = `hidden md:flex items-center text-[11px] font-medium px-2.5 py-1 rounded-md border cursor-pointer ${AppState.localModelAvailable ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' : 'bg-[var(--color-elevated)] text-[var(--color-text-muted)] border-[var(--color-border)]'}`;
+  }
+
+  // Active Mode Indicator
+  const activeModePill = document.getElementById('badge-active-mode');
+  if (activeModePill) {
+    activeModePill.innerText = AppState.activeMode === 'ollama' ? `Mode: Ollama (${AppState.activeOllamaModel})` : `Mode: Local Model (Seq2Seq Checkpoint)`;
   }
 }
 
 function updateModeSelectors() {
-  document.querySelectorAll('.active-mode-select').forEach(sel => {
-    sel.value = AppState.activeMode;
+  const selects = document.querySelectorAll('.mode-selector-select');
+  selects.forEach(select => {
+    select.value = AppState.activeMode;
   });
 }
 
-// Global Switch Active LLM Mode
-async function switchActiveMode(mode) {
+// Mode Switch Handler
+async function handleModeSwitch(newMode) {
   try {
     const res = await fetch('/api/models/switch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode })
+      body: JSON.stringify({ mode: newMode })
     });
-
     if (res.ok) {
-      AppState.activeMode = mode;
+      const data = await res.json();
+      AppState.activeMode = data.active_mode;
       updateStatusBadges();
       updateModeSelectors();
+      logActivity(`Switched active AI engine to ${newMode.toUpperCase()}`);
+      showToast(`Switched active AI backend to ${newMode.toUpperCase()} mode.`, 'success');
       if (window.ChatModule) window.ChatModule.updateHeader();
-      showToast(`Switched active mode to ${mode === 'ollama' ? 'Ollama (Qwen 2.5 7B)' : 'Project Local Model'}`, 'success');
-      logActivity(`Switched active mode: ${mode}`);
     } else {
-      showToast(`Failed to switch mode to ${mode}`, 'error');
+      showToast('Failed to switch model mode.', 'error');
     }
   } catch (err) {
     showToast(`Error switching mode: ${err.message}`, 'error');
   }
 }
 
-// Command Palette (⌘K / Ctrl+K)
-function openCommandPalette() {
-  const modal = document.getElementById('command-palette-modal');
-  const input = document.getElementById('command-palette-input');
-  if (modal && input) {
-    modal.classList.remove('hidden');
-    input.value = '';
-    input.focus();
-    renderCommandSuggestions('');
+// System Connectivity Diagnostics
+async function runSystemDiagnostics() {
+  const modal = document.getElementById('diagnostics-modal');
+  const resultsContainer = document.getElementById('diagnostics-results');
+  if (modal) modal.classList.remove('hidden');
+  if (resultsContainer) {
+    resultsContainer.innerHTML = `<div class="flex items-center justify-center p-6"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-500"></div><span class="ml-2.5 text-xs text-[var(--color-text-secondary)]">Running diagnostic checks...</span></div>`;
+  }
+
+  try {
+    const [ollamaRes, localRes] = await Promise.all([
+      fetch('/api/models/test-ollama', { method: 'POST' }).then(r => r.json()),
+      fetch('/api/models/test-local', { method: 'POST' }).then(r => r.json())
+    ]);
+
+    let html = `
+      <div class="space-y-3 text-xs">
+        <div class="p-3 rounded-lg border ${ollamaRes.test_generation ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'}">
+          <div class="flex items-center justify-between font-semibold ${ollamaRes.test_generation ? 'text-emerald-400' : 'text-amber-400'}">
+            <span>Ollama Backend (Qwen 2.5 7B)</span>
+            <span class="font-mono text-[11px]">${ollamaRes.latency_seconds || 0}s</span>
+          </div>
+          <p class="text-[11px] text-[var(--color-text-secondary)] mt-1">${ollamaRes.message}</p>
+          <div class="mt-2 grid grid-cols-2 gap-2 text-[11px] text-[var(--color-text-muted)]">
+            <div>Reachable: <span class="${ollamaRes.ollama_reachable ? 'text-emerald-400' : 'text-rose-400'} font-medium">${ollamaRes.ollama_reachable ? 'Yes' : 'No'}</span></div>
+            <div>Model Present: <span class="${ollamaRes.model_present ? 'text-emerald-400' : 'text-rose-400'} font-medium">${ollamaRes.model_present ? 'Yes' : 'No'}</span></div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg border ${localRes.model_valid ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-[var(--color-canvas)] border-[var(--color-border)]'}">
+          <div class="flex items-center justify-between font-semibold ${localRes.model_valid ? 'text-indigo-400' : 'text-[var(--color-text-muted)]'}">
+            <span>Project Local Model (./models/)</span>
+            <span class="font-mono text-[11px]">${localRes.latency_seconds || 0}s</span>
+          </div>
+          <p class="text-[11px] text-[var(--color-text-secondary)] mt-1">${localRes.message}</p>
+          <div class="mt-2 grid grid-cols-2 gap-2 text-[11px] text-[var(--color-text-muted)]">
+            <div>Detected: <span class="${localRes.model_detected ? 'text-emerald-400' : 'text-[var(--color-text-muted)]'} font-medium">${localRes.model_detected ? 'Yes' : 'No'}</span></div>
+            <div>Verified: <span class="${localRes.test_generation ? 'text-emerald-400' : 'text-[var(--color-text-muted)]'} font-medium">${localRes.test_generation ? 'Yes' : 'No'}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+    if (resultsContainer) resultsContainer.innerHTML = html;
+  } catch (err) {
+    if (resultsContainer) {
+      resultsContainer.innerHTML = `<div class="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-lg text-xs">Diagnostic error: ${err.message}</div>`;
+    }
   }
 }
 
-function closeCommandPalette() {
-  const modal = document.getElementById('command-palette-modal');
+// Command Palette Controller
+const CommandPalette = {
+  isOpen: false,
+  commands: [
+    { title: 'New AI Chat Session', category: 'Chat', action: () => { switchTab('chat'); if (window.ChatModule) window.ChatModule.newChat(); } },
+    { title: 'Proofread & Rewrite Document', category: 'Proofread', action: () => { switchTab('files'); document.getElementById('file-input')?.click(); } },
+    { title: 'Switch to Ollama Mode (Qwen 2.5 7B)', category: 'Engine', action: () => handleModeSwitch('ollama') },
+    { title: 'Switch to Project Local Model', category: 'Engine', action: () => handleModeSwitch('local_model') },
+    { title: 'Audit Workspace Grammar & Docstrings', category: 'Project', action: () => { switchTab('project'); if (window.ProjectModule) window.ProjectModule.runAnalysis(); } },
+    { title: 'Open AI Code & Model Debugger', category: 'Project', action: () => { switchTab('project'); document.getElementById('debug-error-msg')?.focus(); } },
+    { title: 'Run Dual Model Comparison Benchmark', category: 'Settings', action: () => { switchTab('settings'); document.getElementById('model-comparison-section')?.scrollIntoView({behavior:'smooth'}); } },
+    { title: 'Run System Diagnostics', category: 'System', action: () => runSystemDiagnostics() },
+    { title: 'Models & Settings Configuration', category: 'System', action: () => switchTab('settings') },
+    { title: 'Toggle Light/Dark Theme', category: 'View', action: () => toggleTheme() },
+    { title: 'Toggle Sidebar', category: 'View', action: () => toggleSidebar() }
+  ],
+  selectedIndex: 0,
+
+  open() {
+    const modal = document.getElementById('command-palette-modal');
+    const input = document.getElementById('command-palette-input');
+    if (!modal) return;
+
+    this.isOpen = true;
+    modal.classList.remove('hidden');
+    this.render(this.commands);
+    if (input) {
+      input.value = '';
+      setTimeout(() => input.focus(), 50);
+    }
+  },
+
+  close() {
+    const modal = document.getElementById('command-palette-modal');
+    if (modal) modal.classList.add('hidden');
+    this.isOpen = false;
+  },
+
+  render(filtered) {
+    const container = document.getElementById('command-palette-results');
+    if (!container) return;
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="p-4 text-center text-xs text-[var(--color-text-muted)]">No matching commands.</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map((cmd, idx) => `
+      <div onclick="CommandPalette.execute(${idx})" class="command-palette-item flex items-center justify-between px-3 py-2 rounded-lg text-xs cursor-pointer transition ${idx === this.selectedIndex ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-[var(--color-text-primary)] hover:bg-[var(--color-elevated)]'}">
+        <span class="font-medium">${cmd.title}</span>
+        <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[var(--color-canvas)] text-[var(--color-text-muted)] border border-[var(--color-border)]">${cmd.category}</span>
+      </div>
+    `).join('');
+  },
+
+  filter(query) {
+    const q = query.toLowerCase().trim();
+    const filtered = this.commands.filter(c => c.title.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
+    this.selectedIndex = 0;
+    this.render(filtered);
+  },
+
+  execute(idx) {
+    const input = document.getElementById('command-palette-input')?.value || '';
+    const q = input.toLowerCase().trim();
+    const filtered = this.commands.filter(c => c.title.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
+    const target = filtered[idx] || this.commands[0];
+    if (target && target.action) {
+      this.close();
+      target.action();
+    }
+  }
+};
+
+// Global Keyboard Shortcuts
+window.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (CommandPalette.isOpen) CommandPalette.close();
+    else CommandPalette.open();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+    e.preventDefault();
+    toggleSidebar();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'n') {
+    e.preventDefault();
+    switchTab('chat');
+    if (window.ChatModule) window.ChatModule.newChat();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'o') {
+    e.preventDefault();
+    handleModeSwitch('ollama');
+  }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
+    e.preventDefault();
+    handleModeSwitch('local_model');
+  }
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'u') {
+    e.preventDefault();
+    switchTab('files');
+    document.getElementById('file-input')?.click();
+  }
+  if (e.key === 'Escape') {
+    closeModal('diagnostics-modal');
+    closeModal('custom-profile-modal');
+    closeModal('status-detail-modal');
+    closeModal('keyboard-shortcuts-modal');
+    CommandPalette.close();
+    const drawer = document.getElementById('context-files-drawer');
+    if (drawer) drawer.classList.add('hidden');
+    closeMobileSidebar();
+  }
+});
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
   if (modal) modal.classList.add('hidden');
 }
 
-const COMMANDS = [
-  { title: 'Proofread & Grammar Correction', desc: 'Open Document Proofreader', action: () => switchTab('files') },
-  { title: 'Interactive AI Chat', desc: 'Open Grammar Chat Workstation', action: () => switchTab('chat') },
-  { title: 'Repository Doc & Docstring Audit', desc: 'Analyze Workspace Documentation', action: () => switchTab('project') },
-  { title: 'Settings & Model Workbench', desc: 'Configure LLM Backends', action: () => switchTab('settings') },
-  { title: 'Switch to Ollama Mode (Qwen 2.5 7B)', desc: 'Run via Ollama REST API', action: () => switchActiveMode('ollama') },
-  { title: 'Switch to Project Local Model Mode', desc: 'Run offline Seq2Seq model', action: () => switchActiveMode('local_model') },
-  { title: 'Run Automated Grammar Benchmark', desc: 'Execute Experiment 8 validation suite', action: () => runBenchmarkPipeline() }
-];
-
-function renderCommandSuggestions(query) {
-  const list = document.getElementById('command-palette-list');
-  if (!list) return;
-
-  const filtered = COMMANDS.filter(c => 
-    c.title.toLowerCase().includes(query.toLowerCase()) || 
-    c.desc.toLowerCase().includes(query.toLowerCase())
-  );
-
-  if (filtered.length === 0) {
-    list.innerHTML = '<div class="p-3 text-xs text-slate-500 italic">No matching actions found.</div>';
-    return;
-  }
-
-  list.innerHTML = filtered.map((c, idx) => `
-    <div onclick="COMMANDS[${COMMANDS.indexOf(c)}].action(); closeCommandPalette();" 
-         class="p-2.5 rounded-xl border border-transparent hover:border-indigo-500/40 hover:bg-slate-800/80 cursor-pointer flex items-center justify-between transition group">
-      <div>
-        <div class="text-xs font-medium text-slate-200 group-hover:text-indigo-300">${c.title}</div>
-        <div class="text-[11px] text-slate-500">${c.desc}</div>
-      </div>
-      <span class="text-[10px] text-slate-600 group-hover:text-indigo-400 font-mono">↵ Select</span>
-    </div>
-  `).join('');
-}
-
-async function runBenchmarkPipeline() {
-  showToast('Running Experiment 8 Grammar Correction benchmark...', 'info');
-  switchTab('dashboard');
-}
-
-// Global Drag & Drop for Files
+// Global Drag & Drop Overlay Handler
 function initGlobalDragAndDrop() {
   const overlay = document.getElementById('global-drag-overlay');
   if (!overlay) return;
@@ -309,6 +518,7 @@ function initGlobalDragAndDrop() {
   });
 
   overlay.addEventListener('dragleave', (e) => {
+    e.preventDefault();
     overlay.classList.add('hidden');
   });
 
@@ -316,53 +526,48 @@ function initGlobalDragAndDrop() {
     e.preventDefault();
     overlay.classList.add('hidden');
     if (e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
       switchTab('files');
-      if (window.FilesModule) {
-        window.FilesModule.handleFileUpload(e.dataTransfer.files[0]);
-      }
+      if (window.FilesModule) window.FilesModule.handleFileUpload(file);
     }
   });
 }
 
-// Keyboard shortcuts (Cmd+K, Escape)
-function initKeyboardShortcuts() {
-  window.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-      e.preventDefault();
-      openCommandPalette();
-    } else if (e.key === 'Escape') {
-      closeCommandPalette();
+// Lifecycle Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof marked !== 'undefined' && marked.setOptions) {
+    marked.setOptions({ breaks: true, gfm: true });
+  }
+
+  initTheme();
+  initSidebarState();
+  initGlobalDragAndDrop();
+
+  // Bind status badges to diagnostics modal
+  ['badge-backend', 'badge-ollama', 'badge-local-model'].forEach(id => {
+    const badge = document.getElementById(id);
+    if (badge) {
+      badge.addEventListener('click', () => runSystemDiagnostics());
     }
+  });
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.getAttribute('data-tab');
+      switchTab(tabId);
+    });
   });
 
   const cmdInput = document.getElementById('command-palette-input');
   if (cmdInput) {
-    cmdInput.addEventListener('input', (e) => {
-      renderCommandSuggestions(e.target.value);
+    cmdInput.addEventListener('input', (e) => CommandPalette.filter(e.target.value));
+    cmdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        CommandPalette.execute(CommandPalette.selectedIndex);
+      }
     });
   }
-}
-
-// Initialize Application on DOM Ready
-document.addEventListener('DOMContentLoaded', () => {
-  initSidebarState();
-  initGlobalDragAndDrop();
-  initKeyboardShortcuts();
-
-  // Mode select listeners
-  document.querySelectorAll('.active-mode-select').forEach(sel => {
-    sel.addEventListener('change', (e) => {
-      switchActiveMode(e.target.value);
-    });
-  });
-
-  // Nav clicks
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.getAttribute('data-tab');
-      if (tab) switchTab(tab);
-    });
-  });
 
   // Initialize modules
   if (window.ChatModule) window.ChatModule.init();
@@ -370,7 +575,24 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.ProjectModule) window.ProjectModule.init();
   if (window.SettingsModule) window.SettingsModule.init();
 
-  // Polling health check
   checkSystemHealth();
-  setInterval(checkSystemHealth, 8000);
+  setInterval(checkSystemHealth, 10000);
 });
+
+// Explicit Global Window Attachments
+window.AppState = AppState;
+window.initTheme = initTheme;
+window.applyTheme = applyTheme;
+window.toggleTheme = toggleTheme;
+window.updateThemeIcons = updateThemeIcons;
+window.showToast = showToast;
+window.copyToClipboard = copyToClipboard;
+window.logActivity = logActivity;
+window.switchTab = switchTab;
+window.toggleSidebar = toggleSidebar;
+window.closeMobileSidebar = closeMobileSidebar;
+window.handleModeSwitch = handleModeSwitch;
+window.checkSystemHealth = checkSystemHealth;
+window.runSystemDiagnostics = runSystemDiagnostics;
+window.closeModal = closeModal;
+window.CommandPalette = CommandPalette;

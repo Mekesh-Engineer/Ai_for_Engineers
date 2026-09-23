@@ -1,25 +1,31 @@
 /**
- * Local LLM Studio - Document Proofreading & Text Rewriting Studio
+ * Local LLM Studio - Document Proofreader & Text Rewriting Module
+ * Experiment 8: Automated Grammar Error Correction & Text Rewriting
  */
 
 const FilesModule = {
   currentDocument: null,
   uploadedFilesList: [],
-  activeCorrectionLevel: 'standard',
+  activeLevel: 'standard',
   isProcessing: false,
-  lastCorrectionResult: null,
+  showDiffView: false,
+  lastResult: null,
 
   init() {
     this.bindEvents();
+  },
+
+  onShow() {
+    // If text is in raw editor but no document metadata, maintain state
   },
 
   bindEvents() {
     const dropZone = document.getElementById('file-drop-zone');
     const fileInput = document.getElementById('file-input');
     const runBtn = document.getElementById('run-proofread-btn');
+    const toggleDiffBtn = document.getElementById('toggle-diff-view-btn');
     const sendToChatBtn = document.getElementById('send-proofread-to-chat-btn');
     const downloadBtn = document.getElementById('download-proofread-btn');
-    const diffToggleBtn = document.getElementById('toggle-diff-view-btn');
 
     if (dropZone && fileInput) {
       dropZone.addEventListener('click', () => fileInput.click());
@@ -48,44 +54,44 @@ const FilesModule = {
       });
     }
 
-    // Correction level buttons
-    document.querySelectorAll('.correction-level-btn').forEach(btn => {
+    // Level selection buttons
+    document.querySelectorAll('.file-task-btn, .correction-level-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.correction-level-btn').forEach(b => {
+        document.querySelectorAll('.file-task-btn, .correction-level-btn').forEach(b => {
           b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-500');
-          b.classList.add('bg-slate-900', 'text-slate-300', 'border-slate-800');
+          b.classList.add('bg-[var(--color-surface)]', 'text-[var(--color-text-secondary)]', 'border-[var(--color-border)]');
         });
         btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-500');
-        btn.classList.remove('bg-slate-900', 'text-slate-300', 'border-slate-800');
-        this.activeCorrectionLevel = btn.getAttribute('data-level');
+        btn.classList.remove('bg-[var(--color-surface)]', 'text-[var(--color-text-secondary)]', 'border-[var(--color-border)]');
+        this.activeLevel = btn.getAttribute('data-level') || 'standard';
       });
     });
 
     if (runBtn) {
-      runBtn.addEventListener('click', () => this.runProofreading());
+      runBtn.addEventListener('click', () => this.runProofread());
+    }
+
+    if (toggleDiffBtn) {
+      toggleDiffBtn.addEventListener('click', () => this.toggleDiffView());
     }
 
     if (sendToChatBtn) {
-      sendToChatBtn.addEventListener('click', () => this.sendToChat());
+      sendToChatBtn.addEventListener('click', () => this.sendProofreadToChat());
     }
 
     if (downloadBtn) {
-      downloadBtn.addEventListener('click', () => this.downloadResult());
-    }
-
-    if (diffToggleBtn) {
-      diffToggleBtn.addEventListener('click', () => this.toggleDiffView());
+      downloadBtn.addEventListener('click', () => this.downloadProofread());
     }
   },
 
   classifyFile(filename, ext) {
     ext = (ext || '').toLowerCase();
-    if (['.py', '.js', '.ts', '.html', '.css', '.c', '.cpp', '.java', '.sql'].includes(ext)) return { label: 'Source Code', badge: '💻 Code', color: 'text-indigo-400 bg-indigo-950/60 border-indigo-800' };
-    if (['.pdf'].includes(ext)) return { label: 'PDF Document', badge: '📕 PDF', color: 'text-rose-400 bg-rose-950/60 border-rose-800' };
-    if (['.docx', '.doc'].includes(ext)) return { label: 'Word Document', badge: '📘 DOCX', color: 'text-blue-400 bg-blue-950/60 border-blue-800' };
-    if (['.csv'].includes(ext)) return { label: 'Tabular Dataset', badge: '📊 CSV', color: 'text-emerald-400 bg-emerald-950/60 border-emerald-800' };
-    if (['.json', '.yaml', '.yml', '.toml'].includes(ext)) return { label: 'Config / JSON', badge: '⚙️ Config', color: 'text-amber-400 bg-amber-950/60 border-amber-800' };
-    return { label: 'Text Document', badge: '📝 Text', color: 'text-slate-400 bg-slate-900 border-slate-800' };
+    if (['.py', '.js', '.ts', '.html', '.css', '.c', '.cpp', '.java', '.sql'].includes(ext)) return { label: 'Source Code', badge: '💻 Code', color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30' };
+    if (['.pdf'].includes(ext)) return { label: 'PDF Document', badge: '📕 PDF', color: 'text-rose-400 bg-rose-500/10 border-rose-500/30' };
+    if (['.docx', '.doc'].includes(ext)) return { label: 'Word Document', badge: '📘 DOCX', color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' };
+    if (['.csv'].includes(ext)) return { label: 'Tabular Dataset', badge: '📊 CSV', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' };
+    if (['.json', '.yaml', '.yml', '.toml'].includes(ext)) return { label: 'Config / JSON', badge: '⚙️ Config', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' };
+    return { label: 'Text Document', badge: '📝 Text', color: 'text-[var(--color-text-secondary)] bg-[var(--color-elevated)] border-[var(--color-border)]' };
   },
 
   async handleFileUpload(file) {
@@ -126,17 +132,17 @@ const FilesModule = {
     if (!container) return;
 
     if (this.uploadedFilesList.length === 0) {
-      container.innerHTML = '<div class="text-[11px] text-slate-500 p-2 italic">No uploaded files yet.</div>';
+      container.innerHTML = '<div class="text-[11px] text-[var(--color-text-muted)] p-2 italic">No uploaded files yet.</div>';
       return;
     }
 
     container.innerHTML = this.uploadedFilesList.map((d, idx) => {
       const cls = this.classifyFile(d.document.filename, '.' + d.document.file_type.toLowerCase());
       return `
-        <div onclick="FilesModule.selectUploadedFile(${idx})" class="p-2.5 rounded-xl border transition cursor-pointer flex items-center justify-between text-xs ${this.currentDocument === d ? 'bg-indigo-950/40 border-indigo-500/50 text-indigo-200' : 'bg-slate-950/60 border-slate-800 hover:bg-slate-800/60 text-slate-300'}">
+        <div onclick="FilesModule.selectUploadedFile(${idx})" class="p-2.5 rounded-xl border transition cursor-pointer flex items-center justify-between text-xs ${this.currentDocument === d ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-300' : 'bg-[var(--color-surface)] border-[var(--color-border)] hover:bg-[var(--color-elevated)] text-[var(--color-text-primary)]'}">
           <div class="truncate flex-1 pr-2">
             <div class="font-medium truncate">${d.document.filename}</div>
-            <div class="text-[10px] text-slate-500 mt-0.5">${d.document.word_count} words • ~${d.document.estimated_tokens} tokens</div>
+            <div class="text-[10px] text-[var(--color-text-muted)] mt-0.5">${d.document.word_count} words • ~${d.document.estimated_tokens} tokens</div>
           </div>
           <span class="text-[10px] px-2 py-0.5 rounded border ${cls.color}">${cls.badge}</span>
         </div>
@@ -154,132 +160,196 @@ const FilesModule = {
 
   displayDocumentMetadata(data) {
     const card = document.getElementById('file-metadata-card');
-    const inputArea = document.getElementById('file-raw-text-input');
-    if (!card) return;
+    const preview = document.getElementById('file-content-preview');
+    const rawInput = document.getElementById('file-raw-text-input');
+    const badgeContainer = document.getElementById('file-classification-badge');
 
-    card.classList.remove('hidden');
-    document.getElementById('meta-filename').innerText = data.document.filename;
-    document.getElementById('meta-type').innerText = data.document.file_type;
-    document.getElementById('meta-words').innerText = data.document.word_count;
-    document.getElementById('meta-tokens').innerText = data.document.estimated_tokens;
-    document.getElementById('meta-chunks').innerText = `${data.chunk_count} chunk${data.chunk_count > 1 ? 's' : ''}`;
+    if (card) card.classList.remove('hidden');
 
-    if (inputArea) {
-      inputArea.value = data.full_content;
+    const doc = data.document;
+    const cls = this.classifyFile(doc.filename, '.' + doc.file_type.toLowerCase());
+
+    if (badgeContainer) {
+      badgeContainer.innerHTML = `<span class="text-xs px-2.5 py-1 rounded-full border ${cls.color}">${cls.badge} (${cls.label})</span>`;
+    }
+
+    const setElText = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.innerText = val;
+    };
+
+    setElText('meta-filename', doc.filename);
+    setElText('meta-type', doc.file_type);
+    setElText('meta-size', `${(doc.size_bytes / 1024).toFixed(1)} KB`);
+    setElText('meta-words', `${doc.word_count} words`);
+    setElText('meta-tokens', `~${doc.estimated_tokens} tokens`);
+    setElText('meta-chunks', `${data.chunk_count} chunk${data.chunk_count > 1 ? 's (Hierarchical Multi-Stage)' : ''}`);
+
+    if (preview) {
+      preview.innerText = data.full_content;
+    }
+    if (rawInput && (!rawInput.value || rawInput.value.trim() === '')) {
+      rawInput.value = data.full_content;
     }
   },
 
-  async runProofreading() {
-    const inputArea = document.getElementById('file-raw-text-input');
-    const textToProcess = inputArea ? inputArea.value.trim() : (this.currentDocument ? this.currentDocument.full_content : '');
+  async runProofread() {
+    if (this.isProcessing) return;
+
+    const rawInput = document.getElementById('file-raw-text-input');
+    let textToProcess = rawInput ? rawInput.value.trim() : '';
+
+    if (!textToProcess && this.currentDocument) {
+      textToProcess = this.currentDocument.full_content;
+    }
 
     if (!textToProcess) {
-      showToast('Please enter text or upload a document to proofread', 'warning');
+      showToast('Please upload a file or enter text to proofread.', 'warning');
       return;
     }
 
+    this.isProcessing = true;
     const runBtn = document.getElementById('run-proofread-btn');
-    const loader = document.getElementById('proofread-spinner');
-    const resultsContainer = document.getElementById('proofread-results-container');
-    const customInstructions = document.getElementById('file-custom-instructions')?.value.trim();
+    const spinner = document.getElementById('proofread-spinner');
+    const resultCard = document.getElementById('proofread-results-container');
+    const customInput = document.getElementById('file-custom-instructions');
 
     if (runBtn) runBtn.disabled = true;
-    if (loader) loader.classList.remove('hidden');
-
-    showToast(`Proofreading with '${this.activeCorrectionLevel}' level using ${AppState.activeMode === 'ollama' ? 'Qwen 2.5 7B' : 'Local Model'}...`, 'info');
+    if (spinner) spinner.classList.remove('hidden');
+    if (resultCard) resultCard.classList.add('hidden');
 
     try {
+      const filename = this.currentDocument ? this.currentDocument.document.filename : 'document';
+      const payload = {
+        text: textToProcess,
+        filename: filename,
+        correction_level: this.activeLevel,
+        mode: AppState.activeMode,
+        custom_instructions: customInput ? customInput.value.trim() : null
+      };
+
       const res = await fetch('/api/files/proofread', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: textToProcess,
-          filename: this.currentDocument ? this.currentDocument.document.filename : 'document.txt',
-          correction_level: this.activeCorrectionLevel,
-          mode: AppState.activeMode,
-          custom_instructions: customInstructions
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail || 'Proofreading failed');
+        throw new Error(err.detail || 'Proofreading execution failed');
       }
 
-      const data = await res.json();
-      this.lastCorrectionResult = data;
-      this.displayResults(data);
-
-      logActivity(`Proofread '${data.filename}' (Levenshtein: ${data.levenshtein_distance}, Token F1: ${data.token_f1})`);
-      showToast(`Proofreading completed in ${data.duration_seconds}s!`, 'success');
+      const result = await res.json();
+      this.lastResult = result;
+      this.displayProofreadResult(result);
+      logActivity(`Proofread & corrected ${filename} (${result.original_words} words, level: ${this.activeLevel})`);
+      showToast('Text successfully corrected & polished!', 'success');
     } catch (err) {
-      showToast(`Error: ${err.message}`, 'error');
+      showToast(`Proofread error: ${err.message}`, 'error');
     } finally {
+      this.isProcessing = false;
       if (runBtn) runBtn.disabled = false;
-      if (loader) loader.classList.add('hidden');
+      if (spinner) spinner.classList.add('hidden');
     }
   },
 
-  displayResults(data) {
-    const container = document.getElementById('proofread-results-container');
-    if (!container) return;
+  displayProofreadResult(result) {
+    const resultCard = document.getElementById('proofread-results-container');
+    const outputText = document.getElementById('proofread-output-text');
+    const diffText = document.getElementById('proofread-diff-text');
+    const statsContainer = document.getElementById('proofread-summary-stats');
 
-    container.classList.remove('hidden');
+    if (resultCard) resultCard.classList.remove('hidden');
 
-    // Update metric badges
-    document.getElementById('res-duration').innerText = `${data.duration_seconds}s`;
-    document.getElementById('res-edit-dist').innerText = data.levenshtein_distance;
-    document.getElementById('res-token-f1').innerText = (data.token_f1 * 100).toFixed(1) + '%';
-    document.getElementById('res-words-count').innerText = `${data.original_words} → ${data.corrected_words}`;
+    const f1Pct = Math.round((result.token_f1 || 0) * 100);
 
-    // Render corrected output
-    const outputEl = document.getElementById('proofread-output-text');
-    if (outputEl) {
-      outputEl.innerHTML = window.marked ? window.marked.parse(data.corrected_text) : data.corrected_text;
+    if (statsContainer) {
+      statsContainer.innerHTML = `
+        <span class="bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded text-xs font-mono">Engine: ${result.mode_used}</span>
+        <span class="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded text-xs font-mono">Words: ${result.original_words} → ${result.corrected_words}</span>
+        <span class="bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded text-xs font-mono">Levenshtein: ${result.levenshtein_distance}</span>
+        <span class="bg-violet-500/10 text-violet-300 border border-violet-500/30 px-2 py-0.5 rounded text-xs font-mono">Token F1: ${f1Pct}%</span>
+        <span class="bg-[var(--color-elevated)] text-[var(--color-text-secondary)] border border-[var(--color-border)] px-2 py-0.5 rounded text-xs font-mono">${result.duration_seconds}s</span>
+        ${result.is_hierarchical ? `<span class="bg-violet-500/10 text-violet-300 border border-violet-500/30 px-2 py-0.5 rounded text-xs font-semibold">Hierarchical (${result.total_chunks} Chunks)</span>` : ''}
+      `;
     }
 
-    // Render inline diff
-    const diffEl = document.getElementById('proofread-diff-text');
-    if (diffEl) {
-      diffEl.innerHTML = window.marked ? window.marked.parse(data.diff_markup) : data.diff_markup;
+    if (outputText) {
+      outputText.innerHTML = (typeof marked !== 'undefined') ? marked.parse(result.corrected_text) : result.corrected_text;
     }
+
+    if (diffText) {
+      diffText.innerHTML = (typeof marked !== 'undefined') ? marked.parse(result.diff_markup || result.corrected_text) : (result.diff_markup || result.corrected_text);
+    }
+
+    this.showDiffView = false;
+    this.updateDiffViewVisibility();
+
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
   },
 
   toggleDiffView() {
-    const outputCard = document.getElementById('proofread-output-card');
+    this.showDiffView = !this.showDiffView;
+    this.updateDiffViewVisibility();
+  },
+
+  updateDiffViewVisibility() {
+    const cleanCard = document.getElementById('proofread-output-card');
     const diffCard = document.getElementById('proofread-diff-card');
     const toggleBtn = document.getElementById('toggle-diff-view-btn');
 
-    if (!outputCard || !diffCard) return;
+    if (cleanCard) cleanCard.classList.toggle('hidden', this.showDiffView);
+    if (diffCard) diffCard.classList.toggle('hidden', !this.showDiffView);
 
-    const isDiffVisible = !diffCard.classList.contains('hidden');
-    if (isDiffVisible) {
-      diffCard.classList.add('hidden');
-      outputCard.classList.remove('hidden');
-      if (toggleBtn) toggleBtn.innerText = 'Show Inline Diff View';
-    } else {
-      diffCard.classList.remove('hidden');
-      outputCard.classList.add('hidden');
-      if (toggleBtn) toggleBtn.innerText = 'Show Clean Output View';
+    if (toggleBtn) {
+      toggleBtn.innerText = this.showDiffView ? 'Show Clean Output' : 'Show Inline Diff';
+      toggleBtn.className = `px-2.5 py-1 rounded-md text-xs transition font-medium border ${this.showDiffView ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-secondary)]'}`;
     }
   },
 
-  sendToChat() {
-    if (!this.lastCorrectionResult) return;
+  async copyResult() {
+    if (!this.lastResult) return;
+    const textToCopy = this.showDiffView ? (this.lastResult.diff_markup || this.lastResult.corrected_text) : this.lastResult.corrected_text;
+    const ok = await copyToClipboard(textToCopy);
+    if (ok) showToast('Copied corrected text to clipboard!', 'success');
+  },
+
+  downloadProofread() {
+    if (!this.lastResult) return;
+    const filename = `corrected_${(this.lastResult.filename || 'text').replace(/\.[^/.]+$/, "")}.md`;
+    const content = `# Corrected Document: ${this.lastResult.filename || 'text'}\n` +
+                    `*Level: ${this.lastResult.correction_level} | Mode: ${this.lastResult.mode_used} | Levenshtein Distance: ${this.lastResult.levenshtein_distance}*\n\n` +
+                    `## Corrected Text\n\n${this.lastResult.corrected_text}\n\n` +
+                    `## Inline Diff\n\n${this.lastResult.diff_markup}\n`;
+
+    const blob = new Blob([content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Downloaded '${filename}'`, 'success');
+  },
+
+  sendProofreadToChat() {
+    if (!this.lastResult) return;
     switchTab('chat');
     if (window.ChatModule) {
-      window.ChatModule.usePromptSuggestion(`Here is the proofread text for review:\n\n${this.lastCorrectionResult.corrected_text}`);
+      const prompt = `Review this grammar-corrected text and explain the rationale for changes:\n\n**Corrected Text:**\n${this.lastResult.corrected_text.slice(0, 1500)}`;
+      window.ChatModule.setPromptAndSend(prompt);
     }
   },
 
-  downloadResult() {
-    if (!this.lastCorrectionResult) return;
-    const blob = new Blob([this.lastCorrectionResult.corrected_text], { type: 'text/markdown;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `corrected_${this.lastCorrectionResult.filename || 'document.md'}`;
-    link.click();
-    showToast('Downloaded corrected document', 'success');
+  askSuggestedQuestion(question) {
+    if (!this.lastResult) return;
+    switchTab('chat');
+    if (window.ChatModule) {
+      const prompt = `${question}\n\n**Context (Corrected Text):**\n${this.lastResult.corrected_text.slice(0, 1500)}`;
+      window.ChatModule.setPromptAndSend(prompt);
+    }
   }
 };
 

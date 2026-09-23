@@ -183,6 +183,10 @@ class AbstractiveSummarizer:
                 self.tokenizer = None
                 self.model = None
 
+    def is_ready(self) -> bool:
+        """Returns True if tokenizer and model are loaded and ready."""
+        return self.model is not None and self.tokenizer is not None
+
     def save_local_checkpoint(self, target_dir: str) -> None:
         """Persist current model weights, tokenizer, and config to disk."""
         try:

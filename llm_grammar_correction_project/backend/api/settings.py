@@ -11,6 +11,8 @@ class UpdateSettingsRequest(BaseModel):
     active_mode: Optional[str] = None
     active_ollama_model: Optional[str] = None
     ollama_base_url: Optional[str] = None
+    ollama_url: Optional[str] = None
+    ollama_model: Optional[str] = None
     active_local_model_path: Optional[str] = None
     active_system_profile: Optional[str] = None
     active_system_prompt: Optional[str] = None
@@ -32,14 +34,15 @@ async def get_settings():
     }
 
 @router.post("")
+@router.put("")
 async def update_settings(req: UpdateSettingsRequest):
     """Update active runtime studio settings."""
     if req.active_mode:
         settings.active_mode = req.active_mode.lower()
-    if req.active_ollama_model:
-        settings.active_ollama_model = req.active_ollama_model
-    if req.ollama_base_url:
-        settings.ollama_base_url = req.ollama_base_url
+    if req.active_ollama_model or req.ollama_model:
+        settings.active_ollama_model = req.active_ollama_model or req.ollama_model
+    if req.ollama_base_url or req.ollama_url:
+        settings.ollama_base_url = req.ollama_base_url or req.ollama_url
     if req.active_local_model_path:
         settings.active_local_model_path = req.active_local_model_path
     if req.active_system_profile:
@@ -59,6 +62,7 @@ async def update_settings(req: UpdateSettingsRequest):
     }
 
 @router.post("/profile")
+@router.post("/profiles")
 async def save_profile(req: CustomProfileRequest):
     """Save or update a system prompt profile."""
     settings.save_custom_profile(

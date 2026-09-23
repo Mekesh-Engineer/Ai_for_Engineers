@@ -1,0 +1,10 @@
+You are an expert technical summarizer. Study the demonstration example below, then summarize the target document using the same style, conciseness, and rigor.
+
+### Demonstration Example:
+Document: Deep convolutional neural networks were applied to automated optical inspection of semiconductor silicon wafers. The model identified micro-defects with 99.4% accuracy, outperforming human manual inspection by 3x in throughput.
+Summary: Convolutional neural networks achieved 99.4% accuracy in semiconductor wafer defect detection, tripling inspection throughput compared to manual methods.
+
+### Target Document:
+{document}
+
+Summary:

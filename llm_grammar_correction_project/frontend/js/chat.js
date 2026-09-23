@@ -1,5 +1,6 @@
 /**
- * Local LLM Studio - Interactive Grammar & Rewriting AI Chat
+ * Local LLM Studio - Interactive AI Chat & Workspace Controller
+ * Experiment 8: Automated Grammar Error Correction & Text Rewriting
  */
 
 const ChatModule = {
@@ -29,7 +30,7 @@ const ChatModule = {
   updateHeader() {
     const badge = document.getElementById('chat-model-badge');
     if (badge) {
-      const modeText = AppState.activeMode === 'ollama' ? `Ollama (${AppState.activeOllamaModel})` : 'Project Local Model';
+      const modeText = AppState.activeMode === 'ollama' ? `Ollama (${AppState.activeOllamaModel})` : 'Project Local Model (Seq2Seq)';
       badge.innerText = `Model: ${modeText}`;
     }
   },
@@ -54,6 +55,10 @@ const ChatModule = {
     }
 
     if (input) {
+      input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+      });
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
@@ -78,14 +83,14 @@ const ChatModule = {
       profileSelect.addEventListener('change', (e) => {
         AppState.activeProfile = e.target.value;
         this.updateContextInspector();
-        showToast(`Switched system profile to ${e.target.options[e.target.selectedIndex].text}`, 'info');
+        showToast(`Profile: ${e.target.options[e.target.selectedIndex].text}`, 'info');
       });
     }
 
     if (contextBtn) {
       contextBtn.addEventListener('click', () => {
-        const inspector = document.getElementById('ai-context-inspector');
-        if (inspector) inspector.classList.toggle('hidden');
+        const drawer = document.getElementById('context-files-drawer');
+        if (drawer) drawer.classList.toggle('hidden');
       });
     }
 
@@ -102,14 +107,6 @@ const ChatModule = {
       searchInput.addEventListener('input', (e) => {
         this.searchQuery = e.target.value.toLowerCase().trim();
         this.loadConversations();
-      });
-    }
-
-    // Scroll to bottom button
-    const scrollBottomBtn = document.getElementById('chat-scroll-bottom-btn');
-    if (scrollBottomBtn) {
-      scrollBottomBtn.addEventListener('click', () => {
-        this.scrollToBottom(true);
       });
     }
   },
@@ -166,54 +163,11 @@ const ChatModule = {
     if (btn) btn.classList.add('hidden');
   },
 
-  async loadProfiles() {
-    const select = document.getElementById('chat-profile-select');
-    if (!select) return;
-
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        const profiles = data.profiles || {};
-        select.innerHTML = Object.entries(profiles).map(([k, v]) => `
-          <option value="${k}" ${k === AppState.activeProfile ? 'selected' : ''}>${v.name}</option>
-        `).join('');
-      }
-    } catch (err) {
-      console.warn('Could not load profiles:', err);
-    }
-  },
-
-  async loadProjectFilesForContext() {
-    const container = document.getElementById('chat-context-files-list');
-    if (!container) return;
-
-    try {
-      const res = await fetch('/api/project/files');
-      if (res.ok) {
-        const files = await res.json();
-        container.innerHTML = files.slice(0, 30).map(f => `
-          <label class="flex items-center space-x-2 text-xs text-slate-300 hover:bg-slate-800/60 p-1.5 rounded-lg cursor-pointer truncate">
-            <input type="checkbox" value="${f.relative_path}" class="context-file-checkbox rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0">
-            <span class="truncate font-mono text-[11px]">${f.relative_path}</span>
-          </label>
-        `).join('');
-
-        container.querySelectorAll('.context-file-checkbox').forEach(cb => {
-          cb.addEventListener('change', () => {
-            this.selectedContextFiles = Array.from(container.querySelectorAll('.context-file-checkbox:checked')).map(c => c.value);
-            this.updateContextInspector();
-          });
-        });
-      }
-    } catch (err) {
-      console.warn('Could not load context files:', err);
-    }
-  },
-
   async handleChatFileAttachment(file) {
     const formData = new FormData();
     formData.append('file', file);
+
+    showToast(`Uploading '${file.name}'...`, 'info', 2000);
 
     try {
       const res = await fetch('/api/files/upload', {
@@ -221,122 +175,219 @@ const ChatModule = {
         body: formData
       });
 
-      if (!res.ok) throw new Error('Attachment failed');
-      const data = await res.json();
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Upload failed');
+      }
 
+      const data = await res.json();
       this.attachedChatFiles.push({
         filename: file.name,
-        size_bytes: file.size,
-        content: data.full_content,
-        file_type: data.document.file_type
+        size_bytes: data.document.size_bytes,
+        file_type: data.document.file_type,
+        word_count: data.document.word_count,
+        estimated_tokens: data.document.estimated_tokens,
+        content: data.full_content
       });
 
-      this.renderAttachedFilesBadges();
-      showToast(`Attached '${file.name}' to chat message`, 'success');
+      this.renderAttachedChips();
+      this.updateContextInspector();
+      showToast(`Attached '${file.name}'`, 'success');
     } catch (err) {
       showToast(`Attachment error: ${err.message}`, 'error');
     }
   },
 
-  renderAttachedFilesBadges() {
-    const container = document.getElementById('chat-attached-files-badges');
+  removeAttachedFile(idx) {
+    this.attachedChatFiles.splice(idx, 1);
+    this.renderAttachedChips();
+    this.updateContextInspector();
+  },
+
+  renderAttachedChips() {
+    const container = document.getElementById('chat-attached-chips');
     if (!container) return;
 
     if (this.attachedChatFiles.length === 0) {
-      container.innerHTML = '';
       container.classList.add('hidden');
+      container.innerHTML = '';
       return;
     }
 
     container.classList.remove('hidden');
     container.innerHTML = this.attachedChatFiles.map((f, idx) => `
-      <span class="inline-flex items-center text-[11px] font-medium bg-indigo-950/80 border border-indigo-500/50 text-indigo-300 px-2 py-0.5 rounded-md">
-        📎 ${f.filename}
-        <button type="button" onclick="ChatModule.removeAttachedFile(${idx})" class="ml-1.5 text-indigo-400 hover:text-rose-400 font-bold">×</button>
-      </span>
+      <div class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono">
+        <span>${f.filename}</span>
+        <span class="text-[10px] text-indigo-400">(${(f.size_bytes / 1024).toFixed(1)} KB)</span>
+        <button type="button" onclick="ChatModule.removeAttachedFile(${idx})" class="ml-1 text-indigo-400 hover:text-rose-400 font-bold">×</button>
+      </div>
     `).join('');
   },
 
-  removeAttachedFile(idx) {
-    this.attachedChatFiles.splice(idx, 1);
-    this.renderAttachedFilesBadges();
+  async loadProfiles() {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        const select = document.getElementById('chat-profile-select');
+        if (select && data.profiles) {
+          select.innerHTML = '';
+          for (const [key, profile] of Object.entries(data.profiles)) {
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.textContent = profile.name;
+            if (key === AppState.activeProfile) opt.selected = true;
+            select.appendChild(opt);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load profiles:', err);
+    }
+  },
+
+  async loadProjectFilesForContext() {
+    try {
+      const res = await fetch('/api/project/files');
+      if (res.ok) {
+        const files = await res.json();
+        const list = document.getElementById('context-files-list');
+        if (list) {
+          list.innerHTML = '';
+          files.forEach(f => {
+            const item = document.createElement('label');
+            item.className = 'flex items-center space-x-2 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] p-1.5 rounded hover:bg-[var(--color-elevated)] cursor-pointer';
+            item.innerHTML = `
+              <input type="checkbox" value="${f.relative_path}" class="context-file-checkbox rounded border-[var(--color-border)] text-indigo-600 focus:ring-indigo-500">
+              <span class="truncate font-mono">${f.relative_path}</span>
+              ${f.is_important ? '<span class="text-[9px] bg-indigo-500/10 text-indigo-300 px-1 rounded border border-indigo-500/20">Core</span>' : ''}
+            `;
+            list.appendChild(item);
+          });
+
+          document.querySelectorAll('.context-file-checkbox').forEach(cb => {
+            cb.addEventListener('change', () => this.updateContextSelection());
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load project context files:', err);
+    }
+  },
+
+  updateContextSelection(filesOverride = null) {
+    if (Array.isArray(filesOverride)) {
+      this.selectedContextFiles = filesOverride;
+      document.querySelectorAll('.context-file-checkbox').forEach(cb => {
+        cb.checked = filesOverride.includes(cb.value);
+      });
+    } else {
+      const selected = [];
+      document.querySelectorAll('.context-file-checkbox:checked').forEach(cb => {
+        selected.push(cb.value);
+      });
+      this.selectedContextFiles = selected;
+    }
+
+    const badge = document.getElementById('context-count-badge');
+    if (badge) {
+      const totalAttached = this.selectedContextFiles.length + this.attachedChatFiles.length;
+      if (totalAttached > 0) {
+        badge.innerText = `${totalAttached} Attached`;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    this.updateContextInspector();
   },
 
   updateContextInspector() {
-    const profileBadge = document.getElementById('inspector-profile-badge');
-    const filesCount = document.getElementById('inspector-files-count');
-    const modeBadge = document.getElementById('inspector-mode-badge');
+    const modelEl = document.getElementById('inspector-model-name');
+    const profileEl = document.getElementById('inspector-profile-name');
+    const filesCountEl = document.getElementById('inspector-files-count');
+    const tokensEl = document.getElementById('inspector-token-est');
+    const progressBar = document.getElementById('inspector-token-bar');
 
-    if (profileBadge) profileBadge.innerText = AppState.activeProfile;
-    if (filesCount) filesCount.innerText = `${this.selectedContextFiles.length} files`;
-    if (modeBadge) modeBadge.innerText = AppState.activeMode === 'ollama' ? AppState.activeOllamaModel : 'Local Model';
+    const totalFiles = this.selectedContextFiles.length + this.attachedChatFiles.length;
+    let estimatedTokens = totalFiles * 450 + this.messages.length * 80;
+    this.attachedChatFiles.forEach(f => estimatedTokens += (f.estimated_tokens || 0));
+
+    if (modelEl) modelEl.innerText = AppState.activeMode === 'ollama' ? `Qwen 2.5 7B (Ollama)` : 'Local Seq2Seq Model';
+    if (profileEl) profileEl.innerText = AppState.activeProfile.replace('_', ' ').toUpperCase();
+    if (filesCountEl) filesCountEl.innerText = `${totalFiles} files`;
+    if (tokensEl) tokensEl.innerText = `~${estimatedTokens.toLocaleString()} / 32,000 tokens`;
+    if (progressBar) {
+      const pct = Math.min(100, Math.round((estimatedTokens / 32000) * 100));
+      progressBar.style.width = `${pct}%`;
+    }
   },
 
   async loadConversations() {
-    const list = document.getElementById('conversations-history-list');
-    if (!list) return;
-
     try {
       const res = await fetch('/api/chat/conversations');
       if (res.ok) {
-        const convs = await res.json();
-        AppState.conversations = convs;
-
-        let filtered = convs;
+        let list = await res.json();
         if (this.searchQuery) {
-          filtered = convs.filter(c => c.title.toLowerCase().includes(this.searchQuery));
+          list = list.filter(c => c.title.toLowerCase().includes(this.searchQuery));
         }
 
-        if (filtered.length === 0) {
-          list.innerHTML = '<div class="text-[11px] text-slate-500 p-2 italic">No conversations yet.</div>';
-          return;
-        }
+        const container = document.getElementById('conversation-history-list');
+        if (container) {
+          if (list.length === 0) {
+            container.innerHTML = '<div class="text-[11px] text-[var(--color-text-muted)] p-2 italic">No conversations found.</div>';
+            return;
+          }
 
-        list.innerHTML = filtered.map(c => `
-          <div onclick="ChatModule.selectConversation('${c.id}')" 
-               class="p-2 rounded-xl border transition cursor-pointer flex items-center justify-between text-xs group ${c.id === this.currentConversationId ? 'bg-indigo-950/40 border-indigo-500/50 text-indigo-200' : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/60 text-slate-300'}">
-            <div class="truncate flex-1 pr-2">
-              <div class="font-medium truncate">${c.title}</div>
-              <div class="text-[10px] text-slate-500 mt-0.5 font-mono">${c.mode} • ${c.message_count} msgs</div>
+          container.innerHTML = list.map(c => `
+            <div onclick="ChatModule.switchConversation('${c.id}')" class="group flex items-center justify-between p-2 rounded-lg text-xs cursor-pointer transition ${c.id === this.currentConversationId ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 font-medium' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-elevated)] hover:text-[var(--color-text-primary)]'}">
+              <div class="truncate flex-1 pr-2">
+                <div class="truncate">${c.title || 'Untitled Session'}</div>
+                <div class="text-[10px] text-[var(--color-text-muted)] flex items-center space-x-1.5 mt-0.5 font-mono">
+                  <span>${c.message_count} msgs</span>
+                  <span>•</span>
+                  <span>${c.mode}</span>
+                </div>
+              </div>
+              <button onclick="ChatModule.deleteConversation('${c.id}', event)" class="opacity-0 group-hover:opacity-100 text-[var(--color-text-muted)] hover:text-rose-400 text-sm px-1 transition">×</button>
             </div>
-            <button onclick="event.stopPropagation(); ChatModule.deleteConversation('${c.id}')" class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 p-1 rounded">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-            </button>
-          </div>
-        `).join('');
+          `).join('');
+        }
       }
     } catch (err) {
-      console.warn('Could not load conversations:', err);
+      console.warn('Failed to load conversations:', err);
     }
   },
 
-  async selectConversation(id) {
+  async switchConversation(cid) {
     try {
-      const res = await fetch(`/api/chat/conversations/${id}`);
+      const res = await fetch(`/api/chat/conversations/${cid}`);
       if (res.ok) {
         const data = await res.json();
-        this.currentConversationId = id;
+        this.currentConversationId = cid;
         this.messages = data.messages || [];
         this.renderMessages();
         this.loadConversations();
-        this.scrollToBottom(true);
+        this.updateContextInspector();
+        setTimeout(() => this.scrollToBottom(true), 50);
       }
     } catch (err) {
-      showToast('Could not load conversation', 'error');
+      showToast(`Error loading chat: ${err.message}`, 'error');
     }
   },
 
-  async deleteConversation(id) {
+  async deleteConversation(cid, e) {
+    if (e) e.stopPropagation();
     try {
-      await fetch(`/api/chat/conversations/${id}`, { method: 'DELETE' });
-      if (this.currentConversationId === id) {
+      await fetch(`/api/chat/conversations/${cid}`, { method: 'DELETE' });
+      if (this.currentConversationId === cid) {
         this.newChat();
       } else {
         this.loadConversations();
       }
-      showToast('Conversation deleted', 'info');
     } catch (err) {
-      showToast('Failed to delete conversation', 'error');
+      showToast(`Delete failed: ${err.message}`, 'error');
     }
   },
 
@@ -344,35 +395,18 @@ const ChatModule = {
     this.currentConversationId = null;
     this.messages = [];
     this.attachedChatFiles = [];
-    this.renderAttachedFilesBadges();
+    this.renderAttachedChips();
     this.renderMessages();
     this.loadConversations();
-    showToast('Started new conversation', 'info');
+    this.updateContextInspector();
+    this.hideScrollBottomButton();
   },
 
   clearChat() {
     this.messages = [];
     this.renderMessages();
-  },
-
-  stopGeneration() {
-    if (this.activeAbortController) {
-      this.activeAbortController.abort();
-      this.activeAbortController = null;
-    }
-    this.setGenerating(false);
-    showToast('Generation stopped', 'info');
-  },
-
-  setGenerating(isGen) {
-    this.isGenerating = isGen;
-    const sendBtn = document.getElementById('chat-send-btn');
-    const stopBtn = document.getElementById('chat-stop-btn');
-    const loadingBadge = document.getElementById('chat-streaming-badge');
-
-    if (sendBtn) sendBtn.classList.toggle('hidden', isGen);
-    if (stopBtn) stopBtn.classList.toggle('hidden', !isGen);
-    if (loadingBadge) loadingBadge.classList.toggle('hidden', !isGen);
+    this.updateContextInspector();
+    this.hideScrollBottomButton();
   },
 
   renderMessages() {
@@ -381,35 +415,44 @@ const ChatModule = {
 
     if (this.messages.length === 0) {
       container.innerHTML = `
-        <div id="chat-empty-state" class="flex flex-col items-center justify-center min-h-[420px] text-center p-8 max-w-xl mx-auto my-auto">
-          <div class="w-14 h-14 rounded-2xl bg-indigo-600/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-4 shadow-lg shadow-indigo-500/10">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+        <div class="h-full flex flex-col items-center justify-center text-center p-6 text-[var(--color-text-muted)]">
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-2.5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
           </div>
-          <h2 class="text-base font-semibold text-slate-100 mb-1.5">Grammar Correction & Rewriting AI Assistant</h2>
-          <p class="text-xs text-slate-400 max-w-sm mb-6 leading-relaxed">
-            Proofread draft sentences, execute comprehensive rewriting, polish research papers, or diagnose grammatical error categories in real time.
-          </p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full text-left">
-            <button onclick="ChatModule.usePromptSuggestion('Fix obvious typos and grammatical errors in this text cleanly without changing style: ')" 
-                    class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-indigo-500/40 hover:bg-slate-800/80 transition text-xs text-slate-300">
-              <span class="font-medium text-indigo-300 block mb-0.5">🔍 Minimal Proofreading</span>
-              Fix spelling, typos, and obvious verb errors.
-            </button>
-            <button onclick="ChatModule.usePromptSuggestion('Rewrite this sentence for academic clarity and publication-ready formal register: ')" 
-                    class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-indigo-500/40 hover:bg-slate-800/80 transition text-xs text-slate-300">
-              <span class="font-medium text-emerald-300 block mb-0.5">🎓 Academic & Research Polish</span>
-              Elevate technical syntax and formal tone.
-            </button>
-            <button onclick="ChatModule.usePromptSuggestion('Identify, classify, and explain all grammatical and punctuation errors in this text: ')" 
-                    class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-indigo-500/40 hover:bg-slate-800/80 transition text-xs text-slate-300">
-              <span class="font-medium text-amber-300 block mb-0.5">🩺 Error Category Diagnosis</span>
-              Breakdown syntax, tenses, and agreement rules.
-            </button>
-            <button onclick="ChatModule.usePromptSuggestion('Rewrite the following text with maximum clarity, fluency, and conciseness: ')" 
-                    class="p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-indigo-500/40 hover:bg-slate-800/80 transition text-xs text-slate-300">
-              <span class="font-medium text-purple-300 block mb-0.5">✨ Comprehensive Rewriting</span>
-              Restructure sentences for optimal readability.
-            </button>
+          <h3 class="text-sm font-semibold text-[var(--color-text-primary)] mb-1">Grammar Error Correction & Text Rewriting Studio</h3>
+          <p class="text-xs max-w-sm text-[var(--color-text-secondary)] mb-5">Interact with local <strong>Qwen 2.5 7B</strong> or project Seq2Seq models. Fix grammatical errors, polish academic writing, diagnose linguistic rules, and rewrite text.</p>
+
+          <!-- Starter Action Grid -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2 max-w-lg w-full text-left">
+            <div onclick="ChatModule.setPromptAndSend('Correct all grammatical errors in this sentence and explain the rule: He go to the laboratory yesterday for doing the experiment.')" class="glass-panel glass-panel-hover p-2.5 rounded-lg cursor-pointer">
+              <div class="text-xs font-semibold text-[var(--color-text-primary)]">Grammar Correction</div>
+              <div class="text-[10px] text-[var(--color-text-muted)] mt-0.5">Tense, agreement & syntax</div>
+            </div>
+
+            <div onclick="ChatModule.setPromptAndSend('Polish this paragraph for academic publication in a top-tier peer-reviewed journal: The experimental results demonstrates that our proposed neural network is more superior than baseline methods.')" class="glass-panel glass-panel-hover p-2.5 rounded-lg cursor-pointer">
+              <div class="text-xs font-semibold text-[var(--color-text-primary)]">Academic Polish</div>
+              <div class="text-[10px] text-[var(--color-text-muted)] mt-0.5">Formal vocabulary & tone</div>
+            </div>
+
+            <div onclick="ChatModule.setPromptAndSend('Diagnose all grammatical errors in this text and provide rule explanations with category labels: Each of the component have different function.')" class="glass-panel glass-panel-hover p-2.5 rounded-lg cursor-pointer">
+              <div class="text-xs font-semibold text-[var(--color-text-primary)]">Diagnose Rules</div>
+              <div class="text-[10px] text-[var(--color-text-muted)] mt-0.5">Detailed error categories</div>
+            </div>
+
+            <div onclick="ChatModule.setPromptAndSend('Rewrite this text to be clear, concise, and engaging without changing the underlying meaning: Because of it lacks of enough training data, the model perform poorly.')" class="glass-panel glass-panel-hover p-2.5 rounded-lg cursor-pointer">
+              <div class="text-xs font-semibold text-[var(--color-text-primary)]">Clarity & Rewriting</div>
+              <div class="text-[10px] text-[var(--color-text-muted)] mt-0.5">Streamlined structure</div>
+            </div>
+
+            <div onclick="ChatModule.setPromptAndSend('Proofread and enhance the docstrings and comments in our Python codebase.')" class="glass-panel glass-panel-hover p-2.5 rounded-lg cursor-pointer">
+              <div class="text-xs font-semibold text-[var(--color-text-primary)]">Code Docstrings</div>
+              <div class="text-[10px] text-[var(--color-text-muted)] mt-0.5">Technical formatting</div>
+            </div>
+
+            <div onclick="ChatModule.setPromptAndSend('Generate a set of 5 difficult grammar correction benchmark questions with ungrammatical inputs and gold-standard targets.')" class="glass-panel glass-panel-hover p-2.5 rounded-lg cursor-pointer">
+              <div class="text-xs font-semibold text-[var(--color-text-primary)]">Benchmark Tests</div>
+              <div class="text-[10px] text-[var(--color-text-muted)] mt-0.5">Evaluation test cases</div>
+            </div>
           </div>
         </div>
       `;
@@ -418,153 +461,257 @@ const ChatModule = {
 
     container.innerHTML = this.messages.map((m, idx) => {
       const isUser = m.role === 'user';
-      const renderedHtml = window.marked ? window.marked.parse(m.content) : m.content;
+      const parsedContent = (typeof marked !== 'undefined') ? marked.parse(m.content) : m.content;
+
       return `
-        <div class="flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-4">
-          <div class="flex items-center space-x-2 mb-1 px-1">
-            <span class="text-[11px] font-semibold ${isUser ? 'text-indigo-400' : 'text-emerald-400'}">
-              ${isUser ? 'You' : (AppState.activeMode === 'ollama' ? 'Qwen 2.5 7B' : 'Local Model')}
-            </span>
-            <span class="text-[10px] text-slate-500 font-mono">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-          </div>
-          <div class="chat-message-bubble p-4 rounded-2xl ${isUser ? 'bg-indigo-600/20 border border-indigo-500/40 text-slate-100 rounded-tr-sm' : 'glass-panel text-slate-200 rounded-tl-sm shadow-xl'}">
-            <div class="markdown-body">${renderedHtml}</div>
-          </div>
-          <div class="flex items-center space-x-2 mt-1 px-1 opacity-0 hover:opacity-100 transition">
-            <button onclick="ChatModule.copyMessage(${idx})" class="text-[10px] text-slate-500 hover:text-slate-300 flex items-center space-x-1">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-              <span>Copy</span>
-            </button>
+        <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
+          <div class="chat-message-bubble rounded-xl p-3 text-xs sm:text-sm ${isUser ? 'bg-indigo-600 text-white rounded-br-none shadow-md' : 'glass-panel text-[var(--color-text-primary)] rounded-bl-none'}">
+            ${m.attachedFiles && m.attachedFiles.length > 0 ? `
+              <div class="flex flex-wrap gap-1 mb-2 pb-2 border-b ${isUser ? 'border-indigo-400/30' : 'border-[var(--color-border)]'}">
+                ${m.attachedFiles.map(f => `<span class="px-1.5 py-0.5 text-[10px] font-mono rounded ${isUser ? 'bg-indigo-700/50 text-indigo-100' : 'bg-indigo-500/10 text-indigo-300'}">📎 ${f}</span>`).join('')}
+              </div>
+            ` : ''}
+
+            <div class="${isUser ? '' : 'markdown-body'} leading-relaxed">${isUser ? m.content.replace(/\n/g, '<br>') : parsedContent}</div>
+
+            <div class="flex items-center justify-between mt-2 pt-1 border-t ${isUser ? 'border-indigo-400/20 text-indigo-200' : 'border-[var(--color-border)] text-[var(--color-text-muted)]'} text-[10px]">
+              <span>${m.timestamp || ''}</span>
+              <div class="flex items-center space-x-1">
+                <button onclick="ChatModule.copyMessage(${idx})" class="hover:underline opacity-80 hover:opacity-100">Copy</button>
+                ${!isUser && idx === this.messages.length - 1 ? `<span class="opacity-50">•</span><button onclick="ChatModule.regenerateLastMessage()" class="hover:underline opacity-80 hover:opacity-100">Regenerate</button>` : ''}
+              </div>
+            </div>
           </div>
         </div>
       `;
     }).join('');
+  },
 
-    // Apply syntax highlighting
-    if (window.hljs) {
-      container.querySelectorAll('pre code').forEach(block => {
-        window.hljs.highlightElement(block);
-      });
+  async copyMessage(idx) {
+    const msg = this.messages[idx];
+    if (msg) {
+      await copyToClipboard(msg.content);
+      showToast('Copied message to clipboard', 'info', 2000);
     }
   },
 
-  usePromptSuggestion(text) {
+  setPromptAndSend(promptText) {
     const input = document.getElementById('chat-input');
     if (input) {
-      input.value = text;
+      input.value = promptText;
       input.focus();
+      this.sendMessage();
     }
   },
 
-  copyMessage(idx) {
-    if (this.messages[idx]) {
-      navigator.clipboard.writeText(this.messages[idx].content);
-      showToast('Message copied to clipboard', 'info');
+  async regenerateLastMessage() {
+    if (this.isGenerating || this.messages.length === 0) return;
+    const lastMsg = this.messages[this.messages.length - 1];
+    if (lastMsg.role === 'assistant') {
+      this.messages.pop();
+      const lastUserMsg = this.messages[this.messages.length - 1];
+      if (lastUserMsg && lastUserMsg.role === 'user') {
+        const prompt = lastUserMsg.content;
+        this.executeStream(prompt, true);
+      }
     }
+  },
+
+  stopGeneration() {
+    if (this.activeAbortController) {
+      this.activeAbortController.abort();
+      this.activeAbortController = null;
+    }
+    this.isGenerating = false;
+    this.setLoading(false);
+    showToast('Generation cancelled.', 'warning', 2000);
+  },
+
+  setLoading(isLoading) {
+    this.isGenerating = isLoading;
+    const loadingBar = document.getElementById('chat-loading-indicator');
+    const sendBtn = document.getElementById('chat-send-btn');
+    const stopBtn = document.getElementById('chat-stop-btn');
+
+    if (loadingBar) loadingBar.classList.toggle('hidden', !isLoading);
+    if (sendBtn) sendBtn.classList.toggle('hidden', isLoading);
+    if (stopBtn) stopBtn.classList.toggle('hidden', !isLoading);
   },
 
   async sendMessage() {
     const input = document.getElementById('chat-input');
-    if (!input || !input.value.trim() || this.isGenerating) return;
+    if (!input || this.isGenerating) return;
 
-    let userText = input.value.trim();
-    input.value = '';
+    const text = input.value.trim();
+    if (!text && this.attachedChatFiles.length === 0) return;
 
-    // Append attachments if any
-    if (this.attachedChatFiles.length > 0) {
-      const attachBlocks = this.attachedChatFiles.map(f => `--- Attached File: ${f.filename} ---\n${f.content}`).join('\n\n');
-      userText += `\n\n[Attached Files]:\n${attachBlocks}`;
-      this.attachedChatFiles = [];
-      this.renderAttachedFilesBadges();
-    }
-
-    // Append user message
-    this.messages.push({ role: 'user', content: userText });
-    this.renderMessages();
-    this.scrollToBottom(true);
-    this.setGenerating(true);
-
-    // Prepare assistant streaming placeholder
-    const assistantIndex = this.messages.length;
-    this.messages.push({ role: 'assistant', content: '' });
-
-    const payload = {
-      conversation_id: this.currentConversationId,
-      messages: this.messages.slice(0, -1),
-      profile: AppState.activeProfile,
-      mode: AppState.activeMode,
-      model: AppState.activeMode === 'ollama' ? AppState.activeOllamaModel : null,
-      context_files: this.selectedContextFiles
+    const attachedNames = this.attachedChatFiles.map(f => f.filename);
+    const userMessage = {
+      role: 'user',
+      content: text,
+      attachedFiles: attachedNames,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
+    this.messages.push(userMessage);
+    input.value = '';
+    input.style.height = 'auto';
+
+    this.renderMessages();
+    this.scrollToBottom(true);
+    this.updateContextInspector();
+
+    await this.executeStream(text);
+  },
+
+  async executeStream(userPrompt, isRegen = false) {
+    this.setLoading(true);
     this.activeAbortController = new AbortController();
 
+    const assistantMsg = {
+      role: 'assistant',
+      content: '',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    this.messages.push(assistantMsg);
+    const assistantMsgIndex = this.messages.length - 1;
+
+    // Build context payload
+    const contextFiles = [...this.selectedContextFiles];
+    const attachedData = this.attachedChatFiles.map(f => ({
+      filename: f.filename,
+      content: f.content
+    }));
+
     try {
-      const response = await fetch('/api/chat/stream', {
+      const payload = {
+        prompt: userPrompt,
+        conversation_id: this.currentConversationId,
+        mode: AppState.activeMode,
+        profile: AppState.activeProfile,
+        context_files: contextFiles,
+        attached_files: attachedData,
+        history: this.messages.slice(0, -2).map(m => ({ role: m.role, content: m.content }))
+      };
+
+      const res = await fetch('/api/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
         signal: this.activeAbortController.signal
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP Error ${response.status}`);
+      if (!res.ok) {
+        throw new Error(`Server returned HTTP status ${res.status}`);
       }
 
-      const reader = response.body.getReader();
+      const reader = res.body.getReader();
       const decoder = new TextDecoder('utf-8');
-      let accumulatedText = '';
+      let buffer = '';
 
       while (true) {
-        const { done, value } = await reader.read();
+        const { value, done } = await reader.read();
         if (done) break;
 
-        const rawChunk = decoder.decode(value, { stream: true });
-        const lines = rawChunk.split('\n');
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // Keep last partial line
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const jsonStr = line.slice(6).trim();
-            if (!jsonStr) continue;
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith(':')) continue;
+
+          if (trimmed.startsWith('data: ')) {
+            const dataStr = trimmed.slice(6);
+            if (dataStr === '[DONE]') break;
 
             try {
-              const data = JSON.parse(jsonStr);
-              if (data.type === 'start') {
-                this.currentConversationId = data.conversation_id;
-              } else if (data.type === 'token') {
-                accumulatedText += data.text || '';
-                this.messages[assistantIndex].content = accumulatedText;
+              const data = JSON.parse(dataStr);
+              const textPiece = (data.text !== undefined) ? data.text : (data.token !== undefined ? data.token : '');
+              if (textPiece) {
+                this.messages[assistantMsgIndex].content += textPiece;
                 this.renderMessages();
                 this.scrollToBottom();
-              } else if (data.type === 'end') {
+              }
+              if (data.conversation_id) {
                 this.currentConversationId = data.conversation_id;
-              } else if (data.type === 'error') {
-                accumulatedText += `\n[Error: ${data.message}]`;
-                this.messages[assistantIndex].content = accumulatedText;
+              }
+              if (data.type === 'error') {
+                this.messages[assistantMsgIndex].content += `\n\n*(Error: ${data.message || 'Generation failed'})*`;
                 this.renderMessages();
               }
-            } catch (parseErr) {
-              // Partial line buffer
+            } catch (jsonErr) {
+              // Plain text token fallback
+              if (dataStr && !dataStr.startsWith('{')) {
+                this.messages[assistantMsgIndex].content += dataStr;
+                this.renderMessages();
+                this.scrollToBottom();
+              }
             }
           }
         }
       }
 
-      logActivity(`Generated AI response (${accumulatedText.split(' ').length} words)`);
+      logActivity(`Received AI response (${this.messages[assistantMsgIndex].content.split(/\s+/).length} words)`);
       this.loadConversations();
     } catch (err) {
       if (err.name === 'AbortError') {
-        // Handled cleanly
+        console.log('Stream aborted by user.');
       } else {
-        this.messages[assistantIndex].content = `[Connection error: ${err.message}]`;
+        this.messages[assistantMsgIndex].content += `\n\n*(Error during generation: ${err.message})*`;
         this.renderMessages();
         showToast(`Chat error: ${err.message}`, 'error');
       }
     } finally {
-      this.setGenerating(false);
+      this.setLoading(false);
       this.activeAbortController = null;
+      this.attachedChatFiles = [];
+      this.renderAttachedChips();
+      this.updateContextInspector();
       this.scrollToBottom(true);
     }
+  },
+
+  exportConversation(format = 'markdown') {
+    if (this.messages.length === 0) {
+      showToast('No messages to export.', 'warning');
+      return;
+    }
+
+    let content = '';
+    let filename = `conversation_${new Date().toISOString().slice(0, 10)}`;
+    let mime = 'text/plain';
+
+    if (format === 'markdown') {
+      content = `# Local LLM Studio — AI Grammar & Rewriting Conversation\n` +
+                `Date: ${new Date().toLocaleString()}\n` +
+                `Engine: ${AppState.activeMode}\n\n---\n\n`;
+      this.messages.forEach(m => {
+        content += `### ${m.role === 'user' ? 'User' : 'Assistant'} (${m.timestamp || ''})\n\n${m.content}\n\n`;
+      });
+      filename += '.md';
+      mime = 'text/markdown';
+    } else if (format === 'json') {
+      content = JSON.stringify(this.messages, null, 2);
+      filename += '.json';
+      mime = 'application/json';
+    } else {
+      this.messages.forEach(m => {
+        content += `[${m.role.toUpperCase()}] (${m.timestamp || ''}):\n${m.content}\n\n`;
+      });
+      filename += '.txt';
+    }
+
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Exported conversation as ${filename}`, 'success');
   }
 };
 

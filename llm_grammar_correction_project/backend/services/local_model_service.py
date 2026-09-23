@@ -222,7 +222,15 @@ class LocalModelProvider(LLMProvider):
         start_time = time.time()
         self._ensure_loaded()
 
-        full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
+        if self._is_seq2seq:
+            # For Seq2Seq models (e.g. Flan-T5), concise direct instructions work best
+            if system_prompt and len(system_prompt) < 200:
+                full_prompt = f"{system_prompt}: {prompt}"
+            else:
+                full_prompt = prompt
+        else:
+            full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
+
         inputs = self._tokenizer(full_prompt, return_tensors="pt", max_length=1024, truncation=True).to(self._device)
         input_token_count = inputs["input_ids"].shape[1]
 
@@ -232,7 +240,7 @@ class LocalModelProvider(LLMProvider):
                 outputs = self._model.generate(
                     **inputs,
                     max_length=max_len,
-                    min_length=5,
+                    min_length=2,
                     num_beams=2,
                     early_stopping=True,
                     no_repeat_ngram_size=3
@@ -252,6 +260,11 @@ class LocalModelProvider(LLMProvider):
         
         if not self._is_seq2seq and decoded_text.startswith(full_prompt):
             decoded_text = decoded_text[len(full_prompt):].strip()
+
+        # Clean any accidental role prefixes
+        for prefix in ["Assistant:", "Output:", "Corrected:"]:
+            if decoded_text.startswith(prefix):
+                decoded_text = decoded_text[len(prefix):].strip()
 
         duration = time.time() - start_time
         studio_logger.log_inference("local_model", self.model_path.name, "generate", duration, {"tokens": output_tokens})
@@ -273,18 +286,25 @@ class LocalModelProvider(LLMProvider):
         max_tokens: Optional[int] = 128,
         **kwargs
     ) -> LLMResponse:
-        prompt_parts = []
-        for m in messages:
-            if m.role == "system":
-                prompt_parts.append(f"System: {m.content}")
-            elif m.role == "user":
-                prompt_parts.append(f"User: {m.content}")
-            elif m.role == "assistant":
-                prompt_parts.append(f"Assistant: {m.content}")
-        
-        prompt_parts.append("Assistant:")
-        formatted_prompt = "\n".join(prompt_parts)
-        return await self.generate(formatted_prompt, temperature=temperature, max_tokens=max_tokens, **kwargs)
+        self._ensure_loaded()
+        if self._is_seq2seq:
+            # Extract latest user message and recent context for Seq2Seq
+            user_msgs = [m.content for m in messages if m.role == "user"]
+            latest_user_text = user_msgs[-1] if user_msgs else (messages[-1].content if messages else "")
+            return await self.generate(latest_user_text, temperature=temperature, max_tokens=max_tokens, **kwargs)
+        else:
+            prompt_parts = []
+            for m in messages:
+                if m.role == "system":
+                    prompt_parts.append(f"System: {m.content}")
+                elif m.role == "user":
+                    prompt_parts.append(f"User: {m.content}")
+                elif m.role == "assistant":
+                    prompt_parts.append(f"Assistant: {m.content}")
+            
+            prompt_parts.append("Assistant:")
+            formatted_prompt = "\n".join(prompt_parts)
+            return await self.generate(formatted_prompt, temperature=temperature, max_tokens=max_tokens, **kwargs)
 
     async def stream_chat(
         self,

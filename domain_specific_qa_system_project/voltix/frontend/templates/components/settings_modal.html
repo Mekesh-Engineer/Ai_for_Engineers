@@ -1,0 +1,74 @@
+<div id="modal-settings" class="modal-backdrop hidden">
+    <div class="modal-dialog max-w-lg">
+        <!-- Header -->
+        <div class="p-4 border-b border-white/[0.08] flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <i class="fa-solid fa-gear text-neutral-400 text-sm"></i>
+                <h3 class="font-semibold text-white text-sm">Settings</h3>
+            </div>
+            <button id="btn-close-settings-modal" class="text-neutral-400 hover:text-white p-1 rounded-md hover:bg-white/5 transition-colors" title="Close">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-5 space-y-4 text-xs overflow-y-auto max-h-[75vh]">
+            <!-- Section: AI Inference & Hyperparameters -->
+            <div class="space-y-3">
+                <div class="font-semibold text-neutral-300 uppercase tracking-wider text-[10px]">AI Hyperparameters</div>
+                
+                <div class="bg-neutral-800/50 p-3 rounded-xl border border-white/[0.06] space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <label class="font-medium text-neutral-200">Temperature</label>
+                        <span id="temp-val" class="font-mono text-cyan-400 font-semibold">0.1</span>
+                    </div>
+                    <input type="range" id="setting-temp" min="0" max="1" step="0.05" value="0.1" class="w-full accent-cyan-500 cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-neutral-500">
+                        <span>Deterministic (Formulas)</span>
+                        <span>Creative (Brainstorming)</span>
+                    </div>
+                </div>
+
+                <div class="bg-neutral-800/50 p-3 rounded-xl border border-white/[0.06] space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <label class="font-medium text-neutral-200">Top-P Nucleus</label>
+                        <span id="topp-val" class="font-mono text-cyan-400 font-semibold">0.9</span>
+                    </div>
+                    <input type="range" id="setting-topp" min="0.1" max="1" step="0.05" value="0.9" class="w-full accent-cyan-500 cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-neutral-500">
+                        <span>Focused</span>
+                        <span>Broad</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: RAG Knowledge Base -->
+            <div class="space-y-2 pt-2 border-t border-white/[0.06]">
+                <div class="font-semibold text-neutral-300 uppercase tracking-wider text-[10px]">Knowledge Base & Retrieval</div>
+                <div class="flex items-center justify-between p-3 bg-neutral-800/50 rounded-xl border border-white/[0.06]">
+                    <div>
+                        <div class="font-medium text-neutral-200">FAISS Vector RAG Grounding</div>
+                        <div class="text-[11px] text-neutral-400">Ground answers in indexed textbooks, papers, and lab manuals</div>
+                    </div>
+                    <input type="checkbox" id="setting-enable-rag" checked class="w-4 h-4 accent-cyan-500 rounded cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Section: Advanced Ollama Endpoint -->
+            <div class="space-y-2 pt-2 border-t border-white/[0.06]">
+                <div class="font-semibold text-neutral-300 uppercase tracking-wider text-[10px]">Advanced</div>
+                <div>
+                    <label class="block font-medium text-neutral-300 mb-1">Ollama Service URL</label>
+                    <input type="text" id="setting-ollama-url" value="http://localhost:11434" class="w-full bg-neutral-800/60 border border-white/[0.08] p-2 rounded-lg text-neutral-200 font-mono text-xs focus:outline-none focus:border-white/20 transition-colors">
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="pt-2">
+                <button id="btn-save-settings" class="w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg text-xs transition-colors shadow-sm">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

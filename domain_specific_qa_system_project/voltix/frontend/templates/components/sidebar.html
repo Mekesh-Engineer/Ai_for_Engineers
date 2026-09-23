@@ -1,0 +1,80 @@
+<aside id="sidebar" class="sidebar-compact flex flex-col h-full z-30 shrink-0 select-none">
+    <!-- Brand & New Chat Top Section -->
+    <div class="p-3 space-y-2 border-b border-white/[0.08]">
+        <!-- Brand Header -->
+        <div class="flex items-center justify-between px-1 py-1">
+            <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 rounded-full bg-neutral-800 border border-white/10 flex items-center justify-center text-cyan-400 text-xs shadow-sm">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="font-semibold text-sm tracking-tight text-neutral-100">VOLTIX</span>
+                    <span class="text-[10px] text-neutral-500 font-normal">EEE AI</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-1">
+                <button id="btn-theme-toggle" class="text-neutral-400 hover:text-white p-1.5 rounded-md hover:bg-white/5 transition-colors text-xs" title="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- New Chat Button (Minimal ChatGPT style) -->
+        <button id="btn-new-chat" class="sidebar-new-chat-btn group">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-plus text-xs text-neutral-400 group-hover:text-white transition-colors"></i>
+                <span>New chat</span>
+            </div>
+            <kbd class="cmd-kbd text-[9px]">Ctrl+N</kbd>
+        </button>
+
+        <!-- Search Bar -->
+        <div class="relative">
+            <input type="text" id="input-search-conv" placeholder="Search chats..." class="w-full bg-neutral-800/60 border border-white/[0.06] text-neutral-200 text-xs rounded-lg pl-7 pr-2.5 py-1.5 focus:border-white/20 focus:outline-none transition-colors placeholder-neutral-500">
+            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-[10px] text-neutral-500"></i>
+        </div>
+
+        <!-- Compact Workspace Project Switcher -->
+        <div class="flex items-center space-x-1 pt-0.5">
+            <div class="relative flex-1">
+                <select id="select-project" class="w-full bg-neutral-800/60 border border-white/[0.06] text-neutral-300 text-[11px] rounded-lg p-1.5 pl-6 appearance-none focus:border-white/20 focus:outline-none transition-colors cursor-pointer truncate">
+                    <option value="">📁 Default Workspace</option>
+                </select>
+                <i class="fa-regular fa-folder text-neutral-500 text-[10px] absolute left-2 top-2 pointer-events-none"></i>
+            </div>
+            <button id="btn-manage-projects" class="p-1.5 bg-neutral-800/60 hover:bg-neutral-800 border border-white/[0.06] text-neutral-400 hover:text-white rounded-lg text-xs transition-colors shrink-0" title="Manage Workspaces">
+                <i class="fa-solid fa-folder-gear text-[11px]"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Conversation History List (Date Grouped) -->
+    <div class="flex-1 overflow-y-auto px-2 py-2 space-y-0.5" id="history-container">
+        <div class="history-section-header">Recent Chats</div>
+        <!-- Populated dynamically via VoltixUI.renderConversationList -->
+    </div>
+
+    <!-- Bottom User / Settings / Docs Footer -->
+    <div class="p-2.5 border-t border-white/[0.08] space-y-1.5 bg-[#171717]">
+        <!-- Knowledge Base Summary Pill -->
+        <div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-neutral-800/40 border border-white/[0.04]">
+            <div id="doc-list-summary" class="text-[11px] text-neutral-400 truncate flex-1">
+                No active documents.
+            </div>
+            <button id="btn-open-upload" class="text-[11px] font-medium text-cyan-400 hover:text-cyan-300 ml-1.5 shrink-0" title="Upload Document">
+                + Upload
+            </button>
+        </div>
+
+        <!-- Settings Button -->
+        <button id="btn-open-settings" class="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs text-neutral-300 hover:bg-white/5 transition-colors">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-gear text-neutral-400 text-xs"></i>
+                <span class="font-medium">Settings</span>
+            </div>
+            <span id="ollama-status-dot" class="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            </span>
+        </button>
+    </div>
+</aside>

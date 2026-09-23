@@ -15,7 +15,7 @@
 6. [Experiment 6: Object Detection using YOLO](#experiment-6-object-detection-using-yolo)
 7. [Experiment 7: Text Summarization using LLM](#experiment-7-text-summarization-using-llm)
 8. [Experiment 8: Grammar Correction and Text Rewriting using LLM](#experiment-8-grammar-correction-and-text-rewriting-using-llm)
-9. [Experiment 9: Domain-Specific Question Answering System using LLM](#experiment-9-domain-specific-question-answering-system-using-llm)
+9. [Experiment 9: Advanced Domain-Specific EEE Question Answering Chatbot Using LLM, RAG and Ollama/API](#experiment-9-advanced-domain-specific-eee-question-answering-chatbot-using-llm-rag-and-ollamaapi)
 
 ---
 
@@ -2051,314 +2051,1420 @@ llm_grammar_correction_project/
 
 ---
 
-## Experiment 9: Domain-Specific Question Answering System using a Large Language Model (LLM)
+## Experiment 9: Advanced Domain-Specific EEE Question Answering Chatbot Using LLM, RAG and Ollama/API
 
 ### Objective
 
-Develop a domain-specific question answering (QA) system using an LLM with retrieval augmentation to answer questions accurately within a specific domain. Implement retrieval mechanisms, evaluate answer quality, and optimize for domain-specific accuracy.
+Develop a **live, advanced domain-specific Question Answering (QA) chatbot for Electrical and Electronics Engineering (EEE)** using a Large Language Model (LLM), Retrieval-Augmented Generation (RAG), vector search, conversational memory, and real-time response streaming.
 
-### Recommended Dataset
+The system should behave like a modern AI assistant similar in interaction style to **ChatGPT/Gemini**, while being specifically optimized for the **EEE domain**.
 
-| Aspect | Details |
-|--------|---------|
-| **Dataset Name** | Domain-specific PDF/Text Corpus (e.g., Medical Documents, Legal Documents, or Technical Manuals) |
-| **Source/URL** | Academic papers, technical documentation, domain repositories, or synthetic QA datasets |
-| **Brief Description** | Collection of domain documents (50-500 documents) with associated Q&A pairs (100-1000 samples) |
-| **Important Features/Attributes** | Document text, question, answer, answer type (factual, explanation, procedure), answer span location |
+The chatbot must be capable of answering questions related to:
 
-### Methodology
+* Electrical Machines
+* Power Systems
+* Power Electronics
+* Control Systems
+* Electrical Measurements
+* Electric Vehicles
+* Renewable Energy Systems
+* Energy Storage Systems
+* Microgrids
+* Smart Grids
+* Electrical Drives
+* Circuit Theory
+* Digital Electronics
+* Analog Electronics
+* Signals and Systems
+* Embedded Systems
+* Engineering Mathematics
+* AI/ML applications in Electrical Engineering
+* Industrial Automation
+* MATLAB/Simulink
+* Electrical standards and technical documentation
 
-1. **Data Collection and Acquisition**
-   - Collect domain-specific documents (PDFs, text files, web pages)
-   - Parse and extract text from documents
-   - Create or source Q&A pairs for evaluation
-   - Verify question-answer-document alignment
-   - Document domain and data characteristics
-   - Organize documents by topic/category
+The system should combine **LLM reasoning + domain knowledge retrieval + conversation context + source citations** to generate accurate and explainable answers.
 
-2. **Data Preprocessing and Document Processing**
-   - Extract text from PDFs using PDF parsing libraries
-   - Clean text: remove headers, footers, metadata
-   - Split large documents into chunks (300-500 tokens typical)
-   - Create overlapping windows for context preservation
-   - Handle encoding and special characters
-   - Create document metadata (source, date, category)
+---
 
-3. **Vector Embedding and Retrieval Setup**
-   - Choose embedding model (BERT, Sentence-Transformers, OpenAI embeddings)
-   - Generate embeddings for document chunks
-   - Store embeddings in vector database (FAISS, Pinecone, Weaviate)
-   - Index embeddings for efficient retrieval
-   - Create retrieval system that returns top-k relevant chunks
+### 1. System Objective
 
-4. **LLM Selection and Configuration**
-   - Select LLM for QA:
-     - Commercial APIs: OpenAI GPT, Claude, Google Vertex AI
-     - Open-source: LLaMA, Mistral (via local or API)
-   - Set up LLM access and configuration
-   - Configure generation parameters (temperature, top-p)
+Build a production-style EEE AI assistant with the following architecture:
 
-5. **Retrieval-Augmented Generation (RAG) Implementation**
-   - For each question:
-     - Embed the question using same model as documents
-     - Retrieve top-k relevant document chunks (k=3-5 typical)
-     - Construct prompt with:
-       - Retrieved context chunks
-       - Original question
-       - Instructions for answering
-     - Feed prompt to LLM
-     - Extract and format answer
-
-6. **Testing and Validation**
-   - Test QA system on held-out test set
-   - Generate answers for all test questions
-   - Evaluate answer quality using multiple metrics
-   - Assess answer relevance and correctness
-   - Analyze failure cases and missing knowledge
-   - Perform retrieval quality analysis
-
-7. **Result Analysis**
-   - Evaluate end-to-end QA performance
-   - Analyze retrieval contribution to final answer
-   - Identify knowledge gaps in document corpus
-   - Compare with baseline approaches
-   - Optimize retrieval and generation parameters
-   - Document system limitations and edge cases
-
-### Model/Algorithm Workflow
-
-```
-┌────────────────────────────────────────────────────────────────────┐
-│         DOMAIN-SPECIFIC QA SYSTEM (RAG) WORKFLOW                    │
-├────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  INDEXING PHASE (One-time Setup)                                   │
-│  ─────────────────────────────────────────                         │
-│  Domain Documents (PDFs, Texts, etc.)                              │
-│      ↓                                                              │
-│  Document Parsing & Text Extraction                                │
-│      ↓                                                              │
-│  Chunking (500-token windows with overlap)                         │
-│      ↓                                                              │
-│  Vector Embedding (BERT / Sentence-Transformers)                   │
-│      ↓                                                              │
-│  Store in Vector Database (FAISS / Pinecone / Weaviate)           │
-│                                                                     │
-│  ─────────────────────────────────────────                         │
-│  QUERY & QA PHASE (Per Question)                                   │
-│  ─────────────────────────────────────────                         │
-│  User Question                                                      │
-│      ↓                                                              │
-│  Embed Question (Same model as documents)                          │
-│      ↓                                                              │
-│  ┌──────────────────────────────────────────────────────────────┐ │
-│  │  RETRIEVAL PHASE                                              │ │
-│  │  ├─ Semantic similarity search in vector DB                  │ │
-│  │  └─ Retrieve top-k relevant document chunks (k=3-5)          │ │
-│  └──────────────────────────────────────────────────────────────┘ │
-│      ↓                                                              │
-│  Construct RAG Prompt:                                             │
-│  ├─ System instruction for QA                                      │
-│  ├─ Retrieved document context chunks                              │
-│  └─ User question                                                  │
-│      ↓                                                              │
-│  ┌──────────────────────────────────────────────────────────────┐ │
-│  │  LLM GENERATION PHASE                                         │ │
-│  │  ├─ Understand question and context                           │ │
-│  │  ├─ Extract relevant information from context                 │ │
-│  │  ├─ Generate coherent answer                                  │ │
-│  │  └─ Auto-regressive token generation                          │ │
-│  └──────────────────────────────────────────────────────────────┘ │
-│      ↓                                                              │
-│  Generated Answer                                                   │
-│      ↓                                                              │
-│  Post-processing (Format, citation extraction)                     │
-│      ↓                                                              │
-│  Output: Answer, Source references, Confidence score              │
-│                                                                     │
-└────────────────────────────────────────────────────────────────────┘
+```text
+                    ┌─────────────────────────────┐
+                    │       USER / STUDENT        │
+                    │                             │
+                    │  Natural Language Question  │
+                    └──────────────┬──────────────┘
+                                   │
+                                   ▼
+                    ┌─────────────────────────────┐
+                    │       CHAT INTERFACE        │
+                    │                             │
+                    │  ChatGPT/Gemini-like UI    │
+                    │  • Streaming responses      │
+                    │  • Markdown                 │
+                    │  • Code blocks              │
+                    │  • Tables                   │
+                    │  • Math equations           │
+                    │  • Source citations         │
+                    └──────────────┬──────────────┘
+                                   │
+                                   ▼
+                    ┌─────────────────────────────┐
+                    │       CHAT ORCHESTRATOR     │
+                    │                             │
+                    │ Intent Detection            │
+                    │ Query Classification        │
+                    │ Conversation Memory         │
+                    │ RAG Decision                │
+                    └──────────────┬──────────────┘
+                                   │
+                 ┌─────────────────┼─────────────────┐
+                 │                 │                 │
+                 ▼                 ▼                 ▼
+        ┌────────────────┐ ┌───────────────┐ ┌────────────────┐
+        │ Conversation   │ │ EEE RAG       │ │ Tool / API     │
+        │ Memory         │ │ Pipeline      │ │ Layer          │
+        │                │ │               │ │                │
+        │ Short-term     │ │ Embeddings    │ │ Calculator     │
+        │ Long-term      │ │ Vector DB     │ │ Web Search     │
+        │ Chat history   │ │ Retrieval     │ │ MATLAB         │
+        └────────────────┘ └───────┬───────┘ │ APIs           │
+                                   │         └───────┬────────┘
+                                   │                 │
+                                   └────────┬────────┘
+                                            ▼
+                              ┌─────────────────────────┐
+                              │       LLM ENGINE        │
+                              │                         │
+                              │ Ollama Local LLM        │
+                              │ OR                      │
+                              │ Cloud LLM API           │
+                              │                         │
+                              │ Qwen / Llama / Mistral  │
+                              │ GPT / Gemini / Claude   │
+                              └────────────┬────────────┘
+                                           │
+                                           ▼
+                              ┌─────────────────────────┐
+                              │   RESPONSE PROCESSOR    │
+                              │                         │
+                              │ • Answer validation     │
+                              │ • Citation generation   │
+                              │ • Formatting            │
+                              │ • Confidence estimation│
+                              └────────────┬────────────┘
+                                           │
+                                           ▼
+                              ┌─────────────────────────┐
+                              │       FINAL ANSWER      │
+                              │                         │
+                              │ Answer + Sources        │
+                              │ Equations + Diagrams    │
+                              │ Follow-up suggestions   │
+                              └─────────────────────────┘
 ```
 
-### Tools and Libraries
+---
 
-- **Python 3.8+**
-- **LangChain**: RAG orchestration and chain management
-- **HuggingFace Transformers**: Embeddings and LLMs
-- **Sentence-Transformers**: High-quality sentence embeddings
-- **FAISS**: Vector database for similarity search
-- **Pinecone / Weaviate**: Managed vector databases (alternative)
-- **PyPDF2 / pdfplumber**: PDF parsing
-- **OpenAI API / Anthropic API**: Commercial LLM access
-- **Pandas**: Data handling
-- **Matplotlib**: Visualization
-- **NLTK / Spacy**: Text processing utilities
+### 2. Core System Requirements
 
-### Sample Project Structure
+The chatbot should not be a simple question-answering script.
 
+It should provide a **real-time conversational AI experience** with:
+
+#### Required Features
+
+* Real-time chat
+* Streaming token-by-token responses
+* Multi-turn conversation
+* Conversation history
+* Context-aware follow-up questions
+* EEE-domain RAG
+* Semantic document search
+* Source citations
+* PDF/document ingestion
+* Mathematical equation support
+* Code generation
+* MATLAB/Simulink assistance
+* Engineering calculations
+* Technical explanations
+* Exam-oriented answers
+* Conceptual explanations
+* Problem-solving
+* Numerical analysis
+* Comparison tables
+* Structured responses
+* Conversation memory
+* Model selection
+* Local LLM support through Ollama
+* Cloud API support
+* Fallback between models
+* Hallucination reduction
+* Retrieval confidence
+* Error handling
+
+---
+
+### 3. LLM Architecture
+
+The system must support **two inference modes**.
+
+#### Mode A — Local LLM using Ollama
+
+Use Ollama as the local inference server.
+
+```text
+Frontend
+   ↓
+Backend API
+   ↓
+Ollama API
+   ↓
+Local LLM
 ```
-domain_specific_qa_system_project/
+
+Possible models:
+
+```text
+Qwen
+Llama
+Mistral
+Gemma
+DeepSeek
+Qwen-Coder
+```
+
+The implementation must allow the model to be changed through configuration rather than hard-coded.
+
+Example:
+
+```text
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=<selected-model>
+```
+
+---
+
+### 4. Mode B — Cloud/API LLM
+
+The architecture must also support API-based models.
+
+```text
+Frontend
+      ↓
+Backend
+      ↓
+LLM Provider Abstraction Layer
+      ↓
+┌────────────┬─────────────┬─────────────┐
+│ OpenAI API │ Gemini API  │ Other APIs  │
+└────────────┴─────────────┴─────────────┘
+```
+
+The application should use a common interface:
+
+```python
+generate_response(
+    messages,
+    model,
+    temperature,
+    stream=True
+)
+```
+
+This allows the LLM provider to be changed without modifying the entire application.
+
+---
+
+### 5. EEE Domain Knowledge Base
+
+Create a domain-specific knowledge base containing:
+
+#### Core EEE textbooks
+
+Examples:
+
+* Electrical Machines
+* Power Systems
+* Power Electronics
+* Control Systems
+* Electrical Measurements
+* Network Theory
+* Signals and Systems
+* Electrical Drives
+* Power System Protection
+* High Voltage Engineering
+* Renewable Energy
+* Electric Vehicle Technology
+* Energy Storage Systems
+
+#### Technical Documents
+
+Include:
+
+* Lecture notes
+* Laboratory manuals
+* Technical manuals
+* Research papers
+* Datasheets
+* IEEE papers where legally available
+* Manufacturer documentation
+* MATLAB documentation
+* Simulink documentation
+* Course notes
+* Standards/documentation where permitted
+
+---
+
+### 6. Document Processing Pipeline
+
+```text
+PDF / DOCX / TXT / HTML
+          ↓
+Document Loader
+          ↓
+Text Extraction
+          ↓
+Cleaning
+          ↓
+Metadata Extraction
+          ↓
+Semantic Chunking
+          ↓
+Chunk Validation
+          ↓
+Embedding Generation
+          ↓
+Vector Database
+```
+
+Each chunk should contain metadata such as:
+
+```json
+{
+  "document_id": "power_systems_001",
+  "title": "Power System Analysis",
+  "subject": "Power Systems",
+  "topic": "Load Flow Analysis",
+  "chapter": "Newton Raphson Method",
+  "page": 142,
+  "source": "Power_System_Analysis.pdf",
+  "chunk_id": "ps_001_142_04"
+}
+```
+
+---
+
+### 7. Advanced Chunking
+
+Do not rely only on fixed 500-token chunks.
+
+Implement configurable chunking:
+
+```text
+Fixed-size chunking
+        +
+Sentence-aware chunking
+        +
+Paragraph-aware chunking
+        +
+Heading-aware chunking
+        +
+Overlap
+```
+
+Recommended starting configuration:
+
+```text
+Chunk size: 400–700 tokens
+Overlap: 50–100 tokens
+Top-K retrieval: 5
+```
+
+The system should allow these values to be changed through configuration.
+
+---
+
+### 8. Embedding Model
+
+Use a dedicated embedding model rather than using the LLM itself.
+
+Possible choices:
+
+```text
+Sentence-Transformers
+BGE
+E5
+Nomic embeddings
+Other compatible embedding models
+```
+
+Example architecture:
+
+```text
+EEE Document
+     ↓
+Embedding Model
+     ↓
+Dense Vector
+     ↓
+Vector Database
+```
+
+The same embedding model must be used for:
+
+```text
+Document embeddings
+        +
+Query embeddings
+```
+
+---
+
+### 9. Vector Database
+
+Support a local vector database for experimentation.
+
+Recommended:
+
+```text
+FAISS
+```
+
+Optional:
+
+```text
+Chroma
+Qdrant
+Weaviate
+Pinecone
+```
+
+For the laboratory experiment, the default implementation should use:
+
+```text
+FAISS + persistent metadata
+```
+
+---
+
+### 10. Query Processing
+
+When the user submits:
+
+> "Explain the working principle of an induction motor."
+
+The system should process the query as follows:
+
+```text
+User Query
+    ↓
+Query Analyzer
+    ↓
+Intent Detection
+    ↓
+Domain Detection
+    ↓
+Query Embedding
+    ↓
+Vector Search
+    ↓
+Top-K Relevant Chunks
+    ↓
+Context Re-ranking
+    ↓
+RAG Prompt
+    ↓
+LLM
+    ↓
+Answer
+```
+
+---
+
+### 11. Query Intent Classification
+
+The chatbot should identify different types of engineering questions.
+
+Example:
+
+| Intent          | Example                                                    |
+| --------------- | ---------------------------------------------------------- |
+| Conceptual      | What is slip in an induction motor?                        |
+| Definition      | Define power factor.                                       |
+| Numerical       | Calculate the efficiency of a transformer.                 |
+| Derivation      | Derive the EMF equation of a transformer.                  |
+| Comparison      | Compare synchronous and induction motors.                  |
+| Procedure       | Explain how to perform load-flow analysis.                 |
+| Troubleshooting | Why is my inverter output distorted?                       |
+| Programming     | Write MATLAB code for PID control.                         |
+| Simulation      | How do I model an SRM in Simulink?                         |
+| Design          | Design a buck converter for 24 V to 12 V.                  |
+| Exam            | Give a 10-mark answer on synchronous machines.             |
+| Research        | Explain recent developments in battery management systems. |
+
+---
+
+### 12. Intelligent RAG Decision
+
+The chatbot should **not blindly perform retrieval for every message**.
+
+Implement a routing mechanism:
+
+```text
+User Query
+     ↓
+Query Router
+     │
+     ├── Casual conversation
+     │        ↓
+     │      Direct LLM
+     │
+     ├── General EEE concept
+     │        ↓
+     │      RAG + LLM
+     │
+     ├── Document-specific question
+     │        ↓
+     │      RAG
+     │
+     ├── Numerical problem
+     │        ↓
+     │      Calculator/Reasoning + LLM
+     │
+     ├── MATLAB question
+     │        ↓
+     │      Code-oriented LLM
+     │
+     └── Current information
+              ↓
+          Web/API retrieval
+```
+
+This makes the system more similar to modern AI assistants.
+
+---
+
+### 13. RAG Prompt Construction
+
+The system prompt should instruct the LLM to:
+
+1. Answer using retrieved EEE context when relevant.
+2. Do not invent technical facts.
+3. Clearly distinguish retrieved information from reasoning.
+4. Cite the source document.
+5. State when information is unavailable.
+6. Show equations correctly.
+7. Explain calculations step-by-step.
+8. Use SI units.
+9. Define technical abbreviations.
+10. Adapt explanations to the user's requested level.
+
+Example:
+
+```text
+You are an advanced Electrical and Electronics Engineering AI assistant.
+
+Use the retrieved context as the primary source when answering
+domain-specific questions.
+
+Rules:
+
+- Do not fabricate technical information.
+- If the retrieved context does not contain sufficient information,
+  clearly state that additional information is required.
+- Provide technically accurate explanations.
+- Use SI units.
+- Show equations using LaTeX.
+- For numerical problems, show:
+  Given → Formula → Substitution → Calculation → Answer.
+- For comparisons, use tables when useful.
+- Cite retrieved sources.
+- Preserve the context of previous conversation turns.
+- If the user asks for an exam answer, structure it appropriately.
+- If the user asks for code, provide executable code with explanation.
+```
+
+---
+
+### 14. Conversation Memory
+
+The chatbot must support multi-turn conversations.
+
+Example:
+
+**User:**
+
+> Explain induction motor slip.
+
+**AI:**
+
+> Slip is the difference between synchronous speed and rotor speed...
+
+**User:**
+
+> What happens if it increases?
+
+The system should understand that **"it" refers to slip**.
+
+Architecture:
+
+```text
+Current Query
+      +
+Conversation History
+      +
+Relevant Retrieved Context
+      ↓
+Context Manager
+      ↓
+LLM
+```
+
+Implement:
+
+#### Short-Term Memory
+
+Current conversation/session.
+
+#### Long-Term Memory
+
+Optional persistent storage for:
+
+* User preferences
+* Frequently discussed subjects
+* Learning level
+* Previous topics
+
+The system must provide controls for clearing or disabling persistent memory.
+
+---
+
+### 15. ChatGPT/Gemini-Like User Interface
+
+Develop a modern responsive interface.
+
+#### Interface Components
+
+```text
+┌──────────────────────────────────────────────────────────┐
+│ EEE AI ASSISTANT                              Model ▼    │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│ User: Explain the working of an SRM.                    │
+│                                                          │
+│ AI:                                                      │
+│     An SRM operates based on the tendency of the rotor   │
+│     to move toward the position of minimum reluctance... │
+│                                                          │
+│     Equation:                                            │
+│     T = 1/2 i² dL/dθ                                    │
+│                                                          │
+│     Sources:                                             │
+│     📄 Electrical Drives — Chapter 6                     │
+│                                                          │
+├──────────────────────────────────────────────────────────┤
+│ Ask anything about Electrical Engineering...      ➤     │
+└──────────────────────────────────────────────────────────┘
+```
+
+Required UI features:
+
+* Markdown rendering
+* LaTeX equation rendering
+* Syntax-highlighted code
+* Copy answer
+* Copy code
+* Regenerate response
+* Stop generation
+* Edit user message
+* Conversation history
+* New conversation
+* Delete conversation
+* Source references
+* File upload
+* Model selection
+* Settings
+* Dark/light mode
+* Streaming response
+* Loading indicator
+
+---
+
+### 16. File Upload and Personal RAG
+
+Allow users to upload:
+
+```text
+PDF
+DOCX
+TXT
+CSV
+PPTX
+```
+
+Example:
+
+> User uploads "Power Electronics Unit 3.pdf"
+
+The system should automatically:
+
+```text
+Upload
+ ↓
+Parse
+ ↓
+Chunk
+ ↓
+Embed
+ ↓
+Index
+ ↓
+Associate with conversation
+```
+
+Then:
+
+> "Explain the PWM techniques from the PDF I uploaded."
+
+The chatbot should answer using the uploaded document.
+
+---
+
+### 17. Engineering Calculation Capability
+
+The chatbot should support engineering calculations.
+
+Example:
+
+> A 10 kVA transformer has 95% efficiency at full load. Calculate losses if output power is 8 kW.
+
+The system should produce:
+
+```text
+Given:
+Output power = 8 kW
+Efficiency = 95%
+
+η = Output / Input
+
+Input = 8 / 0.95
+      = 8.421 kW
+
+Losses = Input - Output
+       = 0.421 kW
+
+Therefore:
+Losses ≈ 421 W
+```
+
+For reliable numerical computation, use a calculator/Python tool where appropriate instead of relying solely on LLM arithmetic.
+
+---
+
+### 18. MATLAB/Simulink Assistance
+
+The chatbot should support:
+
+```text
+MATLAB
+Simulink
+Stateflow
+Python
+C/C++
+Arduino
+ESP32
+```
+
+Example:
+
+> Write MATLAB code to plot the torque-speed characteristics of an induction motor.
+
+The chatbot should provide:
+
+```matlab
+% MATLAB implementation
+...
+```
+
+with an explanation of:
+
+* Inputs
+* Equations
+* Algorithm
+* Expected output
+* Modification options
+
+---
+
+### 19. Advanced EEE Domain Agents
+
+For an advanced implementation, introduce specialized agents.
+
+```text
+                    EEE AI ORCHESTRATOR
+                           │
+       ┌───────────────────┼───────────────────┐
+       │                   │                   │
+       ▼                   ▼                   ▼
+ Power Systems Agent   Machines Agent    Power Electronics
+       │                   │                   │
+       └───────────────────┼───────────────────┘
+                           │
+             ┌─────────────┼─────────────┐
+             ▼             ▼             ▼
+          EV Agent    Renewable Agent   Control Agent
+             │             │             │
+             └─────────────┼─────────────┘
+                           ▼
+                    General EEE Agent
+```
+
+Each agent may use:
+
+* Specialized prompts
+* Domain-specific retrieval
+* Dedicated tools
+* Domain-specific documents
+
+---
+
+### 20. Backend Architecture
+
+Recommended backend:
+
+```text
+Python
+FastAPI
+LangChain or equivalent orchestration layer
+FAISS
+Sentence-Transformers
+Ollama
+Pydantic
+WebSocket/SSE
+```
+
+Architecture:
+
+```text
+                 ┌───────────────┐
+                 │   Next.js UI  │
+                 └───────┬───────┘
+                         │
+                   HTTP / WebSocket
+                         │
+                         ▼
+                 ┌───────────────┐
+                 │    FastAPI    │
+                 └───────┬───────┘
+                         │
+                ┌────────┴────────┐
+                │                 │
+                ▼                 ▼
+        ┌──────────────┐   ┌──────────────┐
+        │ RAG Engine   │   │ LLM Router   │
+        └──────┬───────┘   └──────┬───────┘
+               │                  │
+               ▼                  ▼
+        ┌──────────────┐   ┌──────────────┐
+        │ FAISS        │   │ Ollama/API   │
+        │ Vector DB    │   │ LLM          │
+        └──────────────┘   └──────────────┘
+```
+
+---
+
+### 21. API Endpoints
+
+Implement APIs such as:
+
+```text
+POST /api/chat
+POST /api/chat/stream
+POST /api/documents/upload
+POST /api/documents/index
+GET  /api/documents
+DELETE /api/documents/{id}
+
+GET  /api/conversations
+POST /api/conversations
+GET  /api/conversations/{id}
+DELETE /api/conversations/{id}
+
+GET  /api/models
+POST /api/models/select
+
+POST /api/search
+POST /api/evaluate
+GET  /api/health
+```
+
+---
+
+### 22. Streaming Response
+
+The chatbot must support real-time generation.
+
+```text
+User Query
+    ↓
+FastAPI
+    ↓
+Ollama / LLM API
+    ↓
+Token 1 ─┐
+Token 2  │
+Token 3  │
+Token 4  ├──→ WebSocket/SSE
+Token 5  │
+...      │
+         ↓
+Frontend progressively renders response
+```
+
+This creates a live conversational experience rather than waiting for the entire response.
+
+---
+
+### 23. Suggested Project Structure
+
+```text
+eee-ai-chatbot/
+│
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   │   ├── ChatWindow/
+│   │   ├── MessageBubble/
+│   │   ├── SourceCitation/
+│   │   ├── FileUpload/
+│   │   └── ModelSelector/
+│   ├── lib/
+│   └── styles/
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── config.py
+│   │   │
+│   │   ├── api/
+│   │   │   ├── chat.py
+│   │   │   ├── documents.py
+│   │   │   ├── conversations.py
+│   │   │   └── models.py
+│   │   │
+│   │   ├── rag/
+│   │   │   ├── loader.py
+│   │   │   ├── parser.py
+│   │   │   ├── chunker.py
+│   │   │   ├── embeddings.py
+│   │   │   ├── vector_store.py
+│   │   │   ├── retriever.py
+│   │   │   └── reranker.py
+│   │   │
+│   │   ├── llm/
+│   │   │   ├── ollama.py
+│   │   │   ├── openai.py
+│   │   │   ├── gemini.py
+│   │   │   └── router.py
+│   │   │
+│   │   ├── agents/
+│   │   │   ├── orchestrator.py
+│   │   │   ├── machines_agent.py
+│   │   │   ├── power_systems_agent.py
+│   │   │   ├── power_electronics_agent.py
+│   │   │   ├── ev_agent.py
+│   │   │   └── control_agent.py
+│   │   │
+│   │   ├── memory/
+│   │   │   ├── conversation.py
+│   │   │   └── persistent.py
+│   │   │
+│   │   ├── tools/
+│   │   │   ├── calculator.py
+│   │   │   ├── python_tool.py
+│   │   │   └── engineering_tools.py
+│   │   │
+│   │   └── evaluation/
+│   │       ├── evaluator.py
+│   │       ├── retrieval_metrics.py
+│   │       └── answer_metrics.py
+│
 ├── data/
 │   ├── documents/
-│   │   ├── raw/
-│   │   │   ├── doc1.pdf
-│   │   │   ├── doc2.pdf
-│   │   │   └── ...
-│   │   └── processed/
-│   │       ├── extracted_text/
-│   │       └── chunks/
-│   ├── qa_pairs/
-│   │   ├── train_qa.json
-│   │   ├── test_qa.json
-│   │   └── validation_qa.json
-│   └── embeddings/
-│       └── document_embeddings.pkl
-├── notebooks/
-│   ├── document_processing.ipynb
-│   ├── rag_system_setup.ipynb
-│   └── qa_evaluation.ipynb
-├── src/
-│   ├── document_processor.py
-│   ├── text_chunker.py
-│   ├── embedding_generator.py
-│   ├── retriever.py
-│   ├── qa_system.py
-│   ├── evaluator.py
-│   └── visualization.py
+│   ├── processed/
+│   ├── embeddings/
+│   └── qa_dataset/
+│
 ├── vector_db/
-│   ├── faiss_index.index
-│   └── chunk_metadata.json
-├── models/
-│   ├── embeddings_model.pkl
-│   └── prompts/
-│       ├── qa_system_prompt.txt
-│       └── context_formatter.txt
-├── results/
-│   ├── qa_predictions.json
-│   ├── evaluation_metrics.csv
-│   ├── retrieval_analysis.txt
-│   ├── case_studies.txt
-│   ├── performance_plots/
-│   │   ├── accuracy_by_category.png
-│   │   └── retrieval_quality.png
-│   └── final_report.txt
+│   ├── faiss.index
+│   └── metadata.json
+│
+├── evaluation/
+│   ├── test_questions.json
+│   ├── predictions.json
+│   └── metrics.csv
+│
+├── notebooks/
+│   ├── data_preparation.ipynb
+│   ├── embedding_generation.ipynb
+│   ├── rag_testing.ipynb
+│   └── evaluation.ipynb
+│
 ├── config/
-│   └── qa_config.json
+│   └── config.yaml
+│
+├── requirements.txt
+├── .env.example
+├── docker-compose.yml
 └── README.md
 ```
 
-### Implementation Guidelines
+---
 
-**Key Modules/Files to Create:**
+### 24. Evaluation Dataset
 
-1. **DocumentProcessorModule**: Extract text from PDFs and documents
-2. **TextChunkerModule**: Split documents into overlapping chunks
-3. **EmbeddingGeneratorModule**: Create vector embeddings for chunks
-4. **RetrieverModule**: Implement semantic search in vector database
-5. **QASystemModule**: Orchestrate RAG pipeline
-6. **EvaluatorModule**: Calculate QA evaluation metrics
-7. **VisualizationModule**: Plot results and analysis
+Create an EEE QA benchmark containing questions from different categories.
 
-**Important Functions/Classes (Conceptual):**
+Example:
 
-- `load_documents()`: Load PDFs and text files from directory
-- `extract_text_from_pdf()`: Parse PDF and extract text
-- `chunk_documents()`: Split into overlapping windows
-- `generate_embeddings()`: Create vector representations
-- `index_embeddings()`: Store in vector database
-- `retrieve_context()`: Semantic search for relevant chunks
-- `create_rag_prompt()`: Format prompt with context
-- `generate_answer()`: Call LLM with RAG prompt
-- `extract_answer_text()`: Parse LLM response
-- `evaluate_answer()`: Calculate quality metrics
-- `calculate_retrieval_metrics()`: Evaluate relevance of retrieved chunks
-- `compare_with_baseline()`: Benchmark against simple approaches
-- `visualize_retrieval_quality()`: Plot retrieval performance
+```text
+Electrical Machines       50 questions
+Power Systems             50 questions
+Power Electronics         50 questions
+Control Systems            50 questions
+EV Technology              50 questions
+Renewable Energy           50 questions
+Energy Storage             50 questions
+Circuit Theory             50 questions
+```
 
-**Configuration Requirements:**
+Total:
 
-- Document chunk size (typically 300-500 tokens)
-- Chunk overlap (typically 50-100 tokens)
-- Number of retrieved chunks k (typically 3-5)
-- Embedding model name
-- LLM model and API configuration
-- Temperature and max tokens for generation
-- Vector database type and parameters
+```text
+400+ EEE questions
+```
 
-**Reproducibility Considerations:**
+Each question should contain:
 
-- Set random seeds for all libraries
-- Document chunk creation methodology
-- Save embedding model and vector database
-- Version control for document corpus
-- Log all QA system predictions
-- Record retrieval results with scores
+```json
+{
+  "id": "EEE_001",
+  "domain": "Electrical Machines",
+  "topic": "Induction Motor",
+  "question": "What is slip in an induction motor?",
+  "reference_answer": "...",
+  "difficulty": "medium",
+  "answer_type": "conceptual"
+}
+```
 
-### Input and Output Specifications
+---
 
-| Aspect | Description |
-|--------|-------------|
-| **Input (Setup)** | Domain documents (PDFs, texts); minimum 20-50 documents for meaningful QA system |
-| **Input (Query)** | Natural language question within domain |
-| **Processing** | Document chunking, embedding generation, semantic retrieval, RAG prompt construction |
-| **Output** | Answer text, source document references, confidence score, retrieved chunks used |
+### 25. Evaluation Metrics
 
-### Evaluation Methodology
+Evaluate both **retrieval** and **generation**.
 
-**Domain-Specific QA Evaluation Metrics:**
+#### Retrieval Metrics
 
-| Metric | Purpose | Interpretation |
-|--------|---------|-----------------|
-| **Exact Match (EM)** | Perfect answer | Percentage of answers exactly matching reference |
-| **BLEU Score** | N-gram overlap | Quality of generated text vs. reference |
-| **ROUGE Score** | Recall-oriented metric | Overlap of words/phrases between generated and reference |
-| **Semantic Similarity (BERTScore)** | Embedding-based similarity | Semantic alignment between answer and reference |
-| **Retrieval Precision@k** | Relevance of retrieved chunks | Fraction of top-k chunks relevant to question |
-| **Retrieval Recall** | Coverage of relevant chunks | Fraction of all relevant chunks in top-k results |
-| **Answer Relevance** | Correctness to question | Manual assessment of answer relevance and correctness |
+```text
+Recall@K
+Precision@K
+MRR
+Hit Rate
+Context Relevance
+Answer-Span Retrieval Rate
+```
 
-**Assessment Procedure:**
+#### Answer Metrics
 
-1. Generate answers for all test questions using RAG system
-2. Calculate exact match accuracy against reference answers
-3. Compute BLEU and ROUGE scores
-4. Calculate BERTScore for semantic evaluation
-5. Evaluate retrieval quality:
-   - Check if retrieved chunks are relevant
-   - Verify if ground truth answer span is in retrieved chunks
-6. Perform manual quality assessment on sample answers
-7. Analyze errors and failure patterns
-8. Benchmark against baseline (no retrieval, direct LLM)
+```text
+Exact Match
+BLEU
+ROUGE-L
+BERTScore
+Semantic Similarity
+Answer Relevance
+Faithfulness / Groundedness
+Citation Accuracy
+```
 
-### Expected Outcomes
+#### System Metrics
 
-1. **Domain-Specific QA Results:**
-   - Exact match accuracy typically 60-85% (domain and complexity dependent)
-   - ROUGE-L typically 0.70-0.85
-   - BERTScore typically 0.88-0.95
-   - Retrieval precision@5 typically 70-90%
+Also measure:
 
-2. **Retrieval Effectiveness:**
-   - Top-5 retrieved chunks contain answer in 80-95% of cases
-   - Semantic search effectively identifies relevant documents
-   - Overlapping chunks provide good context preservation
-   - Retrieval significantly improves over LLM-only baseline
+```text
+Response latency
+Time to first token
+Tokens/second
+Memory consumption
+CPU/GPU utilization
+Retrieval latency
+LLM generation latency
+```
 
-3. **RAG System Advantages:**
-   - Answers grounded in actual domain documents
-   - Reduced hallucination compared to LLM-only
-   - References to source documents enable verification
-   - Scalable to large document collections
+---
 
-4. **Deliverables:**
-   - Processed and indexed document corpus
-   - QA system implementation with RAG pipeline
-   - Predictions and metrics on test set
-   - Retrieval quality analysis
-   - Error analysis and failure cases
-   - Comparison with baseline approaches
-   - Optimization recommendations
-   - Comprehensive QA system documentation
-   - Sample QA interactions with explanations
+### 26. Baseline Comparison
+
+Compare three configurations:
+
+#### Baseline 1 — LLM Only
+
+```text
+Question → LLM → Answer
+```
+
+#### Baseline 2 — RAG
+
+```text
+Question
+   ↓
+Retriever
+   ↓
+Context
+   ↓
+LLM
+   ↓
+Answer
+```
+
+#### Proposed System
+
+```text
+Question
+   ↓
+Intent Router
+   ↓
+Memory
+   ↓
+RAG
+   ↓
+Tools
+   ↓
+Specialized Agent
+   ↓
+LLM
+   ↓
+Validation
+   ↓
+Citations
+   ↓
+Answer
+```
+
+The evaluation should report measured differences rather than assuming that one architecture will always perform better.
+
+---
+
+### 27. Example Chatbot Interactions
+
+#### Example 1 — Conceptual
+
+**User:**
+
+> Explain the working principle of an induction motor.
+
+**AI:**
+
+```text
+An induction motor operates on the principle of electromagnetic
+induction.
+
+1. Three-phase AC is supplied to the stator.
+2. A rotating magnetic field is produced.
+3. The rotating field cuts the rotor conductors.
+4. EMF is induced in the rotor.
+5. Rotor current produces electromagnetic torque.
+6. The rotor rotates in the direction of the rotating magnetic field.
+
+Synchronous speed:
+
+Ns = 120f / P
+
+where:
+f = supply frequency
+P = number of poles
+
+Source:
+📄 Electrical Machines → Induction Motors → Working Principle
+```
+
+---
+
+#### Example 2 — Follow-up Question
+
+**User:**
+
+> Why can't the rotor reach synchronous speed?
+
+The system must understand the previous context and answer accordingly.
+
+---
+
+#### Example 3 — Numerical
+
+**User:**
+
+> A 4-pole induction motor operates at 50 Hz and runs at 1440 rpm. Find the slip.
+
+The chatbot should calculate:
+
+```text
+Ns = 120 × 50 / 4
+   = 1500 rpm
+
+s = (Ns - Nr) / Ns
+
+s = (1500 - 1440) / 1500
+  = 0.04
+
+Slip = 4%
+```
+
+---
+
+#### Example 4 — MATLAB
+
+**User:**
+
+> Give MATLAB code to plot the torque-speed curve of an induction motor.
+
+The chatbot should return properly formatted MATLAB code with an explanation.
+
+---
+
+### 28. Safety and Technical Reliability
+
+The chatbot must clearly distinguish:
+
+```text
+Retrieved Fact
+     ↓
+LLM Explanation
+     ↓
+Engineering Calculation
+     ↓
+Model Inference
+```
+
+For uncertain questions:
+
+```text
+"I don't have sufficient information in the indexed
+EEE knowledge base to verify this answer."
+```
+
+The chatbot should **not fabricate citations, equations, standards, experimental results, or component specifications**.
+
+For safety-critical electrical work, the chatbot should encourage verification against applicable standards, manufacturer documentation, and qualified engineering practice.
+
+---
+
+### 29. Advanced Features
+
+For the advanced version, implement:
+
+#### Multimodal EEE Assistant
+
+Support:
+
+```text
+PDF
+Images
+Circuit diagrams
+Oscilloscope screenshots
+Simulink diagrams
+Graphs
+Datasheets
+```
+
+Example:
+
+> Upload a circuit diagram → "Explain why this circuit is not working."
+
+---
+
+#### Diagram Understanding
+
+The system should eventually support:
+
+```text
+Circuit → Vision Model → Component Recognition → Analysis → LLM
+```
+
+---
+
+#### Voice Interface
+
+Optional:
+
+```text
+Speech → STT → EEE RAG → LLM → TTS → Speech
+```
+
+---
+
+### 30. Configuration
+
+Use a centralized configuration file:
+
+```yaml
+llm:
+  provider: ollama
+  model: selected_model
+  temperature: 0.2
+  max_tokens: 2048
+  streaming: true
+
+embedding:
+  model: selected_embedding_model
+
+retrieval:
+  vector_store: faiss
+  top_k: 5
+  chunk_size: 500
+  chunk_overlap: 75
+
+memory:
+  enabled: true
+  max_history: 20
+
+rag:
+  enabled: true
+  reranking: true
+  citations: true
+```
+
+Do **not** hard-code API keys.
+
+Use:
+
+```text
+.env
+```
+
+for secrets.
+
+---
+
+### 31. Google Colab Development Workflow
+
+Use Google Colab primarily for:
+
+```text
+Dataset preparation
+        ↓
+Document processing
+        ↓
+Chunking experiments
+        ↓
+Embedding generation
+        ↓
+FAISS indexing
+        ↓
+RAG experimentation
+        ↓
+Evaluation
+        ↓
+Model benchmarking
+```
+
+The live chatbot itself can run locally or on a server:
+
+```text
+Browser
+   ↓
+Frontend
+   ↓
+FastAPI
+   ↓
+Ollama
+   ↓
+Local LLM
+```
+
+---
+
+### 32. Expected Final System
+
+The final application should function as:
+
+> **"An intelligent EEE engineering assistant capable of understanding natural-language questions, maintaining conversation context, retrieving relevant technical knowledge, reasoning over engineering problems, generating explanations and code, citing sources, and responding in real time through a ChatGPT/Gemini-style interface."**
+
+The final system should demonstrate:
+
+* **Domain specialization**
+* **RAG**
+* **LLM integration**
+* **Ollama local inference**
+* **API-based LLM support**
+* **Vector search**
+* **Conversation memory**
+* **Streaming**
+* **Source citations**
+* **Engineering calculations**
+* **Code generation**
+* **EEE-specific reasoning**
+* **Document upload**
+* **Evaluation**
+* **Performance monitoring**
+
+---
+
+### 33. Deliverables
+
+The experiment should produce:
+
+1. **Working EEE AI chatbot**
+2. **ChatGPT/Gemini-style web interface**
+3. **Ollama integration**
+4. **Optional cloud LLM API integration**
+5. **EEE document knowledge base**
+6. **FAISS vector database**
+7. **Embedding pipeline**
+8. **RAG pipeline**
+9. **Conversation-memory system**
+10. **Streaming response system**
+11. **Source citation system**
+12. **EEE QA evaluation dataset**
+13. **Evaluation results**
+14. **Retrieval performance analysis**
+15. **LLM response-quality analysis**
+16. **Baseline comparison**
+17. **Latency/performance analysis**
+18. **Error and hallucination analysis**
+19. **Complete source code**
+20. **README and technical documentation**
+21. **Demonstration of live conversations**
+22. **Final experiment report**
+
+---
+
+### Recommended Technology Stack
+
+| Layer                   | Technology                                       |
+| ----------------------- | ------------------------------------------------ |
+| Frontend                | **Next.js / React**                              |
+| UI                      | **Tailwind CSS**                                 |
+| Backend                 | **FastAPI**                                      |
+| LLM Runtime             | **Ollama**                                       |
+| Local LLM               | **Qwen / Llama / Mistral / compatible model**    |
+| Cloud LLM               | **OpenAI / Gemini / other API**                  |
+| RAG                     | **LangChain or lightweight custom RAG**          |
+| Embeddings              | **Sentence-Transformers / BGE / E5**             |
+| Vector DB               | **FAISS**                                        |
+| PDF Processing          | **PyMuPDF / pdfplumber**                         |
+| Database                | **PostgreSQL / SQLite**                          |
+| Real-time Communication | **SSE / WebSocket**                              |
+| Evaluation              | **ROUGE / BLEU / BERTScore + retrieval metrics** |
+| Numerical Tools         | **Python / SymPy**                               |
+| Programming Support     | **Python / MATLAB / C/C++**                      |
+| Deployment              | **Docker**                                       |
+| Development             | **Google Colab + local machine/server**          |
 
 ---
 

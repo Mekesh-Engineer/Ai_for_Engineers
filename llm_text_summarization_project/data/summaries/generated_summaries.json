@@ -3,7 +3,7 @@
     "id": "DOC_005",
     "title": "Graph Neural Networks for Zero-Day Cloud Intrusion Detection",
     "generated_summary": "Traditional signature-based Intrusion Detection Systems fail against zero-day exploits and multi-stage Advanced Persistent Threats . Security engineers constructed a spatial-temporal Graph Neural Network (GNN) framework that models cloud infrastructure as a dynamic graph . The framework achieved an Area Under the ROC Curve (AUC) of 0.982 on enterprise benchmark datasets with an inference latency under 15 milliseconds .",
-    "latency_seconds": 3.05,
+    "latency_seconds": 2.768,
     "metrics": {
       "rouge1_f1": 0.4301,
       "rouge1_precision": 0.3333,
@@ -24,7 +24,7 @@
     "id": "DOC_004",
     "title": "Transformer Attention Networks for Arrhythmia Detection from ECG",
     "generated_summary": "Traditional 12-lead electrocardiogram interpretation by cardiologists is constrained by fatigue and inter-observer variability . Researchers developed a multi-head Self-Attention Transformer network capable of processing raw 12 lead voltage streams at 500 Hz sampling rates . The self-attention heatmaps highlight clinically salient P-wave and QRS complex morphology .",
-    "latency_seconds": 2.694,
+    "latency_seconds": 2.614,
     "metrics": {
       "rouge1_f1": 0.4337,
       "rouge1_precision": 0.36,
@@ -45,7 +45,7 @@
     "id": "DOC_007",
     "title": "Satellite Multispectral AI for Deforestation and Carbon Sink Mapping",
     "generated_summary": "European Space Agency Sentinel-2 and NASA Landsat satellites capture terabytes of optical and near-infrared multispectral imagery daily . A hierarchical U-Net architecture integrated with temporal attention was deployed to segment rainforest canopy density, illegal logging roads, and wildfire burns across 5 million square kilometers of the Amazon .",
-    "latency_seconds": 2.399,
+    "latency_seconds": 2.254,
     "metrics": {
       "rouge1_f1": 0.2963,
       "rouge1_precision": 0.2449,

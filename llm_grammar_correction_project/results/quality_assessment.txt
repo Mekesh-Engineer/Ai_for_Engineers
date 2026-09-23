@@ -1,0 +1,59 @@
+EXPERIMENT 8: QUALITATIVE LINGUISTIC & SYNTACTIC ASSESSMENT
+===========================================================================
+
+Evaluation Dimensions:
+1. Grammatical Fidelity: Correct resolution of morphological, tense, and agreement errors.
+2. Semantic Preservation: Strict retention of domain technical facts without semantic drift.
+3. Stylistic Polish: Natural, professional flow adhering to formal academic English register.
+4. Over-Correction Prevention: Avoidance of unnecessary alterations to valid input text.
+
+---------------------------------------------------------------------------
+
+SENTENCE ID: 5 [Comparative Adjective & Preposition]
+  - Raw Input    : This algorithm is more superior than traditional methods.
+  - LLM Corrected: This algorithm is superior to traditional methods.
+  - Gold Reference: This algorithm is superior to traditional methods.
+  - Baseline Pred: This algorithm is superior to traditional methods.
+  - Diff Markup  : This algorithm is ~~more~~ **superior** ~~superior~~ **to** ~~than~~ **traditional** ~~traditional~~ **methods.** ~~methods.~~
+  - Scores       : Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+SENTENCE ID: 13 [Uncountable Noun]
+  - Raw Input    : We have received your informations regarding the firmware update.
+  - LLM Corrected: We have received your information regarding the firmware update.
+  - Gold Reference: We have received your information regarding the firmware update.
+  - Baseline Pred: We have received your information regarding the firmware update.
+  - Diff Markup  : We have received your ~~informations~~ **information** regarding the firmware update.
+  - Scores       : Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+SENTENCE ID: 8 [Preposition Redundancy & Verb Agreement]
+  - Raw Input    : The researcher discuss about the convergence rate of gradient descent.
+  - LLM Corrected: The researcher discusses the convergence rate of gradient descent.
+  - Gold Reference: The researcher discusses the convergence rate of gradient descent.
+  - Baseline Pred: The researcher discusses the convergence rate of gradient descent.
+  - Diff Markup  : The researcher ~~discuss~~ **discusses** ~~about~~ **the** ~~the~~ **convergence** ~~convergence~~ **rate** ~~rate~~ **of** ~~of~~ **gradient** ~~gradient~~ **descent.** ~~descent.~~
+  - Scores       : Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+SENTENCE ID: 11 [Clause Structure & Word Choice]
+  - Raw Input    : The model perform poorly because of it lacks of enough training data.
+  - LLM Corrected: The model performs poorly because it lacks sufficient training data.
+  - Gold Reference: The model performs poorly because it lacks sufficient training data.
+  - Baseline Pred: The model perform poorly because it lacks sufficient training data.
+  - Diff Markup  : The model ~~perform~~ **performs** poorly because ~~of~~ **it** ~~it~~ **lacks** ~~lacks~~ **sufficient** ~~of~~ **training** ~~enough~~ **data.** ~~training~~ ~~data.~~
+  - Scores       : Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+SENTENCE ID: 15 [Conditional Tense & Passive Voice]
+  - Raw Input    : If the voltage will increase, the semiconductor device can damaged.
+  - LLM Corrected: If the voltage increases, the semiconductor device can be damaged.
+  - Gold Reference: If the voltage increases, the semiconductor device can be damaged.
+  - Baseline Pred: If the voltage increases, the semiconductor device can be damaged.
+  - Diff Markup  : If the voltage ~~will~~ **increases,** ~~increase,~~ **the** ~~the~~ **semiconductor** ~~semiconductor~~ **device** ~~device~~ **can** ~~can~~ **be** damaged.
+  - Scores       : Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+SENTENCE ID: 7 [Conjunction Redundancy & Adverb Form]
+  - Raw Input    : Although it was raining heavy, but we continued the field test.
+  - LLM Corrected: Although it was raining heavily, we continued the field test.
+  - Gold Reference: Although it was raining heavily, we continued the field test.
+  - Baseline Pred: Although it was raining heavily, we continued the field test.
+  - Diff Markup  : Although it was raining ~~heavy,~~ **heavily,** ~~but~~ **we** ~~we~~ **continued** ~~continued~~ **the** ~~the~~ **field** ~~field~~ **test.** ~~test.~~
+  - Scores       : Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+

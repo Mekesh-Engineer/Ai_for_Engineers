@@ -68,11 +68,11 @@ const ProjectModule = {
       const childrenHtml = (node.children || []).map(child => this.renderTreeNode(child)).join('');
       return `
         <div class="my-0.5">
-          <div class="flex items-center text-xs text-indigo-300 font-semibold py-1 px-1.5 rounded hover:bg-slate-800/60 cursor-pointer">
+          <div class="flex items-center text-xs text-indigo-400 font-semibold py-1 px-1.5 rounded hover:bg-[var(--color-elevated)] cursor-pointer">
             <span class="mr-1.5">📁</span>
             <span>${node.name}</span>
           </div>
-          <div class="pl-4 border-l border-slate-700/60 my-0.5 space-y-0.5">
+          <div class="pl-4 border-l border-[var(--color-border)] my-0.5 space-y-0.5">
             ${childrenHtml}
           </div>
         </div>
@@ -80,12 +80,12 @@ const ProjectModule = {
     } else {
       const isCore = ['README.md', 'main.py', 'requirements.txt', 'config.json', 'model_config.json'].includes(node.name);
       return `
-        <div class="flex items-center justify-between text-xs text-slate-300 py-0.5 px-1.5 rounded hover:bg-slate-800/40 font-mono">
+        <div class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] py-0.5 px-1.5 rounded hover:bg-[var(--color-elevated)] font-mono">
           <span class="flex items-center">
-            <span class="mr-1.5 text-slate-500">📄</span>
-            <span class="${isCore ? 'text-indigo-200 font-medium' : ''}">${node.name}</span>
+            <span class="mr-1.5 text-[var(--color-text-muted)]">📄</span>
+            <span class="${isCore ? 'text-indigo-400 font-medium' : ''}">${node.name}</span>
           </span>
-          <span class="text-[10px] text-slate-500">${(node.size_bytes / 1024).toFixed(1)} KB</span>
+          <span class="text-[10px] text-[var(--color-text-muted)]">${(node.size_bytes / 1024).toFixed(1)} KB</span>
         </div>
       `;
     }
@@ -119,11 +119,11 @@ const ProjectModule = {
     container.innerHTML = '';
     this.filesList.forEach(f => {
       const item = document.createElement('label');
-      item.className = 'flex items-center space-x-2 text-xs text-slate-300 hover:text-white p-1 rounded hover:bg-slate-800/60 cursor-pointer';
+      item.className = 'flex items-center space-x-2 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] p-1 rounded hover:bg-[var(--color-elevated)] cursor-pointer';
       item.innerHTML = `
-        <input type="checkbox" value="${f.relative_path}" class="analysis-file-cb rounded border-slate-700 text-indigo-600 focus:ring-indigo-500" ${f.is_important ? 'checked' : ''}>
+        <input type="checkbox" value="${f.relative_path}" class="analysis-file-cb rounded border-[var(--color-border)] text-indigo-600 focus:ring-indigo-500" ${f.is_important ? 'checked' : ''}>
         <span class="truncate font-mono">${f.relative_path}</span>
-        ${f.is_important ? '<span class="text-[9px] px-1 rounded bg-indigo-950 text-indigo-400 border border-indigo-800">Core</span>' : ''}
+        ${f.is_important ? '<span class="text-[9px] px-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Core</span>' : ''}
       `;
       container.appendChild(item);
     });
@@ -192,7 +192,7 @@ const ProjectModule = {
 
         if (checksContainer) {
           checksContainer.innerHTML = data.heuristic_checks.map(c => `
-            <div class="p-3 rounded-xl border ${c.passed ? 'bg-emerald-950/30 border-emerald-800/60 text-emerald-300' : 'bg-amber-950/30 border-amber-800/60 text-amber-300'} flex items-center justify-between text-xs">
+            <div class="p-3 rounded-xl border ${c.passed ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-400'} flex items-center justify-between text-xs">
               <span class="font-medium flex items-center">
                 <span class="mr-1.5 font-bold">${c.passed ? '✓' : '⚠️'}</span>
                 ${c.check}
@@ -291,8 +291,7 @@ const ProjectModule = {
 
     switchTab('chat');
     if (window.ChatModule) {
-      window.ChatModule.selectedContextFiles = selectedFiles;
-      window.ChatModule.updateContextSelection();
+      window.ChatModule.updateContextSelection(selectedFiles);
       window.ChatModule.setPromptAndSend(`I have attached ${selectedFiles.length} core project files to the context. Can you review them and recommend architectural improvements?`);
       showToast(`Attached ${selectedFiles.length} project files to chat context`, 'success');
     }

@@ -86,8 +86,14 @@ def main():
     print(f"    - Mode 2 (Project Local Model): {'READY' if local_ready else 'NOT DETECTED'}")
     print("    - Web Frontend & API Backend:   INITIALIZING...")
 
-    host = "127.0.0.1"
-    port = 8000
+    try:
+        from backend.config.settings import settings
+        host = settings.server_host
+        port = settings.server_port
+    except Exception:
+        host = "127.0.0.1"
+        port = 8501
+
     url = f"http://{host}:{port}"
 
     open_browser_delayed(url, delay_seconds=1.5)

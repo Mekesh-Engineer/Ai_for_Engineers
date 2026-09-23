@@ -36,6 +36,21 @@ BUILTIN_PROMPTS = {
         "target_style": "paragraph",
         "length_constraint": "2-3 sentences"
     },
+    "few_shot": {
+        "name": "Few-Shot Demonstration Prompt (few_shot)",
+        "description": "In-context demonstration with paired technical document and executive reference summary.",
+        "template": (
+            "You are an expert technical summarizer. Study the demonstration example below, then summarize the target document using the same style, conciseness, and rigor.\n\n"
+            "### Demonstration Example:\n"
+            "Document: Deep convolutional neural networks were applied to automated optical inspection of semiconductor silicon wafers. The model identified micro-defects with 99.4% accuracy, outperforming human manual inspection by 3x in throughput.\n"
+            "Summary: Convolutional neural networks achieved 99.4% accuracy in semiconductor wafer defect detection, tripling inspection throughput compared to manual methods.\n\n"
+            "### Target Document:\n"
+            "{document}\n\n"
+            "Summary:"
+        ),
+        "target_style": "few_shot_paragraph",
+        "length_constraint": "2-3 sentences"
+    },
     "v2": {
         "name": "Structured Technical Summary (v2)",
         "description": "Formal engineering summary constrained to under 100 words focusing on methodology & outcomes.",
@@ -86,6 +101,7 @@ class PromptManager:
         """Load text prompt templates from directory if present."""
         mapping = {
             "prompt_v1.txt": "v1",
+            "prompt_few_shot.txt": "few_shot",
             "prompt_v2.txt": "v2",
             "best_prompt.txt": "best"
         }

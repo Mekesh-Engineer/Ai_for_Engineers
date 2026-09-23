@@ -1,13 +1,37 @@
 EXPERIMENT 8: SAMPLE SENTENCE CORRECTIONS COMPARISON
 =================================================================
 
-Sample #1 [Conditional Tense & Passive Voice]:
+Sample #5 [Comparative Adjective & Preposition]:
+  - Input Error : This algorithm is more superior than traditional methods.
+  - Corrected   : This algorithm is superior to traditional methods.
+  - Gold Ref    : This algorithm is superior to traditional methods.
+  - Lev Dist    : 0 chars | Match: True
+
+Sample #13 [Uncountable Noun]:
+  - Input Error : We have received your informations regarding the firmware update.
+  - Corrected   : We have received your information regarding the firmware update.
+  - Gold Ref    : We have received your information regarding the firmware update.
+  - Lev Dist    : 0 chars | Match: True
+
+Sample #8 [Preposition Redundancy & Verb Agreement]:
+  - Input Error : The researcher discuss about the convergence rate of gradient descent.
+  - Corrected   : The researcher discusses the convergence rate of gradient descent.
+  - Gold Ref    : The researcher discusses the convergence rate of gradient descent.
+  - Lev Dist    : 0 chars | Match: True
+
+Sample #11 [Clause Structure & Word Choice]:
+  - Input Error : The model perform poorly because of it lacks of enough training data.
+  - Corrected   : The model performs poorly because it lacks sufficient training data.
+  - Gold Ref    : The model performs poorly because it lacks sufficient training data.
+  - Lev Dist    : 0 chars | Match: True
+
+Sample #15 [Conditional Tense & Passive Voice]:
   - Input Error : If the voltage will increase, the semiconductor device can damaged.
   - Corrected   : If the voltage increases, the semiconductor device can be damaged.
   - Gold Ref    : If the voltage increases, the semiconductor device can be damaged.
   - Lev Dist    : 0 chars | Match: True
 
-Sample #2 [Conjunction Redundancy & Adverb Form]:
+Sample #7 [Conjunction Redundancy & Adverb Form]:
   - Input Error : Although it was raining heavy, but we continued the field test.
   - Corrected   : Although it was raining heavily, we continued the field test.
   - Gold Ref    : Although it was raining heavily, we continued the field test.

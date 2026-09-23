@@ -1,7 +1,7 @@
 """
 Automated Test Suite for Local LLM Studio (Grammar Correction & Text Rewriting)
 Verifies dual-mode LLM abstraction, Ollama integration, Local model detection,
-file proofreading pipeline, project tree analysis, and FastAPI endpoints.
+file proofreading pipeline, project tree analysis, model comparison, and FastAPI endpoints.
 """
 
 import os
@@ -39,14 +39,20 @@ class TestLocalLLMGrammarStudio(unittest.TestCase):
         self.assertIn("active_mode", data)
         print("  [+] Test 01 Passed: /api/health is operational.")
 
-    def test_02_models_overview_endpoint(self):
-        """Verify /api/models returns Ollama and Local Model inspection."""
+    def test_02_models_overview_and_list_endpoints(self):
+        """Verify /api/models and /api/models/list return Ollama and Local Model inspection."""
         res = self.client.get("/api/models")
         self.assertEqual(res.status_code, 200)
         data = res.json()
         self.assertIn("ollama", data)
         self.assertIn("local_model", data)
-        print("  [+] Test 02 Passed: /api/models returned dual-mode overview.")
+
+        res_list = self.client.get("/api/models/list")
+        self.assertEqual(res_list.status_code, 200)
+        list_data = res_list.json()
+        self.assertIn("ollama_models", list_data)
+        self.assertIn("local_models", list_data)
+        print("  [+] Test 02 Passed: /api/models and /api/models/list returned dual-mode overview.")
 
     def test_03_ollama_connectivity_and_test(self):
         """Verify Ollama provider reachability and diagnostic test."""
@@ -92,7 +98,18 @@ class TestLocalLLMGrammarStudio(unittest.TestCase):
         self.assertEqual(settings.active_mode, "ollama")
         print("  [+] Test 05 Passed: Hot model mode switching verified.")
 
-    def test_06_file_text_extraction_and_chunking(self):
+    def test_06_model_comparison_endpoint(self):
+        """Verify /api/models/compare endpoint executes dual inference."""
+        res = self.client.post("/api/models/compare", json={
+            "prompt": "He go to the laboratory yesterday for doing the experiment."
+        })
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertIn("ollama", data)
+        self.assertIn("local_model", data)
+        print("  [+] Test 06 Passed: /api/models/compare dual inference benchmark verified.")
+
+    def test_07_file_text_extraction_and_chunking(self):
         """Verify file extraction and token chunking across document formats."""
         sample_text = """
 He go to the laboratory yesterday for doing the experiment.
@@ -108,9 +125,9 @@ Neural network are very fast but it require GPU for speed up.
         long_text = "\n\n".join([f"Sentence {i}: He go to the laboratory yesterday for doing the experiment." for i in range(50)])
         chunks = file_service.chunk_text(long_text, max_chunk_tokens=500, overlap_tokens=50)
         self.assertGreater(len(chunks), 1)
-        print(f"  [+] Test 06 Passed: File extraction and chunking verified ({len(chunks)} chunks).")
+        print(f"  [+] Test 07 Passed: File extraction and chunking verified ({len(chunks)} chunks).")
 
-    def test_07_file_upload_and_proofread_api(self):
+    def test_08_file_upload_and_proofread_api(self):
         """Verify /api/files/upload and /api/files/proofread endpoints."""
         sample_content = b"He go to the laboratory yesterday for doing the experiment."
         res = self.client.post(
@@ -137,9 +154,9 @@ Neural network are very fast but it require GPU for speed up.
         self.assertIn("corrected_text", pdata)
         self.assertIn("diff_markup", pdata)
         self.assertIn("levenshtein_distance", pdata)
-        print("  [+] Test 07 Passed: /api/files/upload and /api/files/proofread verified.")
+        print("  [+] Test 08 Passed: /api/files/upload and /api/files/proofread verified.")
 
-    def test_08_project_tree_and_scanner(self):
+    def test_09_project_tree_and_scanner(self):
         """Verify /api/project/tree and /api/project/files."""
         tree_res = self.client.get("/api/project/tree")
         self.assertEqual(tree_res.status_code, 200)
@@ -151,9 +168,9 @@ Neural network are very fast but it require GPU for speed up.
         self.assertEqual(files_res.status_code, 200)
         files = files_res.json()
         self.assertGreater(len(files), 0)
-        print(f"  [+] Test 08 Passed: Project tree and context file scanner verified ({len(files)} files).")
+        print(f"  [+] Test 09 Passed: Project tree and context file scanner verified ({len(files)} files).")
 
-    def test_09_settings_and_profiles(self):
+    def test_10_settings_and_profiles(self):
         """Verify /api/settings and custom profile creation."""
         res = self.client.get("/api/settings")
         self.assertEqual(res.status_code, 200)
@@ -169,9 +186,9 @@ Neural network are very fast but it require GPU for speed up.
             "prompt": "You are a professional grammar editor."
         })
         self.assertEqual(prof_res.status_code, 200)
-        print("  [+] Test 09 Passed: Settings and profile management verified.")
+        print("  [+] Test 10 Passed: Settings and profile management verified.")
 
-    def test_10_chat_and_debugger_endpoints(self):
+    def test_11_chat_and_debugger_endpoints(self):
         """Verify chat endpoint with project context and debugger assistant."""
         # Test chat non-streaming
         chat_res = self.client.post("/api/chat", json={
@@ -192,7 +209,7 @@ Neural network are very fast but it require GPU for speed up.
         self.assertEqual(debug_res.status_code, 200)
         debug_data = debug_res.json()
         self.assertIn("diagnosis", debug_data)
-        print("  [+] Test 10 Passed: Chat and Debugger endpoints operational.")
+        print("  [+] Test 11 Passed: Chat and Debugger endpoints operational.")
 
 if __name__ == "__main__":
     unittest.main()

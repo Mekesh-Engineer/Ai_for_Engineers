@@ -1,21 +1,67 @@
-======================================================================
-GRAMMAR ERROR CORRECTION & REWRITING DIAGNOSTIC REPORT
-======================================================================
+================================================================================
+EXPERIMENT 8: AUTOMATED GRAMMAR CORRECTION & REWRITING EVALUATION REPORT
+================================================================================
+Total Sentences Evaluated : 6
+Exact Match Accuracy      : 100.00%
+Mean Levenshtein Distance : 0.00 characters
+Mean Token-Level F1-Score : 1.0000 (100.00%)
+Mean GLEU Score           : 1.0000 (100.00%)
+Mean Semantic Similarity  : 1.0000 (100.00%)
+Over-Correction Rate      : 0.00%
+Under-Correction Rate     : 0.00%
+--------------------------------------------------------------------------------
 
-1. PERFORMANCE BREAKDOWN BY ERROR CATEGORY:
-----------------------------------------------------------------------
-• Conditional Tense & Passive Voice   | Count: 1  | Match: 100.0% | Lev Dist: 0.0 | F1: 1.0
-• Conjunction Redundancy & Adverb Form | Count: 1  | Match: 100.0% | Lev Dist: 0.0 | F1: 1.0
+PROMPT ENGINEERING STRATEGIES BENCHMARK:
+--------------------------------------------------------------------------------
+Prompt Version       | Exact Match  | Token F1   | GLEU     | Latency 
+--------------------------------------------------------------------------------
+Prompt Minimal       | 100.0      % | 1.0000     | 1.0000   | 0.00   s
+Prompt Standard      | 100.0      % | 1.0000     | 1.0000   | 0.00   s
+Prompt Rewrite       | 100.0      % | 1.0000     | 1.0000   | 0.00   s
+Prompt Academic      | 100.0      % | 1.0000     | 1.0000   | 0.00   s
+Prompt Best          | 100.0      % | 1.0000     | 1.0000   | 0.00   s
+--------------------------------------------------------------------------------
 
-2. SUMMARY OF FAILURE PATTERNS:
-----------------------------------------------------------------------
-• Under-Correction Count : 0
-• Over-Correction Count  : 0
-• Non-Exact Matches      : 0
+NEURAL MODEL VS. RULE-BASED BASELINE COMPARISON:
+--------------------------------------------------------------------------------
+* Neural LLM (FLAN-T5): Token F1=1.0000, Exact Match=100.0%, GLEU=1.0000
+* Rule-Based Baseline: Token F1=0.9833, Exact Match=83.3%, GLEU=0.9512
+--------------------------------------------------------------------------------
 
-3. RECOMMENDATIONS FOR PROMPT OPTIMIZATION:
-----------------------------------------------------------------------
-• Use 'minimal' prompt template when preserving domain identifiers and exact terminology is critical.
-• Use 'standard' prompt template for general technical report proofreading to balance accuracy and fluency.
-• Use 'rewrite' / 'academic' prompt template when sentence restructuring and formal passive voice are desired.
-======================================================================
+PER-SENTENCE DETAILED BREAKDOWN:
+--------------------------------------------------------------------------------
+[5] Error Category: Comparative Adjective & Preposition
+  - Input Error : This algorithm is more superior than traditional methods.
+  - Prediction  : This algorithm is superior to traditional methods.
+  - Gold Ref    : This algorithm is superior to traditional methods.
+  - Score: Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+[13] Error Category: Uncountable Noun
+  - Input Error : We have received your informations regarding the firmware update.
+  - Prediction  : We have received your information regarding the firmware update.
+  - Gold Ref    : We have received your information regarding the firmware update.
+  - Score: Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+[8] Error Category: Preposition Redundancy & Verb Agreement
+  - Input Error : The researcher discuss about the convergence rate of gradient descent.
+  - Prediction  : The researcher discusses the convergence rate of gradient descent.
+  - Gold Ref    : The researcher discusses the convergence rate of gradient descent.
+  - Score: Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+[11] Error Category: Clause Structure & Word Choice
+  - Input Error : The model perform poorly because of it lacks of enough training data.
+  - Prediction  : The model performs poorly because it lacks sufficient training data.
+  - Gold Ref    : The model performs poorly because it lacks sufficient training data.
+  - Score: Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+[15] Error Category: Conditional Tense & Passive Voice
+  - Input Error : If the voltage will increase, the semiconductor device can damaged.
+  - Prediction  : If the voltage increases, the semiconductor device can be damaged.
+  - Gold Ref    : If the voltage increases, the semiconductor device can be damaged.
+  - Score: Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000
+
+[7] Error Category: Conjunction Redundancy & Adverb Form
+  - Input Error : Although it was raining heavy, but we continued the field test.
+  - Prediction  : Although it was raining heavily, we continued the field test.
+  - Gold Ref    : Although it was raining heavily, we continued the field test.
+  - Score: Exact=True | LevDist=0 | Token F1=1.0000 | GLEU=1.0000

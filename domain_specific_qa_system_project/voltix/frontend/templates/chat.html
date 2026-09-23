@@ -1,0 +1,867 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- ═══════════════════════════════════════════════════════
+     VOLTIX — ChatGPT-Inspired Conversational AI Shell
+     ═══════════════════════════════════════════════════════ -->
+
+<!-- Drag & Drop Overlay -->
+<div id="drag-overlay" class="drag-overlay" aria-hidden="true">
+  <div class="drag-overlay-inner">
+    <div class="drag-overlay-icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+    <div class="drag-overlay-title">Drop files to upload</div>
+    <div class="drag-overlay-sub">PDF · DOCX · TXT · MD · CSV · Code</div>
+  </div>
+</div>
+
+<!-- Mobile sidebar overlay -->
+<div id="sidebar-overlay" class="sidebar-overlay" aria-label="Close sidebar"></div>
+
+<!-- ─────────────────────────────────────────
+     APP SHELL
+     ───────────────────────────────────────── -->
+<div class="app-shell">
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <nav id="sidebar" class="sidebar" aria-label="Main navigation">
+
+    <!-- Sidebar Header: Brand + Collapse toggle -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo" aria-hidden="true">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
+      <span class="sidebar-logo-text">VOLTIX</span>
+      <button
+        id="btn-collapse-sidebar"
+        class="btn-icon"
+        style="margin-left:auto;"
+        title="Collapse sidebar (Ctrl+B)"
+        aria-label="Toggle sidebar"
+      >
+        <i class="fa-solid fa-sidebar-flip" style="font-size:12px;"></i>
+      </button>
+    </div>
+
+    <!-- New Chat -->
+    <div class="sidebar-new-chat">
+      <button id="btn-new-chat" class="btn-new-chat" title="New chat (Ctrl+N)" aria-label="Start new chat">
+        <i class="fa-solid fa-plus icon"></i>
+        <span class="sidebar-item-text">New chat</span>
+      </button>
+    </div>
+
+    <!-- Search Conversations -->
+    <div class="sidebar-search">
+      <div class="sidebar-search-wrap">
+        <i class="fa-solid fa-magnifying-glass sidebar-search-icon" aria-hidden="true"></i>
+        <input
+          type="search"
+          id="input-search-conv"
+          class="sidebar-search-input"
+          placeholder="Search chats…"
+          autocomplete="off"
+          aria-label="Search conversations"
+        >
+      </div>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="sidebar-content" id="sidebar-content">
+
+      <!-- Projects section -->
+      <div class="sidebar-section" id="projects-section">
+        <div class="sidebar-projects-toggle" id="btn-toggle-projects" role="button" aria-expanded="true">
+          <span class="sidebar-section-label">Projects</span>
+          <i class="fa-solid fa-chevron-down" id="projects-chevron" style="font-size:10px;color:var(--text-3);transition:transform 200ms;"></i>
+        </div>
+        <div id="projects-list" style="margin-top:4px;"></div>
+        <button id="btn-new-project" class="sidebar-item" style="color:var(--accent);font-size:12.5px;width:100%;text-align:left;background:none;border:none;cursor:pointer;" title="Create new project">
+          <i class="item-icon fa-solid fa-plus" style="color:var(--accent);"></i>
+          <span class="sidebar-item-text">New project</span>
+        </button>
+      </div>
+
+      <!-- Conversation History -->
+      <div class="sidebar-section" style="margin-top:8px;">
+        <div class="sidebar-section-label">Recent</div>
+        <div id="conversation-list" style="margin-top:4px;"></div>
+      </div>
+
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <!-- Status indicator -->
+      <button id="btn-system-status" class="sidebar-item" title="System status" aria-label="View system status">
+        <span id="status-dot-sidebar" class="status-dot checking item-icon" style="width:8px;height:8px;"></span>
+        <span class="sidebar-item-text" id="status-text-sidebar" style="font-size:12.5px;">Checking…</span>
+      </button>
+      <!-- Settings -->
+      <button id="btn-open-settings" class="sidebar-item" title="Settings" aria-label="Open settings">
+        <i class="item-icon fa-solid fa-sliders" style="color:var(--text-3);"></i>
+        <span class="sidebar-item-text" style="font-size:12.5px;">Settings</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════ MAIN VIEWPORT ═══════════════ -->
+  <div class="main-viewport" id="main-viewport">
+
+    <!-- Chat Header -->
+    <header class="chat-header" id="chat-header">
+      <!-- Hamburger / sidebar toggle -->
+      <button id="btn-toggle-sidebar" class="btn-icon" title="Toggle sidebar" aria-label="Toggle sidebar">
+        <i class="fa-solid fa-bars" style="font-size:15px;"></i>
+      </button>
+
+      <!-- Conversation title -->
+      <div class="chat-title" id="chat-header-title">
+        <span id="header-conv-title">VOLTIX</span>
+        <span id="header-project-badge" class="hidden" style="font-size:11px;color:var(--text-3);margin-left:8px;font-weight:400;"></span>
+      </div>
+
+      <!-- Model Selector -->
+      <div style="position:relative;flex-shrink:0;">
+        <button id="btn-model-dropdown" class="model-btn" aria-haspopup="listbox" aria-label="Select AI model">
+          <span class="model-dot auto" style="flex-shrink:0;"></span>
+          <span id="header-model-display" class="model-name-text">Auto</span>
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+
+        <!-- Model Dropdown Panel -->
+        <div id="model-dropdown-menu" class="model-dropdown" role="listbox" aria-label="Available models">
+          <!-- Auto -->
+          <div class="model-dropdown-group-label">Routing</div>
+          <div class="model-option active" data-value="auto" role="option" tabindex="0">
+            <span class="model-dot auto"></span>
+            <div>
+              <div class="model-option-name">⚡ Auto</div>
+              <div class="model-option-desc">Dynamic agentic routing</div>
+            </div>
+            <span class="model-badge" style="background:var(--accent-dim);color:var(--accent);font-size:10px;padding:2px 6px;border-radius:5px;">Auto</span>
+          </div>
+
+          <!-- Local models -->
+          <div class="model-dropdown-group-label">Local (Ollama)</div>
+          <div class="model-option" data-value="qwen2.5:7b" role="option" tabindex="0">
+            <span class="model-dot local"></span>
+            <div>
+              <div class="model-option-name">Qwen 2.5 7B</div>
+              <div class="model-option-desc">Local specialist</div>
+            </div>
+            <span class="model-badge local">Local</span>
+          </div>
+          <div class="model-option" data-value="qwen2.5:3b" role="option" tabindex="0">
+            <span class="model-dot local"></span>
+            <div>
+              <div class="model-option-name">Qwen 2.5 3B</div>
+              <div class="model-option-desc">Fast edge router</div>
+            </div>
+            <span class="model-badge local">Local</span>
+          </div>
+
+          <!-- Cloud models -->
+          <div class="model-dropdown-group-label">Cloud</div>
+          <div class="model-option" data-value="deepseek-v4-flash:cloud" role="option" tabindex="0">
+            <span class="model-dot cloud"></span>
+            <div>
+              <div class="model-option-name">DeepSeek V4 Flash</div>
+              <div class="model-option-desc">Speed & code</div>
+            </div>
+            <span class="model-badge cloud">Cloud</span>
+          </div>
+          <div class="model-option" data-value="gemma4:cloud" role="option" tabindex="0">
+            <span class="model-dot cloud"></span>
+            <div>
+              <div class="model-option-name">Gemma 4</div>
+              <div class="model-option-desc">Task planner</div>
+            </div>
+            <span class="model-badge cloud">Cloud</span>
+          </div>
+          <div class="model-option" data-value="gemma4:31b-cloud" role="option" tabindex="0">
+            <span class="model-dot cloud"></span>
+            <div>
+              <div class="model-option-name">Gemma 4 31B</div>
+              <div class="model-option-desc">Deep domain</div>
+            </div>
+            <span class="model-badge cloud">Cloud</span>
+          </div>
+          <div class="model-option" data-value="gpt-oss:120b-cloud" role="option" tabindex="0">
+            <span class="model-dot cloud"></span>
+            <div>
+              <div class="model-option-name">GPT-OSS 120B</div>
+              <div class="model-option-desc">Proof engine</div>
+            </div>
+            <span class="model-badge cloud">Cloud</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overflow menu -->
+      <div style="position:relative;flex-shrink:0;">
+        <button id="btn-overflow-menu" class="btn-icon" title="More options" aria-label="More options">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
+        <div id="overflow-menu" class="model-dropdown" style="right:0;left:auto;width:200px;display:none;" role="menu">
+          <div class="model-option" id="btn-open-context" role="menuitem" tabindex="0">
+            <i style="width:16px;color:var(--accent);" class="fa-solid fa-circle-info"></i>
+            <div class="model-option-name" style="font-size:13px;">Context</div>
+          </div>
+          <div class="model-option" id="btn-export-chat" role="menuitem" tabindex="0">
+            <i style="width:16px;color:var(--text-3);" class="fa-solid fa-download"></i>
+            <div class="model-option-name" style="font-size:13px;">Export</div>
+          </div>
+          <div class="model-option" id="btn-rename-chat" role="menuitem" tabindex="0">
+            <i style="width:16px;color:var(--text-3);" class="fa-solid fa-pen"></i>
+            <div class="model-option-name" style="font-size:13px;">Rename chat</div>
+          </div>
+          <div class="model-option" id="btn-delete-chat" role="menuitem" tabindex="0" style="color:var(--danger);">
+            <i style="width:16px;" class="fa-solid fa-trash-can"></i>
+            <div class="model-option-name" style="font-size:13px;color:var(--danger);">Delete chat</div>
+          </div>
+          <div style="margin:4px 10px;border-top:1px solid var(--border);"></div>
+          <div class="model-option" id="btn-run-diagnostics" role="menuitem" tabindex="0">
+            <i style="width:16px;color:var(--text-3);" class="fa-solid fa-stethoscope"></i>
+            <div class="model-option-name" style="font-size:13px;">Diagnostics</div>
+          </div>
+          <div class="model-option" id="btn-open-cmd-palette" role="menuitem" tabindex="0">
+            <i style="width:16px;color:var(--text-3);" class="fa-solid fa-terminal"></i>
+            <div class="model-option-name" style="font-size:13px;">Command palette</div>
+            <span style="margin-left:auto;font-size:10px;font-family:monospace;color:var(--text-3);">⌘K</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme toggle (desktop) -->
+      <button id="btn-theme-toggle" class="btn-icon" title="Toggle theme (Alt+T)" aria-label="Toggle light/dark theme">
+        <i id="theme-icon-sun" class="fa-solid fa-sun" style="color:#f59e0b;font-size:14px;"></i>
+        <i id="theme-icon-moon" class="fa-solid fa-moon" style="color:var(--accent);font-size:13px;display:none;"></i>
+      </button>
+    </header>
+
+    <!-- ─── CHAT MESSAGES AREA ─── -->
+    <div class="chat-messages-area" id="chat-messages-area" role="log" aria-live="polite" aria-label="Conversation">
+      <div class="messages-inner" id="messages-inner">
+
+        <!-- Welcome Screen (shown when no conversation) -->
+        <div id="welcome-screen" class="welcome-screen">
+          <div class="welcome-icon"><i class="fa-solid fa-bolt"></i></div>
+          <h1 class="welcome-title">How can VOLTIX help?</h1>
+          <p class="welcome-subtitle">Your AI engineering assistant for electrical &amp; electronics engineering</p>
+          <div class="welcome-chips" role="list">
+            <button class="welcome-chip" role="listitem" data-prompt="Calculate the line current drawn by a 15 kW, 415 V, 3-phase balanced load at 0.85 power factor lagging.">Calculate 3-phase power</button>
+            <button class="welcome-chip" role="listitem" data-prompt="Explain the working principle of a differential protection relay in a power transformer.">Explain transformer protection</button>
+            <button class="welcome-chip" role="listitem" data-prompt="Design a 24V-to-5V Buck converter at 50 kHz for a 2A load. Calculate duty cycle, inductor L, and output capacitor C.">Buck converter design</button>
+            <button class="welcome-chip" role="listitem" data-prompt="Generate MATLAB code to plot the torque-speed characteristic of a 3-phase induction motor.">Generate MATLAB code</button>
+            <button class="welcome-chip" role="listitem" data-prompt="A 4-pole, 50 Hz induction motor runs at 1440 rpm. Calculate synchronous speed, slip, rotor frequency, and rotor torque.">Induction motor slip &amp; torque</button>
+            <button class="welcome-chip" role="listitem" data-prompt="Solve the Laplace transform of f(t) = e^(-2t)*sin(5t) using SymPy.">Symbolic math (SymPy)</button>
+          </div>
+        </div>
+
+        <!-- Messages will be injected here by JS -->
+        <div id="messages-container"></div>
+
+      </div>
+
+      <!-- Scroll to bottom button -->
+      <button id="scroll-to-bottom-btn" class="scroll-to-bottom-btn" aria-label="Scroll to latest message">
+        <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i>
+        <span id="scroll-btn-label">New response</span>
+      </button>
+    </div>
+
+    <!-- ─── COMPOSER ─── -->
+    <div class="composer-wrap" id="composer-wrap">
+      <div class="composer" id="composer">
+
+        <!-- Attachment previews -->
+        <div class="composer-attachments" id="composer-attachments"></div>
+
+        <!-- Input row -->
+        <div class="composer-input-row" style="position:relative;">
+          <!-- Hidden file input -->
+          <input type="file" id="file-upload-input" class="hidden" accept=".txt,.md,.py,.js,.ts,.html,.css,.json,.yaml,.yml,.csv,.pdf,.docx" aria-label="Attach file">
+
+          <!-- Plus / attachment menu button -->
+          <div style="position:relative;">
+            <button id="btn-composer-menu" class="composer-plus-btn" title="Add attachment or tools" aria-label="Add attachment or tools" aria-haspopup="true">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <!-- Composer popover menu -->
+            <div id="composer-popover-menu" class="composer-popover" role="menu" aria-label="Attachment and tool options">
+              <div class="popover-item" id="btn-action-upload" role="menuitem" tabindex="0">
+                <span class="popover-icon"><i class="fa-solid fa-paperclip" style="color:var(--text-2);"></i></span>
+                <span>Upload file</span>
+              </div>
+              <div class="popover-item" id="btn-action-knowledge" role="menuitem" tabindex="0">
+                <span class="popover-icon"><i class="fa-solid fa-book-bookmark" style="color:var(--accent);"></i></span>
+                <span>Knowledge base</span>
+              </div>
+              <div class="popover-item" id="btn-action-solvers" role="menuitem" tabindex="0">
+                <span class="popover-icon"><i class="fa-solid fa-calculator" style="color:#10b981;"></i></span>
+                <span>Engineering solver</span>
+              </div>
+              <div class="popover-item" id="btn-action-workspaces" role="menuitem" tabindex="0">
+                <span class="popover-icon"><i class="fa-solid fa-folder-tree" style="color:#f59e0b;"></i></span>
+                <span>Project workspace</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Text area -->
+          <textarea
+            id="chat-input"
+            class="composer-textarea"
+            rows="1"
+            placeholder="Ask VOLTIX anything…"
+            aria-label="Message input"
+            autocomplete="off"
+            spellcheck="true"
+          ></textarea>
+
+          <!-- Send button -->
+          <button id="chat-send-btn" class="composer-send-btn" type="button" aria-label="Send message" disabled>
+            <i class="fa-solid fa-arrow-up" style="font-size:13px;"></i>
+          </button>
+
+          <!-- Stop button (hidden by default) -->
+          <button id="chat-stop-btn" class="composer-stop-btn hidden" type="button" aria-label="Stop generation">
+            <i class="fa-solid fa-stop" style="font-size:11px;"></i>
+          </button>
+        </div>
+
+        <!-- Composer footer: active model + mode indicator -->
+        <div class="composer-footer">
+          <div class="composer-footer-model">
+            <span id="composer-model-dot" class="status-dot" style="width:6px;height:6px;background:var(--accent);"></span>
+            <span id="composer-model-name" style="font-size:11.5px;color:var(--text-3);">Auto</span>
+          </div>
+          <span style="color:var(--border-md);">·</span>
+          <select id="chat-mode-select" style="background:transparent;border:none;color:var(--text-3);font-size:11.5px;font-family:inherit;outline:none;cursor:pointer;padding:0;" aria-label="Pedagogical mode">
+            <option value="Learn">Learn</option>
+            <option value="Practice">Practice</option>
+            <option value="Exam">Exam</option>
+            <option value="Viva">Viva</option>
+            <option value="Laboratory">Laboratory</option>
+            <option value="Research">Research</option>
+            <option value="Project">Project</option>
+          </select>
+          <span style="flex:1;"></span>
+          <span style="font-size:10.5px;color:var(--text-3);">Enter to send · Shift+Enter for new line</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .main-viewport -->
+</div><!-- end .app-shell -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     MODALS & DRAWERS
+     ═══════════════════════════════════════════════════════ -->
+
+<!-- ── Command Palette ── -->
+<div id="modal-command-palette" class="cmd-palette-backdrop" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="cmd-palette-panel">
+    <div class="cmd-palette-input-row">
+      <i class="fa-solid fa-magnifying-glass cmd-palette-search-icon" aria-hidden="true"></i>
+      <input type="text" id="cmd-palette-input" class="cmd-palette-input" placeholder="Type a command…" autocomplete="off" aria-label="Search commands">
+      <span class="cmd-palette-esc-badge">ESC</span>
+    </div>
+    <div id="cmd-palette-results" class="cmd-palette-results" role="listbox">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ── Engineering Solvers Modal ── -->
+<div id="modal-calc" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Engineering Solvers">
+  <div class="modal-panel" style="max-width:760px;max-height:90vh;">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fa-solid fa-calculator" style="color:var(--accent);"></i>
+        Engineering Solvers
+      </div>
+      <button class="modal-close-btn btn-close-modal" aria-label="Close solvers">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Solver tabs -->
+      <div class="solver-tabs-row" role="tablist">
+        <button class="solver-tab-btn active" data-target="form-3phase" role="tab" aria-selected="true">3-Phase Power</button>
+        <button class="solver-tab-btn" data-target="form-ohms" role="tab">Ohm's Law</button>
+        <button class="solver-tab-btn" data-target="form-motor" role="tab">Motor Slip</button>
+        <button class="solver-tab-btn" data-target="form-converter" role="tab">DC-DC Converter</button>
+        <button class="solver-tab-btn" data-target="form-pf" role="tab">PF Correction</button>
+        <button class="solver-tab-btn" data-target="form-battery" role="tab">Battery &amp; EV</button>
+        <button class="solver-tab-btn" data-target="form-pv" role="tab">Solar PV</button>
+        <button class="solver-tab-btn" data-target="form-sympy" role="tab">SymPy Math</button>
+        <button class="solver-tab-btn" data-target="form-unit" role="tab">Unit Converter</button>
+        <button class="solver-tab-btn" data-target="form-matlab" role="tab">MATLAB Gen</button>
+      </div>
+
+      <!-- 1. 3-Phase Power -->
+      <div id="form-3phase" class="solver-form-pane active" role="tabpanel">
+        <div class="solver-input-grid">
+          <div><label class="solver-label">Power (W)</label><input type="number" id="calc-3p-power" class="solver-input" placeholder="e.g. 15000"></div>
+          <div><label class="solver-label">Line Voltage V<sub>L</sub> (V)</label><input type="number" id="calc-3p-voltage" class="solver-input" value="415"></div>
+          <div><label class="solver-label">Line Current I<sub>L</sub> (A)</label><input type="number" id="calc-3p-current" class="solver-input" placeholder="Leave blank to calculate"></div>
+          <div><label class="solver-label">Power Factor cos(φ)</label><input type="number" id="calc-3p-pf" class="solver-input" step="0.01" value="0.85"></div>
+        </div>
+        <button id="btn-run-3phase" class="btn btn-primary btn-sm">Compute 3-Phase Values</button>
+      </div>
+
+      <!-- 2. Ohm's Law -->
+      <div id="form-ohms" class="solver-form-pane" role="tabpanel">
+        <div class="solver-input-grid">
+          <div><label class="solver-label">Voltage (V)</label><input type="number" id="calc-v" class="solver-input" placeholder="e.g. 230"></div>
+          <div><label class="solver-label">Current (A)</label><input type="number" id="calc-i" class="solver-input" placeholder="e.g. 10"></div>
+          <div><label class="solver-label">Resistance (Ω)</label><input type="number" id="calc-r" class="solver-input" placeholder="e.g. 23"></div>
+        </div>
+        <button id="btn-run-ohms" class="btn btn-primary btn-sm">Solve Ohm's Law</button>
+      </div>
+
+      <!-- 3. Motor Slip & Torque -->
+      <div id="form-motor" class="solver-form-pane" role="tabpanel">
+        <div class="solver-input-grid">
+          <div><label class="solver-label">Frequency (Hz)</label><input type="number" id="calc-motor-freq" class="solver-input" value="50"></div>
+          <div><label class="solver-label">Poles</label><input type="number" id="calc-motor-poles" class="solver-input" value="4"></div>
+          <div><label class="solver-label">Rotor Speed (RPM)</label><input type="number" id="calc-motor-speed" class="solver-input" value="1440"></div>
+          <div><label class="solver-label">Shaft Power (W)</label><input type="number" id="calc-motor-power" class="solver-input" value="7500"></div>
+        </div>
+        <button id="btn-run-motor" class="btn btn-primary btn-sm">Compute Motor Parameters</button>
+      </div>
+
+      <!-- 4. DC-DC Converter -->
+      <div id="form-converter" class="solver-form-pane" role="tabpanel">
+        <div class="solver-input-grid">
+          <div>
+            <label class="solver-label">Topology</label>
+            <select id="calc-conv-topology" class="solver-input">
+              <option value="buck">Buck (Step-Down)</option>
+              <option value="boost">Boost (Step-Up)</option>
+            </select>
+          </div>
+          <div><label class="solver-label">Switching Freq (Hz)</label><input type="number" id="calc-conv-freq" class="solver-input" value="50000"></div>
+          <div><label class="solver-label">Input Voltage (V)</label><input type="number" id="calc-conv-vin" class="solver-input" value="24"></div>
+          <div><label class="solver-label">Output Voltage (V)</label><input type="number" id="calc-conv-vout" class="solver-input" value="5"></div>
+        </div>
+        <button id="btn-run-conv" class="btn btn-primary btn-sm">Design Converter</button>
+      </div>
+
+      <!-- 5. PF Correction -->
+      <div id="form-pf" class="solver-form-pane" role="tabpanel">
+        <div class="solver-input-grid">
+          <div><label class="solver-label">Active Power (kW)</label><input type="number" id="calc-pf-kw" class="solver-input" value="100"></div>
+          <div><label class="solver-label">System Voltage (V)</label><input type="number" id="calc-pf-volt" class="solver-input" value="415"></div>
+          <div><label class="solver-label">Initial PF cos(φ₁)</label><input type="number" id="calc-pf-init" class="solver-input" step="0.01" value="0.75"></div>
+          <div><label class="solver-label">Target PF cos(φ₂)</label><input type="number" id="calc-pf-target" class="solver-input" step="0.01" value="0.98"></div>
+        </div>
+        <button id="btn-run-pf" class="btn btn-primary btn-sm">Size Capacitor Bank</button>
+      </div>
+
+      <!-- 6. Battery & EV -->
+      <div id="form-battery" class="solver-form-pane" role="tabpanel">
+        <div class="solver-input-grid">
+          <div><label class="solver-label">Pack Voltage (V)</label><input type="number" id="calc-bat-volt" class="solver-input" value="400"></div>
+          <div><label class="solver-label">Capacity (Ah)</label><input type="number" id="calc-bat-ah" class="solver-input" value="100"></div>
+        </div>
+        <button id="btn-run-battery" class="btn btn-primary btn-sm">Calculate Range &amp; Energy</button>
+      </div>
+
+      <!-- 7. Solar PV -->
+      <div id="form-pv" class="solver-form-pane" role="tabpanel">
+        <div class="solver-input-grid">
+          <div><label class="solver-label">Open-Circuit Voltage V<sub>oc</sub> (V)</label><input type="number" id="calc-pv-voc" class="solver-input" value="45.0"></div>
+          <div><label class="solver-label">Target Capacity (kW)</label><input type="number" id="calc-pv-target" class="solver-input" value="5.0"></div>
+        </div>
+        <button id="btn-run-pv" class="btn btn-primary btn-sm">Evaluate Solar Array</button>
+      </div>
+
+      <!-- 8. SymPy Math -->
+      <div id="form-sympy" class="solver-form-pane" role="tabpanel">
+        <div class="solver-input-grid">
+          <div>
+            <label class="solver-label">Operation</label>
+            <select id="calc-sympy-op" class="solver-input">
+              <option value="solve">Solve Equation</option>
+              <option value="diff">Derivative</option>
+              <option value="integrate">Integral</option>
+              <option value="laplace">Laplace Transform</option>
+              <option value="inv_laplace">Inverse Laplace</option>
+              <option value="tf">Transfer Function</option>
+            </select>
+          </div>
+          <div style="grid-column:span 2;">
+            <label class="solver-label">Expression</label>
+            <input type="text" id="calc-sympy-expr" class="solver-input font-mono" value="exp(-2*t)*sin(5*t)">
+          </div>
+        </div>
+        <button id="btn-run-sympy" class="btn btn-primary btn-sm">Compute Symbolic Math</button>
+      </div>
+
+      <!-- 9. Unit Converter -->
+      <div id="form-unit" class="solver-form-pane" role="tabpanel">
+        <div class="solver-input-grid">
+          <div><label class="solver-label">Value</label><input type="number" id="calc-unit-val" class="solver-input" value="15"></div>
+          <div><label class="solver-label">From</label><input type="text" id="calc-unit-from" class="solver-input font-mono" value="kW"></div>
+          <div><label class="solver-label">To</label><input type="text" id="calc-unit-to" class="solver-input font-mono" value="W"></div>
+        </div>
+        <button id="btn-run-unit" class="btn btn-primary btn-sm">Convert Units</button>
+      </div>
+
+      <!-- 10. MATLAB Generator -->
+      <div id="form-matlab" class="solver-form-pane" role="tabpanel">
+        <div class="solver-input-grid">
+          <div style="grid-column:span 2;">
+            <label class="solver-label">Script Type</label>
+            <select id="calc-matlab-type" class="solver-input">
+              <option value="torque_speed">Induction Motor Torque-Speed Plot</option>
+              <option value="bode">Control System Bode Frequency Response</option>
+              <option value="step">Step Transient Response</option>
+              <option value="simulink">Simulink DC Motor Model</option>
+            </select>
+          </div>
+        </div>
+        <button id="btn-run-matlab" class="btn btn-primary btn-sm">Generate MATLAB Code</button>
+      </div>
+
+      <!-- Solver Result Box -->
+      <div id="solver-result-box" class="solver-result-box">
+        <div class="solver-result-header">
+          <span class="solver-result-title">Output</span>
+          <button id="btn-copy-solver" class="btn btn-ghost btn-sm">
+            <i class="fa-regular fa-copy"></i> Copy
+          </button>
+        </div>
+        <pre id="solver-result-body" class="solver-result-body"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Project Manager Modal ── -->
+<div id="modal-project" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Project Manager">
+  <div class="modal-panel" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fa-solid fa-folder-tree" style="color:var(--accent);"></i>
+        Project Workspaces
+      </div>
+      <button class="modal-close-btn btn-close-modal" aria-label="Close project manager">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Create project -->
+      <div style="margin-bottom:16px;">
+        <label class="form-label">New Workspace</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="input-new-project-name" class="form-input" placeholder="e.g. GridFlowX, Solar Inverter" style="flex:1;">
+          <button id="btn-create-project" class="btn btn-primary btn-sm">Create</button>
+        </div>
+        <input type="text" id="input-new-project-desc" class="form-input" placeholder="Description (optional)" style="margin-top:8px;">
+      </div>
+      <div class="form-label">Existing Workspaces</div>
+      <div id="projects-list-container" style="max-height:320px;overflow-y:auto;"></div>
+    </div>
+    <!-- RAG Knowledge Base section -->
+    <div style="border-top:1px solid var(--border);padding:16px 20px;">
+      <div class="form-label">Knowledge Base (Active Workspace)</div>
+      <div id="file-drop-zone" class="drop-zone" style="margin-top:8px;">
+        <input type="file" id="file-input" class="hidden" accept=".txt,.md,.py,.js,.ts,.html,.css,.json,.yaml,.yml,.csv,.pdf,.docx">
+        <div class="drop-zone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <div class="drop-zone-text">Drop document or click to upload</div>
+        <div class="drop-zone-sub">PDF · DOCX · TXT · MD · CSV</div>
+      </div>
+      <div id="uploaded-files-history-list" style="margin-top:10px;max-height:160px;overflow-y:auto;font-size:12.5px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Settings Modal ── -->
+<div id="modal-settings" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Settings">
+  <div class="modal-panel" style="max-width:680px;max-height:88vh;">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fa-solid fa-sliders" style="color:var(--accent);"></i>
+        Settings
+      </div>
+      <button class="modal-close-btn btn-close-modal" aria-label="Close settings">&times;</button>
+    </div>
+    <div class="settings-layout" style="flex:1;overflow:hidden;">
+      <!-- Settings Nav -->
+      <div class="settings-nav">
+        <div class="settings-nav-item active" data-section="appearance">
+          <i class="settings-icon fa-solid fa-palette"></i> Appearance
+        </div>
+        <div class="settings-nav-item" data-section="ai">
+          <i class="settings-icon fa-solid fa-brain"></i> AI Behavior
+        </div>
+        <div class="settings-nav-item" data-section="models">
+          <i class="settings-icon fa-solid fa-server"></i> Models
+        </div>
+        <div class="settings-nav-item" data-section="benchmark">
+          <i class="settings-icon fa-solid fa-code-compare"></i> Benchmark
+        </div>
+        <div class="settings-nav-item" data-section="shortcuts">
+          <i class="settings-icon fa-solid fa-keyboard"></i> Shortcuts
+        </div>
+        <div class="settings-nav-item" data-section="about">
+          <i class="settings-icon fa-solid fa-circle-info"></i> About
+        </div>
+      </div>
+
+      <!-- Settings Content -->
+      <div class="settings-content" id="settings-content">
+
+        <!-- Appearance -->
+        <div id="settings-section-appearance" class="settings-pane">
+          <div class="settings-section-title">Appearance</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Theme</div>
+              <div class="settings-row-desc">Choose your preferred interface theme</div>
+            </div>
+            <select id="settings-theme-select" class="form-input" style="width:120px;">
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Compact mode</div>
+              <div class="settings-row-desc">Reduce padding for denser layout</div>
+            </div>
+            <label class="toggle" style="cursor:pointer;">
+              <input type="checkbox" id="setting-compact-mode">
+              <span class="toggle-track"></span>
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Reduce animations</div>
+              <div class="settings-row-desc">Disable non-essential motion</div>
+            </div>
+            <label class="toggle" style="cursor:pointer;">
+              <input type="checkbox" id="setting-reduce-motion">
+              <span class="toggle-track"></span>
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- AI Behavior -->
+        <div id="settings-section-ai" class="settings-pane hidden">
+          <div class="settings-section-title">AI Behavior</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Temperature <span id="temp-val" style="font-family:monospace;color:var(--accent);">0.1</span></div>
+              <div class="settings-row-desc">Controls response randomness (0 = deterministic, 1 = creative)</div>
+            </div>
+          </div>
+          <div style="padding:4px 0 12px;">
+            <input type="range" id="setting-temp" min="0" max="1" step="0.05" value="0.1" style="width:100%;">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Top-P Nucleus <span id="topp-val" style="font-family:monospace;color:var(--accent);">0.9</span></div>
+              <div class="settings-row-desc">Nucleus sampling probability threshold</div>
+            </div>
+          </div>
+          <div style="padding:4px 0 12px;">
+            <input type="range" id="setting-topp" min="0.1" max="1" step="0.05" value="0.9" style="width:100%;">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Enable Knowledge Retrieval (RAG)</div>
+              <div class="settings-row-desc">Use indexed documents to ground responses</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="setting-enable-rag" checked>
+              <span class="toggle-track"></span>
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+          <div style="margin-top:16px;">
+            <button id="save-settings-btn" class="btn btn-primary">Save AI Settings</button>
+          </div>
+        </div>
+
+        <!-- Models -->
+        <div id="settings-section-models" class="settings-pane hidden">
+          <div class="settings-section-title">Ollama &amp; Models</div>
+          <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+            <div class="settings-row-label">Ollama API Endpoint</div>
+            <div style="display:flex;gap:8px;width:100%;">
+              <input type="text" id="settings-ollama-url" class="form-input font-mono" value="http://localhost:11434" style="flex:1;">
+              <button id="test-ollama-btn" class="btn btn-secondary btn-sm">Test Connection</button>
+            </div>
+            <div id="ollama-test-result" class="hidden" style="width:100%;"></div>
+          </div>
+        </div>
+
+        <!-- Benchmark -->
+        <div id="settings-section-benchmark" class="settings-pane hidden">
+          <div class="settings-section-title">Dual-Model Benchmark</div>
+          <p style="font-size:13px;color:var(--text-3);margin-bottom:14px;">Run the same EEE question concurrently on two models to compare proof quality and depth.</p>
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <input type="text" id="compare-prompt-input" class="form-input" placeholder="Enter a benchmark question or derivation…" style="flex:1;" value="Derive the torque-speed equation of a 3-phase induction motor and state the condition for maximum torque.">
+            <button id="run-model-comparison-btn" class="btn btn-primary btn-sm">
+              <span id="compare-spinner" class="hidden" style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;"></span>
+              Run
+            </button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="border:1px solid var(--border-accent);border-radius:10px;padding:12px;background:var(--elevated);">
+              <div style="font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px;">Qwen 2.5 7B · Local</div>
+              <div id="compare-model1-output" class="markdown-body" style="font-size:12.5px;min-height:100px;color:var(--text-3);font-style:italic;">Click Run to execute.</div>
+            </div>
+            <div style="border:1px solid rgba(139,92,246,0.35);border-radius:10px;padding:12px;background:var(--elevated);">
+              <div style="font-size:11.5px;font-weight:600;color:#8b5cf6;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px;">DeepSeek V4 Flash · Cloud</div>
+              <div id="compare-model2-output" class="markdown-body" style="font-size:12.5px;min-height:100px;color:var(--text-3);font-style:italic;">Click Run to execute.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        <div id="settings-section-shortcuts" class="settings-pane hidden">
+          <div class="settings-section-title">Keyboard Shortcuts</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div class="settings-row"><span class="settings-row-label">New chat</span><kbd style="font-family:monospace;font-size:11px;padding:3px 8px;border-radius:5px;background:var(--elevated);border:1px solid var(--border-md);color:var(--text-2);">Ctrl + N</kbd></div>
+            <div class="settings-row"><span class="settings-row-label">Command palette</span><kbd style="font-family:monospace;font-size:11px;padding:3px 8px;border-radius:5px;background:var(--elevated);border:1px solid var(--border-md);color:var(--text-2);">Ctrl + K</kbd></div>
+            <div class="settings-row"><span class="settings-row-label">Toggle sidebar</span><kbd style="font-family:monospace;font-size:11px;padding:3px 8px;border-radius:5px;background:var(--elevated);border:1px solid var(--border-md);color:var(--text-2);">Ctrl + B</kbd></div>
+            <div class="settings-row"><span class="settings-row-label">Toggle theme</span><kbd style="font-family:monospace;font-size:11px;padding:3px 8px;border-radius:5px;background:var(--elevated);border:1px solid var(--border-md);color:var(--text-2);">Alt + T</kbd></div>
+            <div class="settings-row"><span class="settings-row-label">Engineering solvers</span><kbd style="font-family:monospace;font-size:11px;padding:3px 8px;border-radius:5px;background:var(--elevated);border:1px solid var(--border-md);color:var(--text-2);">Alt + S</kbd></div>
+            <div class="settings-row"><span class="settings-row-label">Send message</span><kbd style="font-family:monospace;font-size:11px;padding:3px 8px;border-radius:5px;background:var(--elevated);border:1px solid var(--border-md);color:var(--text-2);">Enter</kbd></div>
+            <div class="settings-row"><span class="settings-row-label">New line</span><kbd style="font-family:monospace;font-size:11px;padding:3px 8px;border-radius:5px;background:var(--elevated);border:1px solid var(--border-md);color:var(--text-2);">Shift + Enter</kbd></div>
+            <div class="settings-row"><span class="settings-row-label">Close dialogs</span><kbd style="font-family:monospace;font-size:11px;padding:3px 8px;border-radius:5px;background:var(--elevated);border:1px solid var(--border-md);color:var(--text-2);">Escape</kbd></div>
+          </div>
+        </div>
+
+        <!-- About -->
+        <div id="settings-section-about" class="settings-pane hidden">
+          <div class="settings-section-title">About VOLTIX</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+            <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#0891b2,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div>
+              <div style="font-size:18px;font-weight:700;letter-spacing:-0.02em;">VOLTIX</div>
+              <div style="font-size:12.5px;color:var(--text-3);">EEE Conversational AI &amp; Engineering Assistant</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div class="settings-row"><span class="settings-row-label">AI Models</span><span style="font-size:13px;color:var(--text-2);">6 local &amp; cloud models</span></div>
+            <div class="settings-row"><span class="settings-row-label">Engineering Solvers</span><span style="font-size:13px;color:var(--text-2);">10 deterministic calculators</span></div>
+            <div class="settings-row"><span class="settings-row-label">Knowledge System</span><span style="font-size:13px;color:var(--text-2);">FAISS dense vector RAG</span></div>
+            <div class="settings-row"><span class="settings-row-label">Symbolic Math</span><span style="font-size:13px;color:var(--text-2);">SymPy engine</span></div>
+            <div class="settings-row"><span class="settings-row-label">Backend</span><span style="font-size:13px;color:var(--text-2);">Flask + Ollama</span></div>
+          </div>
+          <div style="margin-top:16px;">
+            <button id="btn-run-diagnostics-inline" class="btn btn-secondary btn-sm">
+              <i class="fa-solid fa-stethoscope"></i> Run Diagnostics
+            </button>
+          </div>
+          <div id="diag-results-settings" style="margin-top:12px;"></div>
+        </div>
+
+      </div><!-- end settings-content -->
+    </div>
+  </div>
+</div>
+
+<!-- ── Context Drawer (right slide-in) ── -->
+<div id="context-drawer" class="context-drawer" role="complementary" aria-label="Conversation context">
+  <div class="drawer-header">
+    <span style="font-size:14px;font-weight:600;color:var(--text-1);">Context</span>
+    <button id="btn-close-context" class="btn-icon" aria-label="Close context drawer">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-row">
+      <span class="drawer-label">Model</span>
+      <span id="ctx-model" class="drawer-value font-mono" style="color:var(--accent);">Auto</span>
+    </div>
+    <div class="drawer-row">
+      <span class="drawer-label">Project</span>
+      <span id="ctx-project" class="drawer-value">Default Workspace</span>
+    </div>
+    <div class="drawer-row">
+      <span class="drawer-label">Knowledge</span>
+      <span id="ctx-knowledge" class="drawer-value">0 documents</span>
+    </div>
+    <div class="drawer-row">
+      <span class="drawer-label">Mode</span>
+      <span id="ctx-mode" class="drawer-value">Learn</span>
+    </div>
+    <div class="drawer-row">
+      <span class="drawer-label">Token estimate</span>
+      <span id="ctx-tokens" class="drawer-value font-mono" style="color:var(--warning);">~0 / 32k</span>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:14px;">
+      <div class="drawer-label" style="margin-bottom:10px;">Indexed Files</div>
+      <div id="ctx-files-list" style="font-size:12.5px;color:var(--text-3);">No files in active workspace.</div>
+    </div>
+  </div>
+</div>
+<div id="context-drawer-overlay" style="display:none;position:fixed;inset:0;z-index:44;background:rgba(0,0,0,0.35);" aria-hidden="true"></div>
+
+<!-- ── Sources / Citations Modal ── -->
+<div id="modal-sources" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Source citations">
+  <div class="modal-panel" style="max-width:600px;max-height:80vh;">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fa-solid fa-book-open-reader" style="color:var(--accent);"></i>
+        Grounded Source Citations
+      </div>
+      <button class="modal-close-btn btn-close-modal" aria-label="Close sources">&times;</button>
+    </div>
+    <div class="modal-body" id="sources-modal-body"></div>
+  </div>
+</div>
+
+<!-- ── Delete Conversation Confirmation ── -->
+<div id="modal-delete-confirm" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Confirm delete">
+  <div class="modal-panel" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--danger);">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Delete conversation?
+      </div>
+      <button class="modal-close-btn btn-close-modal" aria-label="Cancel delete">&times;</button>
+    </div>
+    <div class="modal-body" style="font-size:13.5px;color:var(--text-2);">
+      This action cannot be undone. The conversation and all its messages will be permanently deleted.
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-close-modal">Cancel</button>
+      <button id="btn-confirm-delete" class="btn btn-danger">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Diagnostics Modal ── -->
+<div id="modal-diagnostics" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="System diagnostics">
+  <div class="modal-panel" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fa-solid fa-stethoscope" style="color:var(--accent);"></i>
+        System Diagnostics
+      </div>
+      <button class="modal-close-btn btn-close-modal" aria-label="Close diagnostics">&times;</button>
+    </div>
+    <div class="modal-body" id="diagnostics-results">
+      <div style="color:var(--text-3);font-style:italic;font-size:13px;">Running diagnostics…</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-close-modal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Spinner keyframe (used by benchmark) -->
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+{% endblock %}

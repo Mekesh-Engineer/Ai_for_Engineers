@@ -59,18 +59,18 @@ pip install -r requirements.txt
 
 ---
 
-### 4. Port Conflict on Port 8000
+### 4. Port Conflict on Port 8501
 
 #### Symptom:
-`[Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000)`.
+`[Errno 10048] error while attempting to bind on address ('127.0.0.1', 8501)`.
 
 #### Resolution:
-Identify and kill existing process or start on alternative port:
+Identify and kill existing process or configure an alternative port:
 ```powershell
-netstat -ano | findstr :8000
+netstat -ano | findstr :8501
 taskkill /PID <PID> /F
 ```
-Or start Uvicorn directly on port 8001:
+Or start Uvicorn directly on custom port:
 ```powershell
-uvicorn backend.main:app --port 8001
+uvicorn backend.main:app --port 8502
 ```

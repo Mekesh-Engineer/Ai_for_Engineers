@@ -1,3 +1,5 @@
+import time
+import asyncio
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
@@ -14,7 +16,13 @@ class SwitchModelRequest(BaseModel):
     mode: str = Field(..., description="'ollama' or 'local_model'")
     model_name_or_path: Optional[str] = Field(None, description="Model identifier for Ollama or directory path for Local Model")
 
+class ModelComparisonRequest(BaseModel):
+    prompt: str = Field(..., description="Sentence or text prompt to evaluate across models")
+    system_prompt: Optional[str] = None
+
 @router.get("")
+@router.get("/overview")
+@router.get("/health")
 async def get_models_overview():
     """Retrieve full status of both Ollama and Local Model backends."""
     ollama_prov = OllamaProvider()
@@ -27,6 +35,25 @@ async def get_models_overview():
         "active_mode": settings.active_mode,
         "ollama": ollama_info,
         "local_model": local_info
+    }
+
+@router.get("/list")
+async def list_available_models():
+    """List all detected models across both Ollama and local storage."""
+    ollama_prov = OllamaProvider()
+    local_prov = LocalModelProvider()
+
+    ollama_models = []
+    if await ollama_prov.is_available():
+        models_data = await ollama_prov.list_models()
+        ollama_models = [m["name"] for m in models_data]
+
+    local_models = local_prov.scan_models()
+
+    return {
+        "active_mode": settings.active_mode,
+        "ollama_models": ollama_models,
+        "local_models": local_models
     }
 
 @router.post("/test-ollama")
@@ -63,4 +90,41 @@ async def switch_model_mode(req: SwitchModelRequest):
         "active_mode": settings.active_mode,
         "active_ollama_model": settings.active_ollama_model,
         "active_local_model_path": settings.active_local_model_path
+    }
+
+@router.post("/compare")
+async def compare_models_endpoint(req: ModelComparisonRequest):
+    """Execute side-by-side inference across Ollama and Project Local Model."""
+    ollama_prov = OllamaProvider()
+    local_prov = LocalModelProvider()
+
+    ollama_out = {"text": "Ollama service unavailable", "duration": 0.0}
+    local_out = {"text": "Local model unavailable", "duration": 0.0}
+
+    # Run Ollama inference
+    t0 = time.time()
+    try:
+        res = await ollama_prov.generate(prompt=req.prompt, system_prompt=req.system_prompt)
+        ollama_out = {
+            "text": res.text,
+            "duration": round(time.time() - t0, 2)
+        }
+    except Exception as e:
+        ollama_out = {"text": f"Ollama error: {str(e)}", "duration": round(time.time() - t0, 2)}
+
+    # Run Local Model inference
+    t1 = time.time()
+    try:
+        res = await local_prov.generate(prompt=req.prompt, system_prompt=req.system_prompt)
+        local_out = {
+            "text": res.text,
+            "duration": round(time.time() - t1, 2)
+        }
+    except Exception as e:
+        local_out = {"text": f"Local model error: {str(e)}", "duration": round(time.time() - t1, 2)}
+
+    return {
+        "prompt": req.prompt,
+        "ollama": ollama_out,
+        "local_model": local_out
     }
